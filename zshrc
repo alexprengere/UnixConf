@@ -98,9 +98,9 @@ bindkey '[6~' history-search-forward  # PgDn
 # Prompt couleur gauche (la couleur n'est pas la même pour le root et
 # pour les simples utilisateurs)
 if [ "`id -u`" -eq 0 ]; then
-        PS1="%{[31m%}%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
+    PS1="%{[31m%}%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
 else
-        PS1="%{[33m%}%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
+    PS1="%{[33m%}%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
 fi
 
 PS2="%{[0;30m%}%n%{[0;35m%}@%{[0;30m%}%m %{[0;30m%}%1~ %{[1;31m%}> %{[0m%}"
@@ -108,9 +108,8 @@ PS3="%{[1;36m%}?# %{[0m%}"
 PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
 
 # Prompt couleur droit
-RPS1='%{[30;1m%}%~ %{[0;31m%}$CONNECTIONS %{[0;36m%}%*%{[0m%}'
+RPS1='%{[30;1m%}%~ $COLOR_CONNECTIONS %{[0;36m%}%*%{[0m%}'
 RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
-
 
 # Console linux, dans un screen ou un rxvt
 if [ "$TERM" = "linux" -o "$TERM" = "screen" -o "$TERM" = "rxvt" ]
@@ -308,11 +307,6 @@ setopt hist_find_no_dups
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/.local/bin
 
-
-# Pour des jolies couleurs dans le man, commenté car bugue un peu, cf alias
-#export PAGER=`which most`
-
-# Pour que less roxxxxx
 # Less Colors for Man Pages
 export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
 export LESS_TERMCAP_md=$'\E[01;38;5;74m'    # begin bold
@@ -322,12 +316,9 @@ export LESS_TERMCAP_so=$'\E[1;31;5;246m'    # begin standout-mode - info box
 export LESS_TERMCAP_ue=$'\E[0m'            # end underline
 export LESS_TERMCAP_us=$'\E[04;33;5;146m'    # begin underline
 
-# Pour visudo :)
+# visudo :)
 #export EDITOR=`which vi`
 #export VISUAL=`which vi`
-
-# Pour le serveur CVS, en rootjail dans /var/lib/cvsd
-#export CVSROOT=:pserver:alexcvs@localhost:/myrepository
 
 # Just in case
 #setxkbmap fr
@@ -346,10 +337,6 @@ zstyle ':completion:*' use-compctl false
 autoload -U compinit
 compinit
 
-# Complétion de bash
-#autoload -U bashcompinit
-#bashcompinit
-
 # Ameliore l'affichage
 zstyle ':completion:*:descriptions' format '%B%d%b'
 zstyle ':completion:*:warnings' format '%BNothing in %d%b'
@@ -361,11 +348,6 @@ zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p
 # comme la recherche d'un paquet aptitude install moz<tab>
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zsh_cache
-
-# Plus intelligent avec rm cp mv, en fait débile, ignore les répertoires
-#zstyle ':completion:*:rm:*' ignore-line yes
-#zstyle ':completion:*:mv:*' ignore-line yes
-#zstyle ':completion:*:cp:*' ignore-line yes
 
 # Completion pour kill avec couleurs
 zstyle ':completion:*:processes' command 'ps -au$USER'
@@ -386,18 +368,9 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
 # 7. Divers #
 #############
 
-# Term lock
-#vlock
-
 # Load les prompts par défauts {prompt -l,p}
 autoload -U promptinit
 promptinit
-
-# Display uptime
-#uptime
-
-# You know what it is
-#fortune -o /usr/share/games/fortunes/bashfr
 
 # Suggestion de commandes dans le cas de programmes non trouvés
 # cat /etc/zsh_command_not_found
@@ -411,6 +384,12 @@ function my_precmd() {
     # Update this variables, which are displayed in the prompt
     CONNECTIONS=`who |grep -v $USER |wc -l`
 
+    if [ "$CONNECTIONS" -eq 0 ]; then
+        COLOR_CONNECTIONS="%{[0;37m%}$CONNECTIONS"
+    else
+        COLOR_CONNECTIONS="%{[0;31m%}$CONNECTIONS"
+    fi
+
     (($?)) && [ -n "$command" ] && [ -x /usr/lib/command-not-found ] && {
         whence -- "$command" >& /dev/null ||
         /usr/bin/python /usr/lib/command-not-found -- "$command"
@@ -418,26 +397,21 @@ function my_precmd() {
     }
 }
 
-# Liquid prompt
-LIQUID_PROMPT=~/.liquidprompt
-LIQUID_CONFIG=~/.liquidpromptrc
-
-if [ -f "$LIQUID_PROMPT" ];then
-    if [ -f "$LIQUID_CONFIG" ]; then
-        source "$LIQUID_PROMPT"
+# Aliases and liquid prompt
+_one_source() 
+{
+    if [ -f "$1" ]; then
+        source $1
     else
-        echo "No file $LIQUID_CONFIG"
+        echo "File $1 not found"
     fi
-else
-    echo "No file $LIQUID_PROMPT"
-fi
+}
 
-## Alias private
-PRIVATE_ALIASES=~/.shell.aliases
+_all_source()
+{
+    _one_source ~/.liquidprompt
+    _one_source ~/.shell.aliases
+}
 
-if [ -f "$PRIVATE_ALIASES" ]; then
-    source "$PRIVATE_ALIASES"
-else
-    echo "No aliases file $PRIVATE_ALIASES"
-fi
+_all_source
 
