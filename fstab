@@ -1,0 +1,22 @@
+# Sample partial fstab for vbox
+
+# if you are running debian like, you might have to install 
+# sudo apt-get install nfs-common 
+# 
+# if running a fedora:
+# sudo yum install nfs-utils nfs-utils-lib
+# 
+# Check that portmap is running
+# rpcinfo -p
+# 
+# Otherwise install and run rpcbind
+# sudo yum install rpcbind
+# sudo rpcbind
+machine:/somedir                                /mounting/point       nfs  soft,tcp         0 0
+
+# Mounting shared folder
+# Create a shared folder inside Virtualbox
+# try 
+# sudo mount -t vboxsf Work /media/Work
+# For permanent effect, uncomment:
+#Work                                                /media/Work           vboxsf defaults 0 0

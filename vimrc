@@ -1,0 +1,209 @@
+"~/.vimrc ou /etc/vim/vimrc
+"Fichier de configuration principal de vim 7
+"Révision -- 4 septembre 2009
+
+filetype indent plugin on       "Active les plugins de vim
+set nocompatible                "Desactive le mode de comptabilité
+
+set encoding=utf-8              "Encodage
+set fileencoding=utf-8
+
+syntax on                       "Active la coloration syntaxique
+set title                       "Set the terminal window title
+set ruler                       "Show lines and columns
+set number                      "Active l'affichage des numéros
+set mouse=a                     "Active la souris
+set backspace=indent,eol,start  "Makes backspace key more powerful
+set wrap                        "Retour à la ligne automatique, pas de scroll horizontal
+set showcmd                     "Affiche les commandes dans le buffer en mode normal
+set showmode                    "Affiche le mode dans le buffer
+set showmatch                   "Affiche les délimiteurs fermants correspondants
+set showfulltag                 "Get function usage help automatically
+set list                        "Affiche les marques invisibles
+set listchars=tab:▶-            "Convert tabs in nice symbols
+set cursorline                 "Active une barre horizontale pour indiquer le curseur
+"set cursorcolumn               "Active une barre verticale
+"set visualbell                 "Use visual bell instead of beeping
+
+set ttyfast                     "Améliore le rendu
+set background=dark             "Couleurs claires pour fond de terminal foncé, change le theme
+colorscheme koehler             "Colorscheme qui roxx
+
+set autoindent                  "Copy indent from current line when starting a new line
+set smartindent                 "Also recognizes some C syntax to manage the indent
+"set cindent                    "More clever and is configurable to different indenting styles
+
+set hlsearch                    "Met en surbrillance les résultats d'une recherche
+set incsearch                   "Active la recherche incrémentale
+set ignorecase                  "Ignore la casse lors de la recherche
+set smartcase                   "Sauf si la recherche est cassée
+"set gdefault                   "Add /g when using %s
+
+set shiftwidth=4                "Tabs should be converted to a group of 8 spaces.
+set tabstop=4                   "Avec << et >>
+set softtabstop=4               "Causes backspace to delete 8 spaces=converted <TAB>
+set expandtab                   "Replaces a <TAB> with spaces
+set smarttab                    "Uses shiftwidth instead of tabstop at start of lines
+
+set wildmenu                                    "Autocompletion qui roxxe en mode commande (:)
+set wildmode=list:longest,list:full             "Options qui vont bien
+set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when completing files
+
+"Code folding za-zR-zM
+"function! MyFoldFunction()                      "Definition personnelle d'une fonction de fold
+"        let line = getline(v:foldstart)
+"        let sub = substitute(line,'/\*\|\*/\|^\s+', '', 'g')
+"        let lines = v:foldend - v:foldstart + 1
+"        return v:folddashes.sub.'...'.lines.' lines...'.getline(v:foldend)
+"endfunction
+"set foldmethod=syntax                   "Fold par syntaxe
+"set foldtext=MyFoldFunction()           "Fold avec MyFoldFunction
+set foldlevel=100                       "Ouvrir tous les folds à l'ouverture du fichier
+                                        "Surchargé par le plugin latex-suite pour les .tex
+set foldcolumn=2                       "Barre à gauche de l'écran et gérer les folds avec
+" Make folding indent sensitive
+set foldmethod=indent
+
+" Highlight lines too long
+augroup aspect
+    autocmd BufRead * highlight OverLength ctermbg=darkgray guibg=darkgray
+    autocmd BufRead * match OverLength /\%120v.*/
+    autocmd BufRead * highlight RedundantSpaces ctermbg=darkblue guibg=darkblue
+    autocmd BufRead * 2match RedundantSpaces /\s\+$\| \+\ze\t/
+augroup END
+
+"Modification de l'autocompletion automatique pour faire apparaitre les sha-bangs
+iab #i #include
+iab #d #define
+iab #b #!/bin/bash
+iab #s #!/bin/sh
+iab #r #!/usr/bin/ruby
+iab #y #!/usr/bin/python
+iab #l #!/usr/bin/perl
+
+"Modification du comportement de vim en fonction du type de langage rencontré
+autocmd BufRead  *.html,*.htm set ft=html
+autocmd BufRead  *.php,*.php3 set ft=php
+autocmd BufRead  *.c,*.h set ft=c
+autocmd FileType c,cpp,slang set cindent
+autocmd FileType make set noexpandtab shiftwidth=8
+autocmd BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
+autocmd BufRead  *.sh set ft=sh
+autocmd BufRead  *.pl set ft=perl
+"autocmd BufRead *.tex set ft=tex               "Documents latex, surchargé par le plugin latex-suite
+augroup filetypedetect
+        autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
+augroup END
+au BufRead,BufNewFile *.psp set filetype=psplang
+au! Syntax psplang source $HOME/.vim/indent/psp.vim
+
+
+"Vim jump to the last position when reopening a file
+autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+"Reglage de la correction orthographique (z= pour afficher les propositions)
+set spelllang=en,fr     "Dictionnaires par défaut
+set spellsuggest=7      "Nombre de propositions par défaut
+"set spell              "Désactivé à l'ouverture du document
+
+"Remappage des touches classiques -- help/recherche/orthographe/numeros/viewports
+nmap <F2> :vertical botright help 
+nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
+nmap <F6> :set spell!   <cr> :set spell?   <cr>
+nmap <F8> :set nu!      <cr> :set nu?      <cr>
+nmap <F9> <c-w>w
+map  <F2> :vertical botright help 
+map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
+map  <F6> :set spell!   <cr> :set spell?   <cr>
+map  <F8> :set nu!      <cr> :set nu?      <cr>
+map  <F9> <c-w>w
+imap <F2> <esc> :vertical botright help 
+imap <F3> <esc> :set hlsearch!<cr> :set hlsearch?<cr>
+imap <F6> <esc> :set spell!   <cr> :set spell?   <cr>
+imap <F8> <esc> :set nu!      <cr> :set nu?      <cr>
+imap <F9> <esc><c-w>w
+
+"Navigation entre onglets
+"nmap <c-b> :tabprevious<cr>
+"nmap <c-n> :tabnext    <cr>
+"nmap <c-t> :tabnew     <cr>
+map  <c-b> :tabprevious<cr>
+map  <c-n> :tabnext    <cr>
+map  <c-t> :tabnew     <cr>
+"imap <c-b> <esc> :tabprevious<cr>
+"imap <c-n> <esc> :tabnext    <cr>
+"imap <c-t> <esc> :tabnew     <cr>
+
+"Manipulation du buffer
+noremap ,b :bNext  <cr>
+noremap ,n :bnext  <cr>
+noremap ,d :bdelete<cr>
+noremap ,a :badd 
+noremap ,s :buffers<cr>
+
+"Remappage pour les plugins taglist et Nerdtree
+let g:tagbar_left = 1
+noremap ,o :TagbarToggle  <cr>
+noremap ,l :TlistToggle   <cr>
+noremap ,t :NERDTreeToggle<cr>
+
+let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
+
+"Change highlight line style
+highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
+highlight cursorcolumn  term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
+
+"Modification des couleurs du theme
+"Effacement des anciennes configurations
+highlight clear WhitespaceEOL
+highlight clear Folded
+highlight clear FoldColumn
+highlight clear Search
+highlight clear Comment
+highlight clear Statusline
+highlight clear StatusLineNC
+highlight clear VertSplit
+highlight clear wildmenu
+highlight clear spellbad
+highlight clear spelllocal
+highlight clear spellcap
+highlight clear spellrare
+highlight clear TabLineSel
+highlight clear TabLine
+highlight clear TabLineFill
+
+"Affiche en rouge les espaces et tabulations de fin de ligne
+"highlight WhitespaceEOL ctermbg=blue
+"match     WhitespaceEOL /\s\+$/
+
+"Gestion des folds -- fold replié + foldcolumn dans la marge de gauche
+highlight Folded        term=bold cterm=bold ctermfg=brown gui=bold guifg=brown
+highlight FoldColumn    term=bold cterm=bold ctermfg=white gui=bold guifg=white
+
+"Highlight des recherches
+highlight Search        term=bold cterm=bold ctermfg=white ctermbg=darkgreen guifg=white guibg=darkgreen
+
+"Commentaires
+highlight Comment       term=bold cterm=bold ctermfg=darkgrey guifg=darkgrey
+
+"Statusline courante et non-courante, highlight du wildmenu
+highlight StatusLine    term=bold cterm=bold ctermfg=white    ctermbg=darkgrey gui=bold guifg=white    guibg=darkgrey
+highlight StatusLineNC  term=bold cterm=bold ctermfg=grey     ctermbg=darkgrey gui=bold guifg=grey     guibg=darkgrey
+highlight Vertsplit     term=bold cterm=bold ctermfg=white                     gui=bold guifg=white
+highlight wildmenu      term=bold cterm=bold ctermfg=white    ctermbg=darkblue gui=bold guifg=white    guibg=darkblue
+
+"Correction orthographique
+"spellbad word not recognized
+"spelllocal wrong spelling for selected region (en_au, en_ca, ...)
+"spellcap word not capitalised
+"spellrare rare words
+highlight spellbad      term=bold cterm=bold ctermfg=white ctermbg=darkred     gui=bold guifg=white guibg=darkred
+highlight spelllocal    term=bold cterm=bold ctermfg=white ctermbg=brown       gui=bold guifg=white guibg=brown
+highlight spellcap      term=bold cterm=bold ctermfg=white ctermbg=darkmagenta gui=bold guifg=white guibg=darkmagenta
+highlight spellrare     term=bold cterm=bold ctermfg=white ctermbg=darkblue    gui=bold guifg=white guibg=darkblue
+
+"Barre de tabulation -- sélectionné/autres onglets/barre de fond
+highlight TabLineSel    term=bold cterm=bold ctermfg=white                  gui=bold guifg=white
+highlight TabLine       term=bold cterm=bold ctermfg=darkblue ctermbg=white gui=bold guifg=darkblue guibg=white
+highlight TabLineFill   term=bold cterm=bold                  ctermbg=white gui=bold                guibg=white
+

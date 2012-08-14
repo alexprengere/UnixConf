@@ -1,0 +1,8 @@
+#
+# Private aliases
+#
+#alias somealias='ssh user@host'
+#alias somealias='smbclient //host/dir -U user'
+#alias somealias='sudo mount -t smbfs -o user=USER //host/dir /mount/point'
+#alias somealias='VBoxManage startvm a_vm &'
+#alias conky='conky -c ~/.conkyrc  > /dev/null 2>&1 &'

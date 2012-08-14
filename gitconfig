@@ -1,0 +1,15 @@
+[user]
+    name = Name
+    email = name@gmail.com
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+    blame = auto
+[alias]
+    ci = commit
+    co = checkout
+    st = status
+    br = branch
+    ds = diff --stat
+    logg = log --graph --decorate --pretty=oneline --abbrev-commit --all

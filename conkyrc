@@ -1,0 +1,82 @@
+alignment top_left
+background no
+border_width 1
+cpu_avg_samples 2
+default_color white 
+default_outline_color white
+default_shade_color white
+double_buffer yes
+draw_borders no
+draw_graph_borders yes
+draw_outline no
+draw_shades no
+gap_x 25
+gap_y 45 
+maximum_width 400
+max_port_monitor_connections 64
+max_specials 512
+max_user_text 16384
+minimum_size 300 10
+net_avg_samples 2
+no_buffers yes
+out_to_console no
+own_window_colour black
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+own_window_transparent yes
+own_window_type normal
+own_window yes
+stippled_borders 2
+update_interval 1
+uppercase no
+use_spacer right
+use_xft yes
+xftalpha 0.8
+xftfont  Arial:size=9
+
+
+TEXT
+${color #CC0099}${font Arial:style=Bold:pixelsize=13}$alignc$nodename - $sysname $kernel on $machine
+ ${color}$stippled_hr
+${font Arial:style=Bold:pixelsize=12}$alignc${time %a,} ${time %e %m %G} - ${time %T}$font
+${font Arial:style=Bold:pixelsize=12}${alignc}Ressources :$font
+${color #777777}Uptime :$color $uptime ${tab 75}${color #777777}Load :$color $loadavg$alignr ${color #777777}T =${color} ${hwmon 0 temp 1}C et ${hwmon 1 temp 1}C
+${color #777777}CPU (${freq_dyn_g cpu}GHz) : ${color #FC6300} ${cpu}% ${tab 50}${cpubar cpu}
+$color ${cpugraph 990000 ffffff 00A2FF}
+${color #777777}Usage RAM :${color #0099CC} $mem / $memmax ${tab 70}$memperc% ${membar}
+${color #777777}Usage Swap :${color #0099CC} $swap / $swapmax ${tab 70}$swapperc % ${swapbar}
+${color #777777}Processors :$color $processes ${tab 50}${color #777777}Running :$color $running_processes$alignr${color #777777}Battery :$color $battery
+$color$stippled_hr
+${font Arial:style=Bold:pixelsize=12}${alignc}Public IP : ${execi 60 ~/.conky/ip.sh}
+${color #777777}Wireless Network (IP : ${addr wlan0}) :$font
+Down : ${totaldown eth1} (Now : ${downspeed wlan0}k/s) ${alignr}Up : ${totalup wlan0} (Now : ${upspeed wlan0}k/s)
+$color${downspeedgraph wlan0 32,199 ff0000 0000ff} $color${upspeedgraph wlan0 32,199 0000ff ff0000}
+${font Arial:style=Bold:pixelsize=12}${color #777777}Ethernet Network (IP ${addr eth0}) :$font
+Down : ${totaldown eth0} (Now : ${downspeed eth0}k/s) ${alignr}Up : ${totalup eth0} (Now : ${upspeed eth0}k/s)
+$color${downspeedgraph eth0 32,199 ff0000 0000ff} $color${upspeedgraph eth0 32,199 0000ff ff0000}
+${color grey}Gateway :$color ${gw_ip}
+$color$stippled_hr
+${font Arial:style=Bold:pixelsize=12}${color #777777}Hard drive :$font
+${color}System / :${tab 30}$color${fs_free /}/ ${fs_size /}${tab 55}${fs_used_perc /}% ${fs_bar /}
+Donnees :${tab 30}$color${fs_free /media/Donnees} / ${fs_size /media/Donnees}${tab 55}${fs_used_perc /media/Donnees}% ${fs_bar /media/Donnees}
+Vista OS :${tab 30}$color${fs_free /media/Vista_OS} / ${fs_size /media/Vista_OS}${tab 55}${fs_used_perc /media/Vista_OS}% ${fs_bar /media/Vista_OS}
+DD Ext. :${tab 30}$color${fs_free /media/DD_externe_2} / ${fs_size /media/DD_externe_2}${tab 55}${fs_used_perc /media/DD_externe_2}% ${fs_bar /media/DD_externe_2}
+$color$stippled_hr
+${font Arial:style=Bold:pixelsize=12}${color #777777}CPU usage$font${tab 105}PID${tab 75}CPU%${tab 72}MEM%
+${color #FF0000} ${top name 1}${tab 100}${top pid 1}${tab 75}${top cpu 1}${tab 75}${top mem 1}
+${color #BB0000} ${top name 2}${tab 100}${top pid 2}${tab 75}${top cpu 2}${tab 75}${top mem 2}
+${color #ff9130} ${top name 3}${tab 100}${top pid 3}${tab 75}${top cpu 3}${tab 75}${top mem 3}
+${color #4562f4} ${top name 4}${tab 100}${top pid 4}${tab 75}${top cpu 4}${tab 75}${top mem 4}
+
+${font Arial:style=Bold:pixelsize=12}${color #777777}Mem usage$font
+${color #FF0000} ${top_mem name 1}${tab 100}${top_mem pid 1}${tab 75}${top_mem cpu 1}${tab 75}${top_mem mem 1}
+${color #BB0000} ${top_mem name 2}${tab 100}${top_mem pid 2}${tab 75}${top_mem cpu 2}${tab 75}${top_mem mem 2}
+${color #ff9130} ${top_mem name 3}${tab 100}${top_mem pid 3}${tab 75}${top_mem cpu 3}${tab 75}${top_mem mem 3}
+${color #4562f4} ${top_mem name 4}${tab 100}${top_mem pid 4}${tab 75}${top_mem cpu 4}${tab 75}${top_mem mem 4}
+$color$stippled_hr
+${font Arial:style=Bold:pixelsize=12}${color #777777}Port(s)${alignr}Connections
+${font}$color Inbound: ${tcp_portmon 1 32767 count}  Outbound: ${tcp_portmon 32768 65535 count}${alignr}ALL : ${tcp_portmon 1 65535 count}
+${font Arial:style=Bold:pixelsize=12}${color #777777}Inbound Connections ${alignr} Local Service/Port$color
+ ${font}${tcp_portmon 1 32767 rhost 0} ${alignr} ${tcp_portmon 1 32767 lservice 0}
+ ${font}${tcp_portmon 1 32767 rhost 1} ${alignr} ${tcp_portmon 1 32767 lservice 1}
+${font Arial:style=Bold:pixelsize=12}${color #777777}Apache
+${font}${color}${exec tail -n 5 /var/log/apache2/access.log |awk '{print substr($4,2)" "$1" "$7}'}
