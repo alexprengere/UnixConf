@@ -415,3 +415,8 @@ _all_source()
 
 _all_source
 
+if [ ! -f ~/.liquidprompt ]; then
+    function precmd () {
+        my_precmd
+    }
+fi
