@@ -398,7 +398,9 @@ _lp_shorten_path()
             # the path and stores their
             # positions
             #
-            local pos=()
+            # Fix bug for old zsh versions
+            local pos
+            pos=()
             for ((i=0;i<len;i++))
             do
                 if [[ "${p:i:1}" == "/" ]]
