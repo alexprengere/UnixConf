@@ -382,7 +382,7 @@ function preexec() {
 function my_precmd() {
 
     # Update this variables, which are displayed in the prompt
-    CONNECTIONS=`who |grep -v $USER |wc -l`
+    CONNECTIONS=`who |grep -v $USER |awk {'print $1'} |sort |uniq| wc -l`
 
     if [ "$CONNECTIONS" -eq 0 ]; then
         COLOR_CONNECTIONS="%{[0;37m%}$CONNECTIONS"
