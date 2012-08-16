@@ -85,8 +85,8 @@ LP_COLOR_MARK_ROOT="$BOLD_GRAY"  # as root
 
 # Current user
 LP_COLOR_USER_LOGGED="$YELLOW"           # user who logged in
-LP_COLOR_USER_ALT="$BOLD_YELLOW"         # user but not the one who logged in
-LP_COLOR_USER_ROOT="$RED" # root
+LP_COLOR_USER_ALT="$RED"         # user but not the one who logged in
+LP_COLOR_USER_ROOT="$BOLD_RED" # root
 
 # Hostname
 LP_COLOR_HOST="$BLUE"             # local host
