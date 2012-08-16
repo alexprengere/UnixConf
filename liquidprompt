@@ -568,6 +568,14 @@ _lp_git_branch_color()
         git diff --cached --quiet >/dev/null 2>&1
         GDC=$?
 
+        local has_untracked
+        has_untracked=$(git status 2>/dev/null | grep '\(# Untracked\)')
+        if [[ -z "$has_untracked" ]] ; then
+            has_untracked=""
+        else
+            has_untracked="*"
+        fi
+
         local has_commit
         has_commit=$(git rev-list --no-merges --count origin/${branch}..${branch} 2>/dev/null)
         if [[ -z "$has_commit" ]] ; then
@@ -578,16 +586,16 @@ _lp_git_branch_color()
             has_lines=$(git diff --numstat | awk 'NF==3 {plus+=$1; minus+=$2} END {printf("+%d/-%d\n", plus, minus)}')
             if [[ "$has_commit" -gt "0" ]] ; then
                 # Changes to commit and commits to push
-                ret="${RED}${branch}${NO_COL}(${PURPLE}$has_lines${NO_COL},${YELLOW}$has_commit${NO_COL})"
+                ret="${RED}${branch}${has_untracked}${NO_COL}(${PURPLE}$has_lines${NO_COL},${YELLOW}$has_commit${NO_COL})"
             else
-                ret="${RED}${branch}${NO_COL}(${PURPLE}$has_lines${NO_COL})" # changes to commit
+                ret="${RED}${branch}${has_untracked}${NO_COL}(${PURPLE}$has_lines${NO_COL})" # changes to commit
             fi
         else
             if [[ "$has_commit" -gt "0" ]] ; then
                 # some commit(s) to push
-                ret="${YELLOW}${branch}${NO_COL}(${YELLOW}$has_commit${NO_COL})"
+                ret="${YELLOW}${branch}${has_untracked}${NO_COL}(${YELLOW}$has_commit${NO_COL})"
             else
-                ret="${GREEN}${branch}${NO_COL}" # nothing to commit or push
+                ret="${GREEN}${branch}${has_untracked}${NO_COL}" # nothing to commit or push
             fi
         fi
         echo -ne "$ret"
