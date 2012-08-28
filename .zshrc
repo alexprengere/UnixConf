@@ -183,8 +183,8 @@ unsetopt rm_star_silent
 # Correction orthographique des commandes
 # Désactivé car, contrairement à ce que dit le "man", il essaye de
 # corriger les commandes avant de les hasher
-#setopt correctall
-#setopt correct
+unsetopt correctall
+unsetopt correct
 
 # Si on utilise des jokers dans une liste d'arguments, retire les jokers
 # qui ne correspondent à rien au lieu de donner une erreur

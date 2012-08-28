@@ -49,6 +49,8 @@ set wildmenu                                    "Autocompletion qui roxxe en mod
 set wildmode=list:longest,list:full             "Options qui vont bien
 set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when completing files
 
+set t_kb=    "fix weird backspace behaviour
+
 "Code folding za-zR-zM
 "function! MyFoldFunction()                      "Definition personnelle d'une fonction de fold
 "        let line = getline(v:foldstart)
@@ -67,7 +69,7 @@ set foldmethod=indent
 " Highlight lines too long
 augroup aspect
     autocmd BufRead * highlight OverLength ctermbg=darkgray guibg=darkgray
-    autocmd BufRead * match OverLength /\%120v.*/
+    autocmd BufRead * match OverLength /\%1200v.*/
     autocmd BufRead * highlight RedundantSpaces ctermbg=darkblue guibg=darkblue
     autocmd BufRead * 2match RedundantSpaces /\s\+$\| \+\ze\t/
 augroup END
