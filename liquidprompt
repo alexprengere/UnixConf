@@ -687,12 +687,16 @@ _lp_svn_branch()
     local result
     eval $(LANG=C LC_ALL=C svn info 2>/dev/null | sed -n 's/^URL: \(.*\)/url="\1"/p;s/^Repository Root: \(.*\)/root="\1"/p' )
     # Make url relative to root
-    url="${url:${#root}}"
+    if [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
+        url="$url[${#root}+1,-1]"
+    else
+        url="${url:${#root}}"
+    fi
     if [[ "$url" == */trunk* ]] ; then
         echo trunk
     else
         result=$(expr "$url" : '.*/branches/\([^/]*\)' || expr "$url" : '/\([^/]*\)' || basename "$root")
-        echo $result
+        echo $result |tr -d \\n
     fi
 }
 
@@ -712,10 +716,19 @@ _lp_svn_branch_color()
     if [[ -n "$branch" ]] ; then
         local commits
         commits=$(( $(svn status $LP_SVN_STATUS_OPTIONS | grep -c -v "?") ))
-        if [[ $commits -eq 0 ]] ; then
-            echo "${LP_COLOR_UP}${branch}${NO_COL}"
+
+        local untracked
+        untracked=$(( $(svn status $LP_SVN_STATUS_OPTIONS | grep -c "?") ))
+
+        if [ "$untracked" -eq 0 ] ; then
+            untracked=""
         else
-            echo "${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_COMMITS}$commits${NO_COL})" # changes to commit
+            untracked="$LP_MARK_UNTRACKED"
+        fi
+        if [[ $commits -eq 0 ]] ; then
+            echo "${LP_COLOR_UP}${branch}${untracked}${NO_COL}"
+        else
+            echo "${LP_COLOR_CHANGES}${branch}${untracked}${NO_COL}(${LP_COLOR_COMMITS}$commits${NO_COL})" # changes to commit
         fi
     fi
 }
