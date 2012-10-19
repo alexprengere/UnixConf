@@ -169,7 +169,7 @@ unsetopt list_beep
 
 # >| doit être utilisés pour pouvoir écraser un fichier déjà existant ;
 # le fichier ne sera pas écrasé avec '>'
-#unsetopt clobber
+setopt clobber
 
 # Ctrl+D est équivalent à 'logout'
 unsetopt ignore_eof

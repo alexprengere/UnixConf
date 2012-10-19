@@ -144,12 +144,13 @@ noremap ,a :badd
 noremap ,s :buffers<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
-let g:tagbar_left = 1
+let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
+
+"let g:tagbar_left = 1
 noremap ,o :TagbarToggle  <cr>
 noremap ,l :TlistToggle   <cr>
 noremap ,t :NERDTreeToggle<cr>
 
-let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
