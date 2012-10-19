@@ -820,7 +820,8 @@ _lp_battery_color()
 
     # discharging and under threshold
     elif [[ "$bat" != "" ]] ; then
-        local ret
+        # Oddly, in zsh this will display the value of ret if ret is already declared as local
+        local ret > /dev/null
         ret="${LP_COLOR_DISCHARGING_UNDER}${mark}${NO_COL}"
         if   [[ ${bat} -le 100 ]] && [[ ${bat} -gt 80 ]] ; then # -20
             ret="${ret}${LP_COLORMAP_1}"
