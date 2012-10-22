@@ -1,1 +1,0 @@
-supertab.vba: call delete('/remote/tspusers/aprenger/.vim/doc/supertab.txt')|call delete('/remote/tspusers/aprenger/.vim/plugin/supertab.vim')
