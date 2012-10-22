@@ -144,13 +144,16 @@ noremap ,a :badd
 noremap ,s :buffers<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
-let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
-
-"let g:tagbar_left = 1
 noremap ,o :TagbarToggle  <cr>
 noremap ,l :TlistToggle   <cr>
 noremap ,t :NERDTreeToggle<cr>
 
+let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
+"let g:tagbar_left = 1                   " Pour placer le panneau a gauche
+
+"Supertab
+let g:SuperTabDefaultCompletionType = "context"
+"let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
 
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
@@ -174,6 +177,8 @@ highlight clear spellrare
 highlight clear TabLineSel
 highlight clear TabLine
 highlight clear TabLineFill
+highlight clear Pmenu
+highlight clear PmenuSel
 
 "Affiche en rouge les espaces et tabulations de fin de ligne
 "highlight WhitespaceEOL ctermbg=blue
@@ -209,4 +214,8 @@ highlight spellrare     term=bold cterm=bold ctermfg=white ctermbg=darkblue    g
 highlight TabLineSel    term=bold cterm=bold ctermfg=white                  gui=bold guifg=white
 highlight TabLine       term=bold cterm=bold ctermfg=darkblue ctermbg=white gui=bold guifg=darkblue guibg=white
 highlight TabLineFill   term=bold cterm=bold                  ctermbg=white gui=bold                guibg=white
+
+"Completion
+highlight Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
+highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=darkyellow guifg=black guibg=darkyellow
 
