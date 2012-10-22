@@ -137,17 +137,22 @@ map  <c-t> :tabnew     <cr>
 "imap <c-t> <esc> :tabnew     <cr>
 
 "Manipulation du buffer
-noremap ,b :bNext  <cr>
-noremap ,n :bnext  <cr>
-noremap ,d :bdelete<cr>
-noremap ,a :badd 
-noremap ,s :buffers<cr>
+noremap ,f :buffers<cr>
+"noremap ,b :bprevious <cr>
+"noremap ,n :bnext     <cr>
+"noremap ,a :badd 
+"noremap ,d :bdelete<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
 noremap ,o :TagbarToggle  <cr>
 noremap ,l :TlistToggle   <cr>
 noremap ,t :NERDTreeToggle<cr>
 noremap ,g :GundoToggle   <cr>
+noremap ,s :SyntasticToggleMode<cr>
+
+"Navigate through errors
+noremap ,b :lprevious     <cr>
+noremap ,n :lnext         <cr>
 
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
@@ -156,6 +161,9 @@ let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglis
 let g:SuperTabDefaultCompletionType = "context"
 "let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
 set completeopt=menuone,longest,preview
+
+"Pathogen
+call pathogen#infect()
 
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
