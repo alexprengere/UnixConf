@@ -147,6 +147,7 @@ noremap ,s :buffers<cr>
 noremap ,o :TagbarToggle  <cr>
 noremap ,l :TlistToggle   <cr>
 noremap ,t :NERDTreeToggle<cr>
+noremap ,g :GundoToggle   <cr>
 
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
@@ -154,6 +155,7 @@ let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglis
 "Supertab
 let g:SuperTabDefaultCompletionType = "context"
 "let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
+set completeopt=menuone,longest,preview
 
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
