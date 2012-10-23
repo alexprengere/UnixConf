@@ -110,19 +110,25 @@ set spellsuggest=7      "Nombre de propositions par défaut
 
 "Remappage des touches classiques -- help/recherche/orthographe/numeros/viewports
 nmap <F2> :vertical botright help 
-nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
-nmap <F6> :set spell!   <cr> :set spell?   <cr>
-nmap <F8> :set nu!      <cr> :set nu?      <cr>
-nmap <F9> <c-w>w
 map  <F2> :vertical botright help 
-map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
-map  <F6> :set spell!   <cr> :set spell?   <cr>
-map  <F8> :set nu!      <cr> :set nu?      <cr>
-map  <F9> <c-w>w
 imap <F2> <esc> :vertical botright help 
+nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
+map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 imap <F3> <esc> :set hlsearch!<cr> :set hlsearch?<cr>
-imap <F6> <esc> :set spell!   <cr> :set spell?   <cr>
+nmap <F5> :lprevious       <cr>
+map  <F5> :lprevious       <cr>
+imap <F5> <esc> :lprevious <cr>
+nmap <F6> :lnext       <cr>
+map  <F6> :lnext       <cr>
+imap <F6> <esc> :lnext <cr>
+nmap <F7> :set spell!   <cr> :set spell?   <cr>
+map  <F7> :set spell!   <cr> :set spell?   <cr>
+imap <F7> <esc> :set spell!   <cr> :set spell?   <cr>
+nmap <F8> :set nu!      <cr> :set nu?      <cr>
+map  <F8> :set nu!      <cr> :set nu?      <cr>
 imap <F8> <esc> :set nu!      <cr> :set nu?      <cr>
+nmap <F9> <c-w>w
+map  <F9> <c-w>w
 imap <F9> <esc><c-w>w
 
 "Navigation entre onglets
@@ -137,9 +143,9 @@ map  <c-t> :tabnew     <cr>
 "imap <c-t> <esc> :tabnew     <cr>
 
 "Manipulation du buffer
-noremap ,f :buffers<cr>
-"noremap ,b :bprevious <cr>
-"noremap ,n :bnext     <cr>
+noremap ,f :buffers   <cr>
+noremap ,b :bprevious <cr>
+noremap ,n :bnext     <cr>
 "noremap ,a :badd 
 "noremap ,d :bdelete<cr>
 
@@ -150,17 +156,17 @@ noremap ,t :NERDTreeToggle<cr>
 noremap ,g :GundoToggle   <cr>
 noremap ,s :SyntasticToggleMode<cr>
 
-"Navigate through errors
-noremap ,b :lprevious     <cr>
-noremap ,n :lnext         <cr>
-
+"Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
-"Supertab
-let g:SuperTabDefaultCompletionType = "context"
+"Supertab options
 "let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
+let g:SuperTabDefaultCompletionType = "context"
 set completeopt=menuone,longest,preview
+
+"Syntastic options
+let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
 
 "Pathogen
 call pathogen#infect()
