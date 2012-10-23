@@ -1,11 +1,10 @@
 [user]
-    name = Name
-    email = name@gmail.com
+    name = <Insert First Name>
+    email = <insert mail>@amadeus.com
 [color]
     diff = auto
     status = auto
     branch = auto
-    blame = auto
 [alias]
     ci = commit
     co = checkout
