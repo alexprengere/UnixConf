@@ -67,7 +67,11 @@ load-plugins=
 # W0403: relative import error
 # R0801: duplicates
 # F0401: unable to import, this errors occurs when directly manipulating the path in modules
-disable=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301
+#
+# Adding this for retro compatibility
+disable-msg=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301
+    disable=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301
+
 
 
 [REPORTS]
