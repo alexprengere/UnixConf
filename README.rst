@@ -25,6 +25,11 @@ VIM
 Decompress the vim.tar.gz as ~/.vim
 Copy .vimrc as ~/.vimrc.
 
+Syntastic plugin uses pylint and jsl as syntax checkers.
+Make sure your configuration files are reached for these ones.
+Check the .vimrc to see where syntastic is looking for, usually ~/.pylintrc
+and ~/.jsl.conf.
+
 
 SVN
 ===
