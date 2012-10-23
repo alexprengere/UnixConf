@@ -200,6 +200,9 @@ highlight clear TabLine
 highlight clear TabLineFill
 highlight clear Pmenu
 highlight clear PmenuSel
+highlight clear SignColumn
+"highlight clear Todo
+highlight clear Error
 
 "Affiche en rouge les espaces et tabulations de fin de ligne
 "highlight WhitespaceEOL ctermbg=blue
@@ -239,4 +242,9 @@ highlight TabLineFill   term=bold cterm=bold                  ctermbg=white gui=
 "Completion
 highlight Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
 highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=darkyellow guifg=black guibg=darkyellow
+
+"Signs column
+highlight SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
+"highlight Todo         term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
+highlight Error        term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
 
