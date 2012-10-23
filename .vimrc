@@ -170,8 +170,11 @@ let g:SuperTabDefaultCompletionType = "context"
 set completeopt=menuone,longest,preview
 
 "Syntastic options
-let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
 let g:syntastic_check_on_open=1
+let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
+"Checkers options
+let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
+let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
