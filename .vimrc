@@ -1,6 +1,10 @@
 "~/.vimrc ou /etc/vim/vimrc
 "Fichier de configuration principal de vim 7
 "Révision -- 4 septembre 2009
+"
+"Pathogen
+call pathogen#infect()
+
 
 filetype indent plugin on       "Active les plugins de vim
 set nocompatible                "Desactive le mode de comptabilité
@@ -168,9 +172,6 @@ set completeopt=menuone,longest,preview
 "Syntastic options
 let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
 let g:syntastic_check_on_open=1
-
-"Pathogen
-call pathogen#infect()
 
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
