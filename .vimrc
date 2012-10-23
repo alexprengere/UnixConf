@@ -167,6 +167,7 @@ set completeopt=menuone,longest,preview
 
 "Syntastic options
 let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
+let g:syntastic_check_on_open=1
 
 "Pathogen
 call pathogen#infect()
