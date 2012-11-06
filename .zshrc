@@ -333,6 +333,9 @@ zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}'
 zstyle ':completion:*' max-errors 3 numeric
 zstyle ':completion:*' use-compctl false
 
+# Add custom completion scripts
+fpath=(~/.zsh/completion $fpath)
+
 # Active la complétion
 autoload -U compinit
 compinit
