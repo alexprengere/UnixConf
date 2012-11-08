@@ -304,8 +304,13 @@ setopt hist_find_no_dups
 ########################################################
 
 # Modification du PATH pour scripts
-export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:/opt/vagrant/bin
+
+# Go variables
+#export PATH=$PATH:/usr/local/go/bin
+export GOROOT=/opt/go
+export PATH=$PATH:$GOROOT/bin
 
 # Less Colors for Man Pages
 export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
