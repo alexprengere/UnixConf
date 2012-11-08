@@ -24,6 +24,7 @@ alias less='less --quiet'
 alias s='cd ..'
 alias df='df --human-readable'
 alias du='du --human-readable'
+alias tree='tree -haC'
 #alias md='mkdir'
 #alias rd='rmdir'
 
@@ -233,7 +234,7 @@ setopt hist_verify
 
 # Si la commande est invalide mais correspond au nom d'un sous-répertoire
 # exécuter 'cd sous-répertoire'
-setopt auto_cd
+#setopt auto_cd
 
 # L'exécution de "cd" met le répertoire d'où l'on vient sur la pile
 setopt auto_pushd
