@@ -421,7 +421,9 @@ _lp_shorten_path()
     local mask_len="${#mask}"
     local slashes=0
 
-    if [[ "$_LP_WORKING_SHELL" == "bash" ]]; then
+    if [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
+        echo "%1~"
+    elif [[ "$_LP_WORKING_SHELL" == "bash" ]]; then
         if [[ "$len" -gt "$max_len" ]]
         then
             # finds all the '/' in
@@ -482,12 +484,12 @@ _lp_shorten_path()
         else
             echo "$p"
         fi
-    elif [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
-        if [[ "$len" -gt "$max_len" ]]; then
-            echo "%-${keep}~%${max_len}<${mask}<%~%<<"
-        else
-            echo "%1~"
-        fi
+    #elif [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
+    #    if [[ "$len" -gt "$max_len" ]]; then
+    #        echo "%-${keep}~%${max_len}<${mask}<%~%<<"
+    #    else
+    #        echo "%~"
+    #    fi
     fi
 }
 
