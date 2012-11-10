@@ -73,6 +73,10 @@ LP_ENABLE_HG=0
 # Recommended value is 0
 LP_ENABLE_TIME=0
 
+# Show virtualenv for Python
+# Recommended value is 1
+LP_ENABLE_VIRTUALENV=1
+
 
 ##########
 # THEMES #
@@ -161,6 +165,9 @@ LP_COLOR_DISCHARGING_UNDER="$RED"     # discharging and under threshold
 
 # Time
 LP_COLOR_TIME="$BLUE"
+
+# Time
+LP_COLOR_VENV="$PURPLE"
 
 # Color maps (battery and load levels)
 # Range from 0 (nothing special) to 9 (alert)
