@@ -55,7 +55,7 @@ LP_ENABLE_LOAD=1
 
 # Do you want to use the batt feature ?
 # Recommended value is 1
-LP_ENABLE_BATT=1
+LP_ENABLE_BATT=0
 
 # Do you want to use the git special features ?
 # Recommended value is 1
@@ -63,11 +63,11 @@ LP_ENABLE_GIT=1
 
 # Do you want to use the svn special features ?
 # Recommended value is 1
-LP_ENABLE_SVN=1
+LP_ENABLE_SVN=0
 
 # Do you want to use the mercurial special features ?
 # Recommended value is 1
-LP_ENABLE_HG=1
+LP_ENABLE_HG=0
 
 # Show time of the last prompt display
 # Recommended value is 0
