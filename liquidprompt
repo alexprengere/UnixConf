@@ -200,6 +200,7 @@ _lp_source_config()
     LP_ENABLE_SVN=${LP_ENABLE_SVN:-1}
     LP_ENABLE_HG=${LP_ENABLE_HG:-1}
     LP_ENABLE_TIME=${LP_ENABLE_TIME:-0}
+    LP_ENABLE_VIRTUALENV=${LP_ENABLE_VIRTUALENV:-1}
 
     LP_MARK_BATTERY=${LP_MARK_BATTERY:-"⌁"}
     LP_MARK_ADAPTER=${LP_MARK_ADAPTER:-"⏚"}
@@ -977,7 +978,15 @@ _lp_time()
     echo -ne "${LP_COLOR_TIME}$(date +%H:%M:%S)${NO_COL}"
 }
 
+#######################
+# VIRTUALENV SUPPORT  #
+#######################
 
+_lp_virtualenv()
+{
+    [[ "$LP_ENABLE_VIRTUALENV" != 1 ]] && return
+    [[ -n "$VIRTUAL_ENV" ]] && echo "${LP_COLOR_VENV}[`basename \"$VIRTUAL_ENV\"`]${NO_COL}"
+}
 
 ########################
 # Construct the prompt #
@@ -1012,6 +1021,7 @@ _lp_set_prompt()
      LP_GIT=$(_lp_sl "$(_lp_git_branch_color)")
       LP_HG=$(_lp_sl "$(_lp_hg_branch_color)")
      LP_SVN=$(_lp_sl "$(_lp_svn_branch_color)")
+    LP_VENV=$(_lp_sl "$(_lp_virtualenv)")
 
     # end of the prompt line: double spaces
     LP_MARK=$(_lp_sb "$(_lp_smart_mark)")
@@ -1035,7 +1045,7 @@ _lp_set_prompt()
             # path in foreground color
             PS1="${PS1}${LP_PWD}${LP_PROXY}"
             # add VCS infos
-            PS1="${PS1}${LP_GIT}${LP_HG}${LP_SVN}"
+            PS1="${PS1}${LP_GIT}${LP_HG}${LP_SVN}${LP_VENV}"
         else
             # path in yellow
             PS1="${PS1}${LP_PWD}${LP_PROXY}"
