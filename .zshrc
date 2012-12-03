@@ -307,6 +307,8 @@ setopt hist_find_no_dups
 # Modification du PATH pour scripts
 export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:/opt/vagrant/bin
+export PATH=$PATH:$HOME/Dev/distribution
+
 
 # Go variables
 #export PATH=$PATH:/usr/local/go/bin
@@ -329,6 +331,9 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'    # begin underline
 # Just in case
 #setxkbmap fr
 #loadkeys fr
+
+# For GeoBase CLI
+export BACKGROUND_COLOR=black
 
 
 ###########################################
