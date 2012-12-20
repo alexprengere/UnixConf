@@ -69,8 +69,8 @@ load-plugins=
 # F0401: unable to import, this errors occurs when directly manipulating the path in modules
 #
 # Adding this for retro compatibility
-disable-msg=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301
-disable=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301
+disable-msg=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301,W0603
+disable=W0142,W0212,C0302,E0611,C0103,W0403,F0401,R0801,C0301,W0603
 
 
 
@@ -243,7 +243,7 @@ max-args=12
 ignored-argument-names=_.*
 
 # Maximum number of locals for function / method body
-max-locals=50
+max-locals=60
 
 # Maximum number of return / yield for function / method body
 max-returns=12
