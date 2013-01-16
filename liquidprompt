@@ -29,12 +29,12 @@
 # Joris Dedieu <joris@pontiac3.nfrance.com>     # Portability framework, FreeBSD support, bugfixes.
 # Ludovic Rousseau <ludovic.rousseau@gmail.com> # Lot of bugfixes.
 # Yann 'Ze' Richard <ze@nbox.org>               # Do not fail on missing commands.
-# François Schmidts <fschmidts@olfeo.com>       # Simpler SSH_IP acquiring method.
+# François Schmidts <francois.schmidts@gmail.com> # small code fix, _lp_get_dirtrim
 # Thomas Debesse <thomas.debesse@gmail.com>     # Fix columns use.
 # Florian Le Frioux <florian@lefrioux.fr>       # Use ± mark when root in VCS dir.
 # Luc Didry <luc@fiat-tux.fr>                   # Zsh port
 # Olivier Mengué <dolmen@cpan.org>              # Major optimizations on host parsing
-
+# Frédéric Lepied                               # Python virtual env
 
 # See the README.md file for a summary of features.
 
@@ -188,7 +188,11 @@ _lp_source_config()
     LP_PATH_LENGTH=${LP_PATH_LENGTH:-35}
     LP_PATH_KEEP=${LP_PATH_KEEP:-2}
     LP_HOSTNAME_ALWAYS=${LP_HOSTNAME_ALWAYS:-0}
+    LP_USER_ALWAYS=${LP_USER_ALWAYS:-1}
     LP_PS1=${LP_PS1:-""}
+    LP_PS1_PREFIX=${LP_PS1_PREFIX:-""}
+    LP_TITLE_OPEN=${LP_TITLE_OPEN:-"\e]0;"}
+    LP_TITLE_CLOSE=${LP_TITLE_CLOSE:-"\a"}
 
     LP_ENABLE_PERM=${LP_ENABLE_PERM:-1}
     LP_ENABLE_SHORTEN_PATH=${LP_ENABLE_SHORTEN_PATH:-1}
@@ -198,9 +202,12 @@ _lp_source_config()
     LP_ENABLE_BATT=${LP_ENABLE_BATT:-1}
     LP_ENABLE_GIT=${LP_ENABLE_GIT:-1}
     LP_ENABLE_SVN=${LP_ENABLE_SVN:-1}
+    LP_ENABLE_FOSSIL=${LP_ENABLE_FOSSIL:-1}
     LP_ENABLE_HG=${LP_ENABLE_HG:-1}
     LP_ENABLE_TIME=${LP_ENABLE_TIME:-0}
     LP_ENABLE_VIRTUALENV=${LP_ENABLE_VIRTUALENV:-1}
+    LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
+    LP_ENABLE_TITLE=${LP_ENABLE_TITLE:-0}
 
     LP_MARK_BATTERY=${LP_MARK_BATTERY:-"⌁"}
     LP_MARK_ADAPTER=${LP_MARK_ADAPTER:-"⏚"}
@@ -209,6 +216,7 @@ _lp_source_config()
     LP_MARK_HG=${LP_MARK_HG:-"☿"}
     LP_MARK_SVN=${LP_MARK_SVN:-"‡"}
     LP_MARK_GIT=${LP_MARK_GIT:-"±"}
+    LP_MARK_FOSSIL=${LP_MARK_FOSSIL:-"⌘"}
     LP_MARK_UNTRACKED=${LP_MARK_UNTRACKED:-"*"}
 
     LP_COLOR_PATH=${LP_COLOR_PATH:-$BOLD_WHITE}
@@ -281,6 +289,7 @@ unset _lp_source_config
 # Disable features if the tool is not installed
 [[ "$LP_ENABLE_GIT"  = 1 ]] && { command -v git  >/dev/null || LP_ENABLE_GIT=0  ; }
 [[ "$LP_ENABLE_SVN"  = 1 ]] && { command -v svn  >/dev/null || LP_ENABLE_SVN=0  ; }
+[[ "$LP_ENABLE_FOSSIL"  = 1 ]] && { command -v fossil  >/dev/null || LP_ENABLE_FOSSIL=0  ; }
 [[ "$LP_ENABLE_HG"   = 1 ]] && { command -v hg   >/dev/null || LP_ENABLE_HG=0   ; }
 [[ "$LP_ENABLE_BATT" = 1 ]] && { command -v acpi >/dev/null || LP_ENABLE_BATT=0 ; }
 
@@ -300,7 +309,11 @@ _lp_user()
         if [[ ${USER} != "$(logname 2>/dev/null)" ]]; then
             user="${LP_COLOR_USER_ALT}${_LP_USER_SYMBOL}${NO_COL}"
         else
-            user="${LP_COLOR_USER_LOGGED}${_LP_USER_SYMBOL}${NO_COL}"
+            if [[ "${LP_USER_ALWAYS}" -ne "0" ]] ; then
+                user="${LP_COLOR_USER_LOGGED}${_LP_USER_SYMBOL}${NO_COL}"
+            else
+                user=""
+            fi
         fi
     else
         user="${LP_COLOR_USER_ROOT}${_LP_USER_SYMBOL}${NO_COL}"
@@ -335,11 +348,16 @@ _lp_connection()
 # The connection is not expected to change from inside the shell, so we
 # build this just once
 LP_HOST=""
-if [[ -r /etc/debian_chroot ]] ; then
-    local debchroot
-    debchroot=$(cat /etc/debian_chroot)
-    LP_HOST="${LP_HOST}(${debchroot})"
-fi
+_chroot()
+{
+    if [[ -r /etc/debian_chroot ]] ; then
+        local debchroot
+        debchroot=$(cat /etc/debian_chroot)
+        echo "(${debchroot})"
+    fi
+}
+LP_HOST="$(_chroot)"
+unset _chroot
 
 # If we are connected with a X11 support
 if [[ -n "$DISPLAY" ]] ; then
@@ -396,8 +414,12 @@ _lp_proxy()
 # + keep some left part of the path if asked
 _lp_shorten_path()
 {
-    if [[ "$LP_ENABLE_SHORTEN_PATH" != 1 ]] ; then
-        echo "$1"
+    if [[ "$LP_ENABLE_SHORTEN_PATH" != 1 || -n "$PROMPT_DIRTRIM" ]] ; then
+        if [[ "$_LP_WORKING_SHELL" == "bash" ]]; then
+            echo "\\w"
+        else
+            echo "$(print -P "%~")"
+        fi
         return
     fi
     # the character that will replace the part of the path that is masked
@@ -408,17 +430,10 @@ _lp_shorten_path()
        keep=$LP_PATH_KEEP
     fi
 
-    local len_percent=$2
-
-    local p
-    if [[ "$_LP_WORKING_SHELL" == "bash" ]]; then
-        p=$(echo "$1" | sed -e "s|$HOME|~|")
-    elif [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
-        p=$1
-    fi
+    local p="${PWD/$HOME/~}"
     local len="${#p}"
 
-    local max_len=$((${COLUMNS:-80}*$len_percent/100))
+    local max_len=$((${COLUMNS:-80}*$LP_PATH_LENGTH/100))
     local mask_len="${#mask}"
     local slashes=0
 
@@ -494,6 +509,31 @@ _lp_shorten_path()
     fi
 }
 
+# In bash shell, PROMPT_DIRTRIM is the number of directory to keep at the end
+# of the displayed path (if "\w" is present in the PS1 var).
+# liquidprompt can calculate this number under two condition, path shortening
+# must be activated and PROMPT_DIRTRIM must be already set.
+_lp_get_dirtrim() {
+    [[ "$LP_ENABLE_SHORTEN_PATH" != 1 ]] && echo 0 && return
+
+    local p="${PWD/$HOME/~}"
+    local len=${#p}
+    local max_len=$((${COLUMNS:-80}*$LP_PATH_LENGTH/100))
+    local PROMPT_DIRTRIM=0
+
+    if [[ "$((len))" -gt "$((max_len))" ]]; then
+        local i
+
+        for ((i=$len;i>=0;i--))
+        do
+            [[ $(($len-$i)) -gt $max_len ]] && break
+            [[ "${p:i:1}" == "/" ]] && PROMPT_DIRTRIM=$((PROMPT_DIRTRIM+1))
+        done
+        [[ "$((PROMPT_DIRTRIM))" -eq 0 ]] && PROMPT_DIRTRIM=1
+    fi
+    echo "$PROMPT_DIRTRIM"
+}
+
 # Display a ":"
 # colored in green if user have write permission on the current directory
 # colored in red if it have not.
@@ -508,6 +548,13 @@ _lp_permissions_color()
             echo "${LP_COLOR_NOWRITE}:${NO_COL}"
         fi
     fi
+}
+
+# Display the current Python virtual environnement, if available.
+_lp_virtualenv()
+{
+    [[ "$LP_ENABLE_VIRTUALENV" != 1 ]] && return
+    [[ -n "$VIRTUAL_ENV" ]] && echo "${LP_COLOR_VENV}[`basename \"$VIRTUAL_ENV\"`]${NO_COL}"
 }
 
 
@@ -582,10 +629,11 @@ _lp_git_branch()
 {
     [[ "$LP_ENABLE_GIT" != 1 ]] && return
 
-    topdir="$(git rev-parse --git-dir 2>/dev/null)"
-    if [[ -n "$topdir" ]] && [[ "$(basename $topdir)" == '.git' ]]  && [[ ! -z "$(git branch)" ]] ; then
-        echo -n "$(git branch 2>/dev/null | sed -n '/^\*/s/^\* //p;')"
-    fi
+    local gitdir="$(git rev-parse --git-dir 2>/dev/null)"
+    [[ $? -ne 0 || "${gitdir##*/}" != .git ]] && return
+    local branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    [[ $? -ne 0 || -z "$branch" ]] && return
+    echo "${branch#refs/heads/}"
 }
 
 # Set a color depending on the branch state:
@@ -628,14 +676,14 @@ _lp_git_branch_color()
             has_lines=$(git diff --numstat 2>/dev/null | awk 'NF==3 {plus+=$1; minus+=$2} END {printf("+%d/-%d\n", plus, minus)}')
             if [[ "$has_commit" -gt "0" ]] ; then
                 # Changes to commit and commits to push
-                ret="${LP_COLOR_CHANGES}${branch}${has_untracked}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL},${LP_COLOR_COMMITS}$has_commit${NO_COL})"
+                ret="${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL},${LP_COLOR_COMMITS}$has_commit${NO_COL})${LP_COLOR_CHANGES}${has_untracked}${NO_COL}"
             else
-                ret="${LP_COLOR_CHANGES}${branch}${has_untracked}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL})" # changes to commit
+                ret="${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL})${LP_COLOR_CHANGES}${has_untracked}${NO_COL}" # changes to commit
             fi
         else
             if [[ "$has_commit" -gt "0" ]] ; then
                 # some commit(s) to push
-                ret="${LP_COLOR_COMMITS}${branch}${has_untracked}${NO_COL}(${LP_COLOR_COMMITS}$has_commit${NO_COL})"
+                ret="${LP_COLOR_COMMITS}${branch}${NO_COL}(${LP_COLOR_COMMITS}$has_commit${NO_COL})${LP_COLOR_COMMITS}${has_untracked}${NO_COL}"
             else
                 ret="${LP_COLOR_UP}${branch}${has_untracked}${NO_COL}" # nothing to commit or push
             fi
@@ -719,20 +767,95 @@ _lp_svn_branch_color()
     if [[ -n "$branch" ]] ; then
         local commits
         commits=$(( $(svn status $LP_SVN_STATUS_OPTIONS | grep -c -v "?") ))
-
-        local untracked
-        untracked=$(( $(svn status $LP_SVN_STATUS_OPTIONS | grep -c "?") ))
-
-        if [ "$untracked" -eq 0 ] ; then
-            untracked=""
-        else
-            untracked="$LP_MARK_UNTRACKED"
-        fi
         if [[ $commits -eq 0 ]] ; then
-            echo "${LP_COLOR_UP}${branch}${untracked}${NO_COL}"
+            echo "${LP_COLOR_UP}${branch}${NO_COL}"
         else
-            echo "${LP_COLOR_CHANGES}${branch}${untracked}${NO_COL}(${LP_COLOR_COMMITS}$commits${NO_COL})" # changes to commit
+            echo "${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_COMMITS}$commits${NO_COL})" # changes to commit
         fi
+    fi
+}
+
+
+# FOSSIL #
+
+# Get the tag name of the current directory
+_lp_fossil_branch()
+{
+    [[ "$LP_ENABLE_FOSSIL" != 1 ]] && return
+
+    local branch
+    branch=$(fossil status 2>/dev/null | grep tags: | cut -c17-)
+    if [[ -n "$branch" ]] ; then
+	echo "$branch"
+    else
+	if fossil info &>/dev/null ; then
+	    echo "no-tag"
+	fi
+    fi
+}
+
+# Set a color depending on the branch state:
+# - green if the repository is clean
+# - red if there is changes to commit
+# - yellow if the branch has no tag name
+#
+# Add the number of impacted files with a
+# + when files are ADDED or EDITED
+# - when files are DELETED
+_lp_fossil_branch_color()
+{
+    [[ "$LP_ENABLE_FOSSIL" != 1 ]] && return
+
+    local branch
+    branch=$(_lp_fossil_branch)
+
+    if [[ ! -z "$branch" ]] ; then
+	local C2E # Modified files (added or edited)
+	local C2D # Deleted files
+	local C2A # Extras files
+	local ret
+	C2E=$(fossil changes | wc -l)
+	C2D=$(fossil changes | grep DELETED | wc -l)
+	let "C2E = $C2E - $C2D"
+	C2A=$(fossil extras | wc -l)
+	ret=""
+
+	if [[ "$C2E" -gt 0 ]] ; then
+	    ret+="+$C2E"
+	fi
+
+	if [[ "$C2D" -gt 0 ]] ; then
+	    if [[ "$ret" = "" ]] ; then
+		ret+="-$C2D"
+	    else
+		ret+="/-$C2D"
+	    fi
+	fi
+
+	if [[ "$C2A" -gt 0 ]] ; then
+	    C2A="$LP_MARK_UNTRACKED"
+	else
+	    C2A=""
+	fi
+
+	if [[ "$ret" != "" ]] ; then
+	    ret="(${LP_COLOR_DIFF}$ret${NO_COL})"
+	fi
+
+
+	if [[ "$branch" = "no-tag" ]] ; then
+            # Warning, your branch has no tag name !
+	    branch="${LP_COLOR_COMMITS}$branch${NO_COL}$ret${LP_COLOR_COMMITS}$C2A${NO_COL}"
+	else
+            if [[ "$C2E" -eq 0 && "$C2D" -eq 0 ]] ; then
+                # All is up-to-date
+		branch="${LP_COLOR_UP}$branch$C2A${NO_COL}"
+            else
+                # There're some changes to commit
+		branch="${LP_COLOR_CHANGES}$branch${NO_COL}$ret${LP_COLOR_CHANGES}$C2A${NO_COL}"
+            fi
+	fi
+        echo -ne "$branch"
     fi
 }
 
@@ -752,8 +875,10 @@ _lp_battery()
     [[ "$LP_ENABLE_BATT" != 1 ]] && return
     local acpi
     acpi="$(acpi --battery 2>/dev/null)"
-    local bat
-    bat=$( echo $acpi | sed "s/^Battery .*, \([0-9]*\)%.*$/\1/")
+    # Extract the battery load value in percent
+    # First, remove the beginning of the line...
+    local bat="${acpi#Battery *, }"
+    bat="${bat%%%*}" # remove everything starting at '%'
 
     if [[ -z "${bat}" ]] ; then
         # not battery level found
@@ -919,6 +1044,37 @@ _lp_load_color()
 # DESIGN #
 ##########
 
+# Remove all colors and escape characters of the given string and return a pure text
+_lp_as_text()
+{
+    # Remove colors from the computed prompt
+    local pst=$(echo $1 | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g")
+
+    # Remove escape sequences
+    # FIXME check the zsh compatibility
+    # pst=$(echo $pst | sed "s,\\\\\\[\|\\\\\\],,g")
+    local op=$(printf "%q" "$_LP_OPEN_ESC")
+    local cl=$(printf "%q" "$_LP_CLOSE_ESC")
+    pst=$(echo $pst | sed "s,$op\|$cl,,g") # replace all open _or_ close tags with nothing
+
+    echo -n "$pst"
+}
+
+_lp_title()
+{
+    [[ "$LP_ENABLE_TITLE" != "1" ]] && return
+
+    # Get the current computed prompt as pure text
+    local txt=$(_lp_as_text "$1")
+
+    # Use it in the window's title
+    # Escapes whill tells bash to ignore the non-printing control characters when calculating the width of the prompt.
+    # Otherwise line editing commands will mess the cursor positionning
+    local title="${_LP_OPEN_ESC}${LP_TITLE_OPEN}${txt}${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
+
+    echo -n "${title}"
+}
+
 # Set the prompt mark to ± if git, to ☿ if mercurial, to ‡ if subversion
 # to # if root and else $
 _lp_smart_mark()
@@ -940,6 +1096,8 @@ _lp_smart_mark()
         mark=$LP_MARK_HG
     elif [[ ! -z $(_lp_svn_branch) ]] ; then
         mark=$LP_MARK_SVN
+    elif [[ ! -z $(_lp_fossil_branch) ]] ; then
+        mark=$LP_MARK_FOSSIL
     fi
     echo -ne "${COL}${mark}${NO_COL}"
 }
@@ -978,19 +1136,10 @@ _lp_time()
     echo -ne "${LP_COLOR_TIME}$(date +%H:%M:%S)${NO_COL}"
 }
 
-#######################
-# VIRTUALENV SUPPORT  #
-#######################
-
-_lp_virtualenv()
-{
-    [[ "$LP_ENABLE_VIRTUALENV" != 1 ]] && return
-    [[ -n "$VIRTUAL_ENV" ]] && echo "${LP_COLOR_VENV}[`basename \"$VIRTUAL_ENV\"`]${NO_COL}"
-}
-
 ########################
 # Construct the prompt #
 ########################
+
 
 _lp_set_prompt()
 {
@@ -1010,18 +1159,18 @@ _lp_set_prompt()
     LP_USER=$(_lp_user)
     # LP_HOST is a global set at load time
     LP_PERM=$(_lp_permissions_color)
-    if [[ "$_LP_WORKING_SHELL" == "bash" ]]; then
-        LP_PWD=$(_lp_shorten_path "$PWD" $LP_PATH_LENGTH)
-    elif [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
-        LP_PWD=$(_lp_shorten_path "$(print -P "%~")" $LP_PATH_LENGTH)
-    fi
+    LP_PWD=$(_lp_shorten_path)
+    [[ -n "$PROMPT_DIRTRIM" ]] && PROMPT_DIRTRIM=$(_lp_get_dirtrim)
     LP_PROXY="${LP_COLOR_PROXY}$(_lp_proxy)${NO_COL}"
 
     # right of main prompt: space at left
-     LP_GIT=$(_lp_sl "$(_lp_git_branch_color)")
-      LP_HG=$(_lp_sl "$(_lp_hg_branch_color)")
-     LP_SVN=$(_lp_sl "$(_lp_svn_branch_color)")
     LP_VENV=$(_lp_sl "$(_lp_virtualenv)")
+    if [[ "$EUID" -ne "0" ]] || [[ "$LP_ENABLE_VCS_ROOT" = "1" ]] ; then
+        LP_GIT=$(_lp_sl "$(_lp_git_branch_color)")
+         LP_HG=$(_lp_sl "$(_lp_hg_branch_color)")
+        LP_SVN=$(_lp_sl "$(_lp_svn_branch_color)")
+     LP_FOSSIL=$(_lp_sl "$(_lp_fossil_branch_color)")
+    fi
 
     # end of the prompt line: double spaces
     LP_MARK=$(_lp_sb "$(_lp_smart_mark)")
@@ -1034,25 +1183,35 @@ _lp_set_prompt()
     fi
 
     if [[ -z $LP_PS1 ]] ; then
-        # add time, jobs, load and battery
-        PS1="${LP_TIME}${LP_BATT}${LP_LOAD}${LP_JOBS}"
+        # add title escape time, jobs, load and battery
+        PS1="${LP_PS1_PREFIX}${LP_TIME}${LP_BATT}${LP_LOAD}${LP_JOBS}"
         # add user, host and permissions colon
-        PS1="${PS1}${LP_USER}${LP_HOST}${LP_PERM} "
+        PS1="${PS1}${LP_USER}${LP_HOST}${LP_PERM}"
 
         # if not root
         if [[ "$EUID" -ne "0" ]]
         then
             # path in foreground color
-            PS1="${PS1}${LP_PWD}${LP_PROXY}"
+            PS1="${PS1}${LP_PWD}${LP_VENV}${LP_PROXY}"
             # add VCS infos
-            PS1="${PS1}${LP_GIT}${LP_HG}${LP_SVN}${LP_VENV}"
+            PS1="${PS1}${LP_GIT}${LP_HG}${LP_SVN}${LP_FOSSIL}"
         else
             # path in yellow
-            PS1="${PS1}${LP_PWD}${LP_PROXY}"
-            # do not add VCS infos
+            PS1="${PS1}${LP_PWD}${LP_VENV}${LP_PROXY}"
+            # do not add VCS infos unless told otherwise (LP_ENABLE_VCS_ROOT)
+            [[ "$LP_ENABLE_VCS_ROOT" = "1" ]] && \
+                PS1="${PS1}${LP_GIT}${LP_HG}${LP_SVN}${LP_FOSSIL}"
         fi
         # add return code and prompt mark
         PS1="${PS1}${LP_ERR}${LP_MARK}"
+
+        # "invisible" parts
+
+        # Get the current prompt on the fly and make it a title
+        LP_TITLE=$(_lp_title "$PS1")
+
+        # Insert it in the prompt
+        PS1="${LP_TITLE}${PS1}"
 
         # Glue the bash prompt always go to the first column.
         # Avoid glitches after interrupting a command with Ctrl-C

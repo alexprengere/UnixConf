@@ -33,6 +33,11 @@ LP_PATH_KEEP=2
 # set to 1 if you want to always see the hostname
 LP_HOSTNAME_ALWAYS=1
 
+# Do you want to display the user, even if he is the same than the logged one?
+# Defaults to 1 (always display the user)
+# set to 0 if you want to hide the logged user (it will always display different users)
+LP_USER_ALWAYS=1
+
 # Do you want to use the permissions feature ?
 # Recommended value is 1
 LP_ENABLE_PERM=1
@@ -57,6 +62,10 @@ LP_ENABLE_LOAD=1
 # Recommended value is 1
 LP_ENABLE_BATT=0
 
+# Do you want to use vcs features with root account
+# Recommended value is 0
+LP_ENABLE_VCS_ROOT=0
+
 # Do you want to use the git special features ?
 # Recommended value is 1
 LP_ENABLE_GIT=1
@@ -69,12 +78,22 @@ LP_ENABLE_SVN=0
 # Recommended value is 1
 LP_ENABLE_HG=0
 
+# Do you want to use the fossil special features ?
+# Recommended value is 1
+LP_ENABLE_FOSSIL=0
+
 # Show time of the last prompt display
 # Recommended value is 0
 LP_ENABLE_TIME=0
 
-# Show virtualenv for Python
-# Recommended value is 1
+# Use the liquid prompt as the title of the terminal window
+# This may not work properly on exotic terminals, thus the
+# recommended value is 0
+# See LP_TITLE_OPEN and LP_TITLE_CLOSE to change escape characters to adapt this
+# feature to your specific terminal.
+LP_ENABLE_TITLE=0
+
+# Virtualenv support
 LP_ENABLE_VIRTUALENV=1
 
 
@@ -96,6 +115,7 @@ if [[ "$(locale -k LC_CTYPE | sed -n 's/^charmap="\(.*\)"/\1/p')" == *"UTF-8"* ]
     LP_MARK_HG="☿"   # prompt mark in hg repositories
     LP_MARK_SVN="‡"  # prompt mark in svn repositories
     LP_MARK_GIT="±"         # prompt mark in git repositories
+    LP_MARK_FOSSIL="⌘"         # prompt mark in fossil repositories
     LP_MARK_UNTRACKED="*"        # if git has untracked files
 else
     # If charset is anything else, fallback to ASCII chars
@@ -106,8 +126,12 @@ else
     LP_MARK_HG="m"
     LP_MARK_SVN="="
     LP_MARK_GIT="+"
+    LP_MARK_FOSSIL="f"
     LP_MARK_UNTRACKED="*"
 fi
+
+# Do not prefix the prompt
+LP_PS1_PREFIX=""
 
 # Colors
 # Available colors are:
@@ -165,9 +189,6 @@ LP_COLOR_DISCHARGING_UNDER="$RED"     # discharging and under threshold
 
 # Time
 LP_COLOR_TIME="$BLUE"
-
-# Time
-LP_COLOR_VENV="$PURPLE"
 
 # Color maps (battery and load levels)
 # Range from 0 (nothing special) to 9 (alert)
