@@ -308,6 +308,7 @@ setopt hist_find_no_dups
 export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:/opt/vagrant/bin
 export PATH=$PATH:$HOME/Dev/distribution
+export PATH=$HOME/.cabal/bin:$PATH
 
 
 # Go variables
