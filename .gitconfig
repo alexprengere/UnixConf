@@ -12,3 +12,5 @@
     br = branch
     ds = diff --stat
     logg = log --graph --decorate --pretty=oneline --abbrev-commit --all
+[core]
+    editor = vim
