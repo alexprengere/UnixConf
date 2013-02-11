@@ -72,10 +72,13 @@ set foldmethod=indent
 
 " Highlight lines too long
 augroup aspect
-    autocmd BufRead * highlight OverLength ctermbg=darkgray guibg=darkgray
-    autocmd BufRead * match OverLength /\%1200v.*/
     autocmd BufRead * highlight RedundantSpaces ctermbg=darkblue guibg=darkblue
     autocmd BufRead * 2match RedundantSpaces /\s\+$\| \+\ze\t/
+augroup END
+
+augroup aspect
+    autocmd BufRead *.py highlight OverLength ctermbg=darkgray guibg=darkgray
+    autocmd BufRead *.py match OverLength /\%80v.*/
 augroup END
 
 "Modification de l'autocompletion automatique pour faire apparaitre les sha-bangs
