@@ -91,6 +91,7 @@ iab #y #!/usr/bin/python
 iab #l #!/usr/bin/perl
 
 "Modification du comportement de vim en fonction du type de langage rencontré
+autocmd BufRead  *.md set ft=markdown
 autocmd BufRead  *.html,*.htm set ft=html
 autocmd BufRead  *.php,*.php3 set ft=php
 autocmd BufRead  *.c,*.h set ft=c
