@@ -1,10 +1,11 @@
 [user]
-    name = <Insert First Name>
-    email = <insert mail>@amadeus.com
+    name = Alex
+    email = alexprengere@gmail.com
 [color]
     diff = auto
     status = auto
     branch = auto
+    blame = auto
 [alias]
     ci = commit
     co = checkout
@@ -14,3 +15,5 @@
     logg = log --graph --decorate --pretty=oneline --abbrev-commit --all
 [core]
     editor = vim
+[diff "zip"]
+    textconv = unzip -c -a
