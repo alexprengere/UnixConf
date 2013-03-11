@@ -180,6 +180,8 @@ let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
 let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
 let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 
+set runtimepath^=~/.vim/bundle/ctrlp.vim
+
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
 highlight cursorcolumn  term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
