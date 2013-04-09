@@ -36,6 +36,7 @@ alias nh='nautilus .'
 
 alias python='/usr/bin/python'
 alias vi='vim '
+alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
 
 ## Alias basés sur les suffixes des fichiers
 alias -s png=eog
@@ -309,6 +310,7 @@ export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:/opt/vagrant/bin
 export PATH=$PATH:$HOME/Dev/distribution
 export PATH=$HOME/.cabal/bin:$PATH
+export PATH=/usr/local/heroku/bin:$PATH
 
 
 # Go variables
