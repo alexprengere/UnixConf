@@ -17,3 +17,13 @@
     editor = vim
 [diff "zip"]
     textconv = unzip -c -a
+[diff "word"]
+    textconv = strings
+#[diff "tgz"]
+#    textconv = tar -tvf
+#[diff "tbz"]
+#    textconv = tar -jtvf
+[diff "tgz"]
+    textconv = zcat
+[diff "tbz"]
+    textconv = bzcat
