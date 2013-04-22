@@ -5,7 +5,7 @@
 
 # If you want to use different themes and features,
 # you can load the corresponding files here:
-#source ~/code/liquidprompt/nojhan.theme
+source "$HOME/.liquid.theme"
 LP_PS1_FILE="$HOME/.liquid.ps1"
 
 #############
