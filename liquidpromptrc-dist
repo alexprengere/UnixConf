@@ -6,7 +6,7 @@
 # If you want to use different themes and features,
 # you can load the corresponding files here:
 #source ~/code/liquidprompt/nojhan.theme
-#source ~/code/liquidprompt/nojhan.ps1
+#LP_PS1_FILE="~/code/liquidprompt/nojhan.ps1"
 
 #############
 # BEHAVIOUR #
@@ -37,6 +37,11 @@ LP_HOSTNAME_ALWAYS=1
 # Defaults to 1 (always display the user)
 # set to 0 if you want to hide the logged user (it will always display different users)
 LP_USER_ALWAYS=1
+
+# Do you want to display the percentages of load/batteries along with their
+# corresponding marks? Set to 0 to only print the colored marks.
+# Defaults to 1 (display percentages)
+LP_PERCENTS_ALWAYS=1
 
 # Do you want to use the permissions feature ?
 # Recommended value is 1
@@ -90,6 +95,13 @@ LP_ENABLE_BZR=0
 # Recommended value is 0
 LP_ENABLE_TIME=0
 
+# When showing time, use an analog clock instead of numeric values.
+# The analog clock is "accurate" to the nearest half hour.
+# You must have a unicode-capable terminal and a font with the "CLOCK"
+# characters.
+# Recommended value is 0
+LP_TIME_ANALOG=0
+
 # Use the liquid prompt as the title of the terminal window
 # This may not work properly on exotic terminals, thus the
 # recommended value is 0
@@ -97,13 +109,23 @@ LP_ENABLE_TIME=0
 # feature to your specific terminal.
 LP_ENABLE_TITLE=0
 
+# Enable Title for screen and byobu
+LP_ENABLE_SCREEN_TITLE=0
+
+# Use differents colors for differents hosts you SSH in
+LP_ENABLE_SSH_COLORS=0
+
+# Specify a list of complete and colon (":") separated paths in which, all vcs
+# will be disabled
+LP_DISABLED_VCS_PATH=""
+
 # Virtualenv support
 LP_ENABLE_VIRTUALENV=1
 
 
-##########
-# THEMES #
-##########
+####################################
+# LIQUID PROMPT DEFAULT THEME FILE #
+####################################
 
 # Special characters
 # Be sure to use characters that exists in the font you use. You can use several
@@ -121,6 +143,8 @@ if [[ "$(locale -k LC_CTYPE | sed -n 's/^charmap="\(.*\)"/\1/p')" == *"UTF-8"* ]
     LP_MARK_GIT="±"         # prompt mark in git repositories
     LP_MARK_FOSSIL="⌘"         # prompt mark in fossil repositories
     LP_MARK_UNTRACKED="*"        # if git has untracked files
+    LP_MARK_STASH="+"        # if git has stashs
+    LP_MARK_SHORTEN_PATH="…" # prompt mark in shortened paths
 else
     # If charset is anything else, fallback to ASCII chars
     LP_MARK_BATTERY="b"
@@ -132,6 +156,8 @@ else
     LP_MARK_GIT="+"
     LP_MARK_FOSSIL="f"
     LP_MARK_UNTRACKED="*"
+    LP_MARK_STASH="+"
+    LP_MARK_SHORTEN_PATH="..."
 fi
 
 # Do not prefix the prompt
