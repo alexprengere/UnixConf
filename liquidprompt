@@ -586,12 +586,12 @@ _lp_get_dirtrim() {
 _lp_permissions_color()
 {
     if [[ "$LP_ENABLE_PERM" != 1 ]]; then
-        echo ": " # without color
+        echo : # without color
     else
         if [[ -w "${PWD}" ]]; then
-            echo "${LP_COLOR_WRITE}: ${NO_COL}"
+            echo "${LP_COLOR_WRITE}:${NO_COL}"
         else
-            echo "${LP_COLOR_NOWRITE}: ${NO_COL}"
+            echo "${LP_COLOR_NOWRITE}:${NO_COL}"
         fi
     fi
 }
@@ -600,7 +600,7 @@ _lp_permissions_color()
 _lp_virtualenv()
 {
     [[ "$LP_ENABLE_VIRTUALENV" != 1 ]] && return
-    [[ -n "$VIRTUAL_ENV" ]] && echo "${LP_COLOR_VENV}[`basename \"$VIRTUAL_ENV\"`]${NO_COL}"
+    [[ -n "$VIRTUAL_ENV" ]] && echo "[$(basename $VIRTUAL_ENV)]"
 }
 
 
