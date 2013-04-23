@@ -493,8 +493,7 @@ _lp_shorten_path()
             # the path and stores their
             # positions
             #
-            local pos
-            pos=()
+            local pos=()
             for ((i=0;i<len;i++))
             do
                 if [[ "${p:i:1}" == "/" ]]
@@ -547,12 +546,12 @@ _lp_shorten_path()
         else
             echo "$p"
         fi
-    #elif [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
-    #    if [[ "$len" -gt "$max_len" ]]; then
-    #        echo "%-${keep}~%${max_len}<${mask}<%~%<<"
-    #    else
-    #        echo "%~"
-    #    fi
+    elif [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
+        if [[ "$len" -gt "$max_len" ]]; then
+            echo "%-${keep}~%${max_len}<${mask}<%~%<<"
+        else
+            echo "%~"
+        fi
     fi
 }
 
@@ -859,16 +858,12 @@ _lp_svn_branch()
         return
     fi
     # Make url relative to root
-    if [[ "$_LP_WORKING_SHELL" == "zsh" ]]; then
-        url="$url[${#root}+1,-1]"
-    else
-        url="${url:${#root}}"
-    fi
+    url="${url:${#root}}"
     if [[ "$url" == */trunk* ]] ; then
         echo -n trunk
     else
         result=$(expr "$url" : '.*/branches/\([^/]*\)' || expr "$url" : '/\([^/]*\)' || basename "$root")
-        echo $result |tr -d \\n
+        echo -n $result # FIXME should be: echo -n $(_lp_escape "${result}")
     fi
 }
 
