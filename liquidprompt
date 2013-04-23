@@ -237,6 +237,7 @@ _lp_source_config()
     LP_MARK_GIT=${LP_MARK_GIT:-"±"}
     LP_MARK_FOSSIL=${LP_MARK_FOSSIL:-"⌘"}
     LP_MARK_BZR=${LP_MARK_BZR:-"⚯"}
+    LP_MARK_DISABLED=${LP_MARK_DISABLED:-"⌀"}
     LP_MARK_UNTRACKED=${LP_MARK_UNTRACKED:-"*"}
     LP_MARK_STASH=${LP_MARK_STASH:-"+"}
     LP_MARK_BRACKET_OPEN=${LP_MARK_BRACKET_OPEN:-"["}
@@ -336,7 +337,7 @@ _lp_escape()
 # Yellow for root, bold if the user is not the login one, else no color.
 if [[ "$EUID" -ne "0" ]] ; then  # if user is not root
     # if user is not login user
-    if [[ ${USER} != "$(logname 2>/dev/null)" ]]; then
+    if [[ ${USER} != "$(logname 2>/dev/null || echo $LOGNAME)" ]]; then
         LP_USER="${LP_COLOR_USER_ALT}${_LP_USER_SYMBOL}${NO_COL}"
     else
         if [[ "${LP_USER_ALWAYS}" -ne "0" ]] ; then
@@ -361,7 +362,7 @@ _lp_connection()
     else
         # TODO check on *BSD
         local sess_src=$(who am i | sed -n 's/.*(\(.*\))/\1/p')
-        local sess_parent=$(ps -o comm= -p $PPID)
+        local sess_parent=$(ps -o comm= -p $PPID 2> /dev/null)
         if [[ -z "$sess_src" || "$sess_src" = ":"* ]] ; then
             echo lcl  # Local
         elif [[ "$sess_parent" = "su" || "$sess_parent" = "sudo" ]] ; then
@@ -600,7 +601,9 @@ _lp_permissions_color()
 _lp_virtualenv()
 {
     [[ "$LP_ENABLE_VIRTUALENV" != 1 ]] && return
-    [[ -n "$VIRTUAL_ENV" ]] && echo "[$(basename $VIRTUAL_ENV)]"
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        echo "[${LP_COLOR_VIRTUALENV}$(basename $VIRTUAL_ENV)${NO_COL}]"
+    fi
 }
 
 
@@ -688,7 +691,7 @@ _lp_git_branch()
 {
     [[ "$LP_ENABLE_GIT" != 1 ]] && return
     local gitdir
-    gitdir="$(git rev-parse --git-dir 2>/dev/null)"
+    gitdir="$([ $(git ls-files . 2>/dev/null | wc -l) -gt 0 ] && git rev-parse --git-dir 2>/dev/null)"
     [[ $? -ne 0 || ! $gitdir =~ (.*\/)?\.git.* ]] && return
     local branch="$(git symbolic-ref HEAD 2>/dev/null)"
     if [[ $? -ne 0 || -z "$branch" ]] ; then
@@ -1279,6 +1282,8 @@ _lp_smart_mark()
         mark=$LP_MARK_FOSSIL
     elif [[ "$1" == "bzr" ]]; then
         mark=$LP_MARK_BZR
+    elif [[ "$1" == "disabled" ]]; then
+        mark=$LP_MARK_DISABLED
     fi
     echo -ne "${COL}${mark}${NO_COL}"
 }
@@ -1387,8 +1392,10 @@ _lp_set_prompt()
 
     # right of main prompt: space at left
     LP_VENV=$(_lp_sl "$(_lp_virtualenv)")
-    LP_VCS=""
+    # if change of working directory
     if [[ "$LP_OLD_PWD" != "$PWD" ]]; then
+        LP_VCS=""
+        LP_VCS_TYPE=""
         # LP_HOST is a global set at load time
         LP_PERM=$(_lp_permissions_color)
         LP_PWD=$(_lp_shorten_path)
@@ -1396,38 +1403,47 @@ _lp_set_prompt()
 
         if [[ "$(_lp_are_vcs_disabled)" -eq "0" ]] ; then
             LP_VCS="$(_lp_git_branch_color)"
-            LP_VCS_TYPES="git"
+            LP_VCS_TYPE="git"
             if [[ -n "$LP_VCS" ]]; then
                 # If this is a git-svn repository
                 if [[ -d "$(git rev-parse --git-dir 2>/dev/null)/svn" ]]; then
-                    LP_VCS_TYPES="git-svn"
+                    LP_VCS_TYPE="git-svn"
                 fi
             fi # git-svn
             if [[ -z "$LP_VCS" ]]; then
                 LP_VCS="$(_lp_hg_branch_color)"
-                LP_VCS_TYPES="hg"
+                LP_VCS_TYPE="hg"
                 if [[ -z "$LP_VCS" ]]; then
                     LP_VCS="$(_lp_svn_branch_color)"
-                    LP_VCS_TYPES="svn"
+                    LP_VCS_TYPE="svn"
                     if [[ -z "$LP_VCS" ]]; then
                         LP_VCS="$(_lp_fossil_branch_color)"
-                        LP_VCS_TYPES="fossil"
+                        LP_VCS_TYPE="fossil"
                         if [[ -z "$LP_VCS" ]]; then
                             LP_VCS="$(_lp_bzr_branch_color)"
-                            LP_VCS_TYPES="bzr"
+                            LP_VCS_TYPE="bzr"
+                            if [[ -z "$LP_VCS" ]]; then
+                                LP_VCS=""
+                                LP_VCS_TYPE=""
+                            fi # nothing
                         fi # bzr
                     fi # fossil
                 fi # svn
             fi # hg
-        fi # disabled
-        if [[ -z "$LP_VCS" ]] ; then
-            LP_VCS_TYPES=""
+
+        else # if this vcs rep is disabled
+            LP_VCS="" # not necessary, but more readable
+            LP_VCS_TYPE="disabled"
+        fi
+
+        if [[ -z "$LP_VCS_TYPE" ]] ; then
+            LP_VCS=""
         else
             LP_VCS=$(_lp_sl "${LP_VCS}")
         fi
 
         # end of the prompt line: double spaces
-        LP_MARK=$(_lp_sb "$(_lp_smart_mark $LP_VCS_TYPES)")
+        LP_MARK=$(_lp_sb "$(_lp_smart_mark $LP_VCS_TYPE)")
 
         # Different path color if root
         if [[ "$EUID" -ne "0" ]] ; then
@@ -1437,14 +1453,16 @@ _lp_set_prompt()
         fi
         LP_OLD_PWD="$PWD"
 
-    elif [[ -n "$LP_VCS_TYPES" ]]; then
-        case "$LP_VCS_TYPES" in
-            git)    LP_VCS=$(_lp_sl "$(_lp_git_branch_color)");;
-            git-svn)LP_VCS=$(_lp_sl "$(_lp_git_branch_color)");;
-            hg)     LP_VCS=$(_lp_sl "$(_lp_hg_branch_color)");;
-            svn)    LP_VCS=$(_lp_sl "$(_lp_svn_branch_color)");;
-            fossil) LP_VCS=$(_lp_sl "$(_lp_fossil_branch_color)");;
-            bzr)    LP_VCS=$(_lp_sl "$(_lp_bzr_branch_color)");;
+    # if do not change of working directory but...
+    elif [[ -n "$LP_VCS_TYPE" ]]; then # we are still in a VCS dir
+        case "$LP_VCS_TYPE" in
+            git)     LP_VCS=$(_lp_sl "$(_lp_git_branch_color)");;
+            git-svn) LP_VCS=$(_lp_sl "$(_lp_git_branch_color)");;
+            hg)      LP_VCS=$(_lp_sl "$(_lp_hg_branch_color)");;
+            svn)     LP_VCS=$(_lp_sl "$(_lp_svn_branch_color)");;
+            fossil)  LP_VCS=$(_lp_sl "$(_lp_fossil_branch_color)");;
+            bzr)     LP_VCS=$(_lp_sl "$(_lp_bzr_branch_color)");;
+            disabled)LP_VCS="";;
         esac
     fi
 
