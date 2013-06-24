@@ -63,6 +63,7 @@ if test -n "$BASH_VERSION" -a -n "$PS1" -a -n "$TERM" ; then
     _LP_USER_SYMBOL="\u"
     _LP_HOST_SYMBOL="\h"
     _LP_TIME_SYMBOL="\t"
+    _LP_MARK_SYMBOL='\$'
     _LP_FIRST_INDEX=0
 elif test -n "$ZSH_VERSION" ; then
     _LP_SHELL_bash=false
@@ -72,6 +73,7 @@ elif test -n "$ZSH_VERSION" ; then
     _LP_USER_SYMBOL="%n"
     _LP_HOST_SYMBOL="%m"
     _LP_TIME_SYMBOL="%*"
+    _LP_MARK_SYMBOL='%(!.#.%%)'
     _LP_FIRST_INDEX=1
 else
     echo "liquidprompt: shell not supported" >&2
@@ -112,14 +114,17 @@ case "$LP_OS" in
     FreeBSD)
         _lp_cpu_load () {
             local bol load eol
-            read bol load eol < $<( LANG=C sysctl -n vm.loadavg )
+            # If you have problems with syntax coloring due to the following
+            # line, do this: ln -s liquidprompt liquidprompt.bash
+            # and edit liquidprompt.bash
+            read bol load eol <<<$( LANG=C sysctl -n vm.loadavg )
             echo "$load"
         }
         ;;
     Darwin)
         _lp_cpu_load () {
-            local load
-            load=$(LANG=C sysctl -n vm.loadavg | awk '{print $2}')
+            local bol load eol
+            read bol load eol <<<$( LANG=C sysctl -n vm.loadavg )
             echo "$load"
         }
         LP_DWIN_KERNEL_REL_VER=$(uname -r | cut -d . -f 1)
@@ -295,6 +300,8 @@ _lp_source_config()
     LP_COLORMAP_8=${LP_COLORMAP_8:-$CRIT_RED}
     LP_COLORMAP_9=${LP_COLORMAP_9:-$DANGER_RED}
 
+    # Debugging flags
+    LP_DEBUG_TIME=${LP_DEBUG_TIME:-0}
 
     # Default config file may be the XDG standard ~/.config/liquidpromptrc,
     # but heirloom dotfile has priority.
@@ -364,8 +371,15 @@ if [[ "$EUID" -ne "0" ]] ; then  # if user is not root
             LP_USER=""
         fi
     fi
-else
+else # root!
     LP_USER="${LP_COLOR_USER_ROOT}${_LP_USER_SYMBOL}${NO_COL}"
+    LP_COLOR_MARK="${LP_COLOR_MARK_ROOT}"
+    LP_COLOR_PATH="${LP_COLOR_PATH_ROOT}"
+    # Disable VCS info for all paths
+    if [[ "$LP_ENABLE_VCS_ROOT" != 1 ]]; then
+        LP_DISABLED_VCS_PATH=/
+        LP_MARK_DISABLED="$_LP_MARK_SYMBOL"
+    fi
 fi
 
 
@@ -452,14 +466,8 @@ tel)
 esac
 
 # Useless now, so undefine
-# unset _lp_connection
+unset _lp_connection
 
-
-# put an arrow if an http proxy is set
-_lp_proxy()
-{
-    [[ "$LP_ENABLE_PROXY,$http_proxy" = 1,?* ]] && echo -ne "$LP_COLOR_PROXY$LP_MARK_PROXY$NO_COL"
-}
 
 # BASH/ZSH function that shortens
 # a very long path for display by removing
@@ -1145,33 +1153,37 @@ _lp_battery_color()
 }
 
 _lp_color_map() {
-    local -i value
-    value=$1
-    if (( value < 100 )); then
-        if (( value <  60 )); then
-            if   (( value <  20 )); then
+    # Default scale: 0..100
+    # Custom scale: 0..$2
+    local -i scale value
+    scale=${2:-100}
+    # Transform the value to a 0..100 scale
+    value=100*$1/scale
+    if (( value < 50 )); then
+        if (( value <  30 )); then
+            if   (( value <  10 )); then
                 echo -ne "${LP_COLORMAP_0}"
-            elif (( value <  40 )); then
+            elif (( value <  20 )); then
                 echo -ne "${LP_COLORMAP_1}"
             else # 40..59
                 echo -ne "${LP_COLORMAP_2}"
             fi
-        elif (( value <  80 )); then
+        elif (( value <  40 )); then
             echo -ne "${LP_COLORMAP_3}"
         else # 80..99
             echo -ne "${LP_COLORMAP_4}"
         fi
-    elif (( value < 160 )); then
-        if (( value < 120 )); then
+    elif (( value <  80 )); then
+        if (( value <  60 )); then
             echo -ne "${LP_COLORMAP_5}"
-        elif (( value < 140 )); then
+        elif (( value <  70 )); then
             echo -ne "${LP_COLORMAP_6}"
         else
             echo -ne "${LP_COLORMAP_7}"
         fi
-    elif (( value < 180 )) ; then
+    elif (( value < 90 )) ; then
         echo -ne "${LP_COLORMAP_8}"
-    else # (( value >= 180 ))
+    else # (( value >= 90 ))
         echo -ne "${LP_COLORMAP_9}"
     fi
 }
@@ -1199,7 +1211,7 @@ _lp_load_color()
     local -i load=${tmp:-0}/$_lp_CPUNUM
 
     if (( load > $LP_LOAD_THRESHOLD )); then
-        local ret="$(_lp_color_map $load)${LP_MARK_LOAD}"
+        local ret="$(_lp_color_map $load 200)${LP_MARK_LOAD}"
 
         if [[ "$LP_PERCENTS_ALWAYS" == 1 ]]; then
             if $_LP_SHELL_bash; then
@@ -1219,8 +1231,8 @@ _lp_load_color()
 _lp_temp_sensors() {
     # Return the hottest system temperature we get through the sensors command
     local temperature=0
-    for i in $(sensors | grep -E "^(CPU|SYS|MB|Core|temp).*°(C|F)" |
-            sed -r "s/.*: *\+([0-9]*)\..°.*/\1/g"); do
+    for i in $(sensors |
+            sed -n -r "s/^(CPU|SYS|MB|Core|temp).*: *\+([0-9]*)\..°.*/\2/p"); do
         if [[ $i -gt $temperature ]]; then
             temperature=$i
         fi
@@ -1228,26 +1240,26 @@ _lp_temp_sensors() {
     echo -ne "$temperature"
 }
 
-# Will set _lp_temp_function so the temperature monitoring feature use an
-# available command. _lp_temp_function should return only a numeric value
+# Will set _LP_TEMP_FUNCTION so the temperature monitoring feature use an
+# available command. _LP_TEMP_FUNCTION should return only a numeric value
 if [[ "$LP_ENABLE_TEMP" = 1 ]]; then
     if command -v sensors >/dev/null; then
-        _lp_temp_function=_lp_temp_sensors
+        _LP_TEMP_FUNCTION=_lp_temp_sensors
     # elif command -v the_command_you_want_to_use; then
-    #   _lp_temp_function=your_function
+    #   _LP_TEMP_FUNCTION=your_function
     else
         LP_ENABLE_TEMP=0
     fi
 fi
 
 _lp_temperature() {
-    # Will display the numeric value as we got it through the _lp_temp_function
+    # Will display the numeric value as we got it through the _LP_TEMP_FUNCTION
     # and colorize it through _lp_color_map.
     [[ "$LP_ENABLE_TEMP" != 1 ]] && return
 
-    temperature="$($_lp_temp_function)"
+    local temperature="$($_LP_TEMP_FUNCTION)"
     if [[ $temperature -ge $LP_TEMP_THRESHOLD ]]; then
-        echo -ne "${LP_MARK_TEMP}$(_lp_color_map $temperature)$temperature°${NO_COL}"
+        echo -ne "${LP_MARK_TEMP}$(_lp_color_map $temperature 120)$temperature°${NO_COL}"
     fi
 }
 
@@ -1304,36 +1316,24 @@ _lp_title()
 # to # if root and else $
 _lp_smart_mark()
 {
-    local COL
-    COL=${LP_COLOR_MARK}
-    if [[ "$EUID" -eq "0" ]] ; then
-        COL=${LP_COLOR_MARK_ROOT}
-    fi
-
     local mark
-    if [[ -n "$LP_MARK_DEFAULT" ]]; then
-        mark=$LP_MARK_DEFAULT
-    elif $_LP_SHELL_zsh; then
-        mark="%(!.#.%%)"
-    else
-        mark="\\\$"
-    fi
-    if [[ "$1" == "git" ]]; then
-        mark=$LP_MARK_GIT
-    elif [[ "$1" == "git-svn" ]]; then
-        mark="$LP_MARK_GIT$LP_MARK_SVN"
-    elif [[ "$1" == "hg" ]]; then
-        mark=$LP_MARK_HG
-    elif [[ "$1" == "svn" ]]; then
-        mark=$LP_MARK_SVN
-    elif [[ "$1" == "fossil" ]]; then
-        mark=$LP_MARK_FOSSIL
-    elif [[ "$1" == "bzr" ]]; then
-        mark=$LP_MARK_BZR
-    elif [[ "$1" == "disabled" ]]; then
-        mark=$LP_MARK_DISABLED
-    fi
-    echo -ne "${COL}${mark}${NO_COL}"
+    case "$LP_VCS_TYPE" in
+    git)      mark="$LP_MARK_GIT"             ;;
+    git-svn)  mark="$LP_MARK_GIT$LP_MARK_SVN" ;;
+    hg)       mark="$LP_MARK_HG"              ;;
+    svn)      mark="$LP_MARK_SVN"             ;;
+    fossil)   mark="$LP_MARK_FOSSIL"          ;;
+    bzr)      mark="$LP_MARK_BZR"             ;;
+    disabled) mark="$LP_MARK_DISABLED"        ;;
+    *)
+        if [[ -n "$LP_MARK_DEFAULT" ]]; then
+            mark=$LP_MARK_DEFAULT
+        else
+            mark="$_LP_MARK_SYMBOL"
+        fi
+        ;;
+    esac
+    echo -ne "${LP_COLOR_MARK}${mark}${NO_COL}"
 }
 
 # insert a space on the right
@@ -1442,7 +1442,11 @@ _lp_set_prompt()
     LP_TIME="$(_lp_sr "$(_lp_time)")"
 
     # in main prompt: no space
-    LP_PROXY="$(_lp_proxy)"
+    if [[ "$LP_ENABLE_PROXY,$http_proxy" = 1,?* ]] ; then
+        LP_PROXY="$LP_COLOR_PROXY$LP_MARK_PROXY$NO_COL"
+    else
+        LP_PROXY=
+    fi
 
     # right of main prompt: space at left
     LP_VENV="$(_lp_sl "$(_lp_virtualenv)")"
@@ -1498,12 +1502,9 @@ _lp_set_prompt()
         # end of the prompt line: double spaces
         LP_MARK="$(_lp_sb "$(_lp_smart_mark $LP_VCS_TYPE)")"
 
-        # Different path color if root
-        if [[ "$EUID" -ne "0" ]] ; then
-            LP_PWD="${LP_COLOR_PATH}${LP_PWD}${NO_COL}"
-        else
-            LP_PWD="${LP_COLOR_PATH_ROOT}${LP_PWD}${NO_COL}"
-        fi
+        # The color is different if user is root
+        LP_PWD="${LP_COLOR_PATH}${LP_PWD}${NO_COL}"
+
         LP_OLD_PWD="$PWD"
 
     # if do not change of working directory but...
@@ -1529,19 +1530,13 @@ _lp_set_prompt()
         # add user, host and permissions colon
         PS1="${PS1}${LP_BRACKET_OPEN}${LP_USER}${LP_HOST}${LP_PERM}"
 
-        # if not root
-        if [[ "$EUID" -ne "0" ]]
-        then
-            # path in foreground color
-            PS1="${PS1}${LP_PWD}${LP_BRACKET_CLOSE}${LP_VENV}${LP_PROXY}"
-            # add VCS infos
-            PS1="${PS1}${LP_VCS}"
-        else
-            # path in yellow
-            PS1="${PS1}${LP_PWD}${LP_BRACKET_CLOSE}${LP_VENV}${LP_PROXY}"
-            # do not add VCS infos unless told otherwise (LP_ENABLE_VCS_ROOT)
-            [[ "$LP_ENABLE_VCS_ROOT" = "1" ]] && PS1="${PS1}${LP_VCS}"
-        fi
+        PS1="${PS1}${LP_PWD}${LP_BRACKET_CLOSE}${LP_VENV}${LP_PROXY}"
+
+        # Add VCS infos
+        # If root, the info has not been collected unless LP_ENABLE_VCS_ROOT
+        # is set.
+        PS1="${PS1}${LP_VCS}"
+
         # add return code and prompt mark
         PS1="${PS1}${LP_ERR}${LP_MARK}${LP_PS1_POSTFIX}"
 
@@ -1586,6 +1581,7 @@ prompt_on()
     fi
     if $_LP_SHELL_bash; then
         PROMPT_COMMAND=_lp_set_prompt
+        [[ "$LP_DEBUG_TIME" == 1 ]] && PROMPT_COMMAND="time $PROMPT_COMMAND"
     else # zsh
         function precmd {
             _lp_set_prompt
@@ -1623,10 +1619,7 @@ prompt_OFF()
     fi
 }
 
-# By default, sourcing liquidprompt.bash will activate the liquid prompt
+# By default, sourcing liquidprompt will activate the liquid prompt
 prompt_on
-
-# Cleaning of variable that are not needed at runtime
-unset LP_OS
 
 # vim: set et sts=4 sw=4 tw=120 ft=sh:
