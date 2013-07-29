@@ -1,0 +1,18 @@
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+
+# This is an example on how you can mount your SSD drive
+# 1) noatime + nodiratime
+# 2) activate TRIM with discard
+UUID=5b3bd5f2-ac4a-4867-987d-b0249313749a /               ext4   noatime,nodiratime,discard,errors=remount-ro 0       1
+
+# Swap example, turned off, with SSD we do not want to swap on it
+#UUID=eab51960-9b60-49a8-a46d-79030aa64842 none            swap    sw              0       0
+
+# Mount other partitions as user, useful to share over samba
+/dev/disk/by-uuid/4CD2EE1906E2F05A /media/alex/Barak_2 auto defaults,umask=0022,uid=1000,gid=1000 0 0
