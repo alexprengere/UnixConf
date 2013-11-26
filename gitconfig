@@ -12,6 +12,7 @@
     st = status
     br = branch
     ds = diff --stat
+    ls = ls-files
     logg = log --graph --decorate --pretty=oneline --abbrev-commit --all
 [core]
     editor = vim
