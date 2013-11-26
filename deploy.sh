@@ -6,8 +6,11 @@
 
 # Skipped files
 SKIPPED=(
+    `basename $0`
     "README.rst"
-    "install.sh"
+    "aprengere.zsh-theme"
+    "conkyrc"
+    "wgetrc"
     "fstab.ssd"
     "fstab"
 )
@@ -106,7 +109,7 @@ for SOURCE in ${SOURCES[@]}; do
     if [ ! -f "$TARGET" ] && [ ! -d "$TARGET" ]; then
         msg $SOURCE $SYMBOL $TARGET "moved to target"
         if [ "$TEST" = "false" ]; then
-            mv $SOURCE $TARGET
+            cp $SOURCE $TARGET
         fi
 
     elif [ -f "$SOURCE" ]; then
@@ -121,7 +124,7 @@ for SOURCE in ${SOURCES[@]}; do
                     diff -u $SOURCE $TARGET
                 fi
                 if [ "$TEST" = "false" ]; then
-                    mv $SOURCE $TARGET
+                    cp $SOURCE $TARGET
                 fi
             else
                 msg $SOURCE $SYMBOL $TARGET "skipped, exists *with* differences"
@@ -136,7 +139,7 @@ for SOURCE in ${SOURCES[@]}; do
             msg $SOURCE $SYMBOL $TARGET "moved to target, *overriding*"
             if [ "$TEST" = "false" ]; then
                 rm -r $TARGET
-                mv $SOURCE $TARGET
+                cp -r $SOURCE $TARGET
             fi
         else
             msg $SOURCE $SYMBOL $TARGET "skipped, target *directory* exists"
