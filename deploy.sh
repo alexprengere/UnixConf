@@ -7,7 +7,8 @@
 # Skipped files
 SKIPPED=(
     `basename $0`
-    "install.sh"
+    "install_ubuntu.sh"
+    "install_fedora.sh"
     "README.rst"
     "aprengere.zsh-theme"
     "gitattributes"
