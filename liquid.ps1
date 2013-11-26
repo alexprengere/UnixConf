@@ -36,7 +36,7 @@ then
     LP_PS1="${LP_PS1}${LP_VCS}"
 else
     # path in yellow
-    LP_PS1="${LP_PS1}${LP_PWD}]${LP_VENV}${LP_PROXY}"
+    LP_PS1="${LP_PS1}${LP_PWD}${LP_VENV}${LP_PROXY}"
     # do not add VCS infos unless told otherwise (LP_ENABLE_VCS_ROOT)
     [[ "$LP_ENABLE_VCS_ROOT" = "1" ]] && LP_PS1="${LP_PS1}${LP_VCS}"
 fi
