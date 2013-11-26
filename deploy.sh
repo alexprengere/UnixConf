@@ -108,8 +108,15 @@ for SOURCE in ${SOURCES[@]}; do
 
     if [ ! -f "$TARGET" ] && [ ! -d "$TARGET" ]; then
         msg $SOURCE $SYMBOL $TARGET "moved to target"
+
         if [ "$TEST" = "false" ]; then
-            cp $SOURCE $TARGET
+            if [ -f "$SOURCE" ]; then
+                cp $SOURCE $TARGET
+            elif [ -d "$SOURCE" ]; then
+                cp -r $SOURCE $TARGET
+            else
+                msg $SOURCE $SYMBOL $TARGET "something weird happened!"
+            fi
         fi
 
     elif [ -f "$SOURCE" ]; then
