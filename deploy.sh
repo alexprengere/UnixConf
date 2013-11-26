@@ -10,6 +10,7 @@ SKIPPED=(
     "install.sh"
     "README.rst"
     "aprengere.zsh-theme"
+    "gitattributes"
     "conkyrc"
     "wgetrc"
     "fstab.ssd"
