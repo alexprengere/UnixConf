@@ -7,6 +7,7 @@
 # Skipped files
 SKIPPED=(
     `basename $0`
+    "install.sh"
     "README.rst"
     "aprengere.zsh-theme"
     "conkyrc"
