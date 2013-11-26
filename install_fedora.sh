@@ -4,4 +4,5 @@ sudo yum install \
     python-pip ipython            \
     git subversion                \
     gcc-c++ python-devel          \
-    pylint jsl
+    pylint jsl                    \
+    nfs-utils nfs-utils-lib

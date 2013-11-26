@@ -4,4 +4,5 @@ sudo apt-get install \
     python-pip ipython            \
     git subversion                \
     g++ python-dev                \
-    pylint
+    pylint                        \
+    nfs-common
