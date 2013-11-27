@@ -11,6 +11,7 @@ SKIPPED=(
     "install_fedora.sh"
     "README.rst"
     "shell.aliases"
+    "liquidprompt.oldzsh"
     "aprengere.zsh-theme"
     "gitattributes"
     "conkyrc"
