@@ -134,6 +134,7 @@ for SOURCE in ${SOURCES[@]}; do
                     diff -u $SOURCE $TARGET
                 fi
                 if [ "$TEST" = "false" ]; then
+                    mv $TARGET $TARGET.back
                     cp $SOURCE $TARGET
                 fi
             else
@@ -148,7 +149,8 @@ for SOURCE in ${SOURCES[@]}; do
         if [ "$FORCE" = "true" ]; then
             msg $SOURCE $SYMBOL $TARGET "moved to target, *overriding*"
             if [ "$TEST" = "false" ]; then
-                rm -r $TARGET
+                rm -rf $TARGET.back
+                mv $TARGET $TARGET.back
                 cp -r $SOURCE $TARGET
             fi
         else
