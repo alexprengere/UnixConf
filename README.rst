@@ -5,6 +5,10 @@ Configuration
 
 Automation
 ==========
+You may install basic stuff::
+
+ ./install_ubuntu.sh # or ./install_fedora.sh
+
 You may deploy automatically using::
 
  ./deploy.sh
