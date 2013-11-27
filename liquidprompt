@@ -588,6 +588,7 @@ _lp_shorten_path()
             echo "$p"
         fi
     else # zsh
+        unset p
         if (( len > max_len )); then
             print -P "%-${LP_PATH_KEEP}~%${max_len}<${LP_MARK_SHORTEN_PATH}<%~%<<"
         else
@@ -618,6 +619,7 @@ _lp_get_dirtrim() {
         done
         [[ "$((PROMPT_DIRTRIM))" -eq 0 ]] && PROMPT_DIRTRIM=1
     fi
+    unset p
     echo "$PROMPT_DIRTRIM"
 }
 
@@ -789,6 +791,24 @@ _lp_git_branch_color()
     fi
 }
 
+# Search upwards through a directory structure looking for a file/folder with
+# the given name.  Used to avoid invoking 'hg' and 'bzr'.
+_lp_upwards_find()
+{
+    while [[ "$PWD" != "/" ]] ; do
+        
+        # See if it's in the current directory.
+        local found=$(find "$PWD"/ -maxdepth 1 -name "$@" 2> /dev/null)
+        
+        # If it is, then echo the path (or anything), and return.
+        if [[ -n found ]] ; then
+            echo $found
+            return
+        fi
+        
+        cd ..
+    done
+}
 
 # MERCURIAL #
 
@@ -796,10 +816,19 @@ _lp_git_branch_color()
 _lp_hg_branch()
 {
     [[ "$LP_ENABLE_HG" != 1 ]] && return
+   
+    # First do a simple search to avoid having to invoke hg -- at least on my
+    # machine, the python startup causes a noticeable hitch when changing
+    # directories.
+    [[ -z "$(_lp_upwards_find '.hg')" ]] && return
+
+    # We found an .hg folder, so we need to invoke hg and see if we're actually
+    # in a repository.
+    
     local branch
     branch="$(hg branch 2>/dev/null)"
-    [[ $? -eq 0 ]] && _lp_escape "$branch"
 
+    [[ $? -eq 0 ]] && _lp_escape "$branch"
 }
 
 # Set a color depending on the branch state:
@@ -837,7 +866,7 @@ _lp_hg_branch_color()
                 ret="${LP_COLOR_UP}${branch}${has_untracked}${NO_COL}" # nothing to commit or push
             fi
         else
-            local has_line
+            local has_lines
             has_lines=$(hg diff --stat 2>/dev/null | tail -n 1 | awk 'FS=" " {printf("+%s/-%s\n", $4, $6)}')
             if [[ "$has_commit" -gt "0" ]] ; then
                 # Changes to commit and commits to push
@@ -1015,6 +1044,15 @@ _lp_fossil_branch_color()
 _lp_bzr_branch()
 {
     [[ "$LP_ENABLE_BZR" != 1 ]] && return
+
+    # First do a simple search to avoid having to invoke bzr -- at least on my
+    # machine, the python startup causes a noticeable hitch when changing
+    # directories.
+    [[ -z $(_lp_upwards_find '.bzr') ]] && return
+
+    # We found an .bzr folder, so we need to invoke bzr and see if we're
+    # actually in a repository.
+
     local branch
     branch="$(bzr nick 2> /dev/null)"
     [[ $? -ne 0 ]] && return
@@ -1031,6 +1069,15 @@ _lp_bzr_branch()
 _lp_bzr_branch_color()
 {
     [[ "$LP_ENABLE_BZR" != 1 ]] && return
+
+    # First do a simple search to avoid having to invoke bzr -- at least on my
+    # machine, the python startup causes a noticeable hitch when changing
+    # directories.
+    [[ -z $(_lp_upwards_find '.bzr') ]] && return
+
+    # We found an .bzr folder, so we need to invoke bzr and see if we're
+    # actually in a repository.
+
     local output
     output="$(bzr version-info --check-clean --custom --template='{branch_nick} {revno} {clean}' 2> /dev/null)"
     [[ $? -ne 0 ]] && return
@@ -1518,7 +1565,7 @@ _lp_set_prompt()
 
     LP_RUNTIME=$(_lp_sl "$(_lp_runtime)")
 
-    if [[ "$LP_OLD_PWD" != "$PWD" ]]; then
+    if [[ "$LP_OLD_PWD" != "LP:$PWD" ]]; then
         LP_VCS=""
         LP_VCS_TYPE=""
         # LP_HOST is a global set at load time
@@ -1572,7 +1619,7 @@ _lp_set_prompt()
         # The color is different if user is root
         LP_PWD="${LP_COLOR_PATH}${LP_PWD}${NO_COL}"
 
-        LP_OLD_PWD="$PWD"
+        LP_OLD_PWD="LP:$PWD"
 
     # if do not change of working directory but...
     elif [[ -n "$LP_VCS_TYPE" ]]; then # we are still in a VCS dir
