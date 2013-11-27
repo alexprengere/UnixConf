@@ -415,24 +415,20 @@ function my_precmd() {
 }
 
 # Aliases and liquid prompt
-_one_source() 
-{
+source_if_there () {
     if [ -f "$1" ]; then
-        source $1
-    else
-        echo "File $1 not found"
+        source "$1"
     fi
 }
 
-_all_source()
-{
-    _one_source ~/.liquidprompt
-    _one_source ~/.shell.aliases
-}
+LIQUIDP_FILE="$HOME/.liquidprompt"
+ALIASES_FILE="$HOME/.shell.aliases"
 
-_all_source
+source_if_there $LIQUIDP_FILE
+source_if_there $ALIASES_FILE
 
-if [ ! -f ~/.liquidprompt ]; then
+if [ ! -f $LIQUIDP_FILE ]; then
+    echo "$LIQUIDP_FILE not found!"
     function precmd () {
         my_precmd
     }

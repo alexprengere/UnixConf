@@ -105,26 +105,20 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'	# begin underline
 # Correction automatique des fautes de frappe sur la commande cd
 shopt -s cdspell
 
-# Liquid prompt
-LIQUID_PROMPT=~/.liquidprompt
-LIQUID_CONFIG=~/.liquidpromptrc
-
-if [ -f "$LIQUID_PROMPT" ];then
-    if [ -f "$LIQUID_CONFIG" ]; then
-        source "$LIQUID_PROMPT"
-    else
-        echo "No file $LIQUID_CONFIG"
+# Aliases and liquid prompt
+source_if_there () {
+    if [ -f "$1" ]; then
+        source "$1"
     fi
-else
-    echo "No file $LIQUID_PROMPT"
-fi
+}
 
-## Alias private
-PRIVATE_ALIASES=~/.shell.aliases
+LIQUIDP_FILE="$HOME/.liquidprompt"
+ALIASES_FILE="$HOME/.shell.aliases"
 
-if [ -f "$PRIVATE_ALIASES" ]; then
-    source "$PRIVATE_ALIASES"
-else
-    echo "No aliases file $PRIVATE_ALIASES"
+source_if_there $LIQUIDP_FILE
+source_if_there $ALIASES_FILE
+
+if [ ! -f $LIQUIDP_FILE ]; then
+    echo "$LIQUIDP_FILE not found!"
 fi
 
