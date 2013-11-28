@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install common libs
-sudo yum update
+sudo yum check-update
 sudo yum install                  \
     vim screen zsh htop colordiff \
     openssh-server                \
