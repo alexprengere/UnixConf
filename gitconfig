@@ -28,3 +28,5 @@
     textconv = zcat
 [diff "tbz"]
     textconv = bzcat
+[push]
+	default = simple
