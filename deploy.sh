@@ -26,9 +26,11 @@ SKIPPED=(
 declare -A SPECIALS
 SPECIALS=(
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
-    [liquidprompt]="$HOME/.liquidprompt"
-    #[fstab.ssd]="/etc/fstab"
-    #[fstab]="/etc/fstab"
+    [liquidprompt.oldzsh]="$HOME/.liquidprompt"
+    [fstab.ssd]="/etc/fstab"
+    [fstab]="/etc/fstab"
+    [vimrc.oldsys]="$HOME/.vimrc"
+    [vim.oldsys]="$HOME/.vim"
 )
 
 ####
