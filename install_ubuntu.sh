@@ -7,7 +7,9 @@ sudo apt-get install              \
     openssh-server                \
     python-pip ipython            \
     git subversion                \
+    cmake automake                \
     g++ python-dev                \
+    build-essential               \
     pylint                        \
     nfs-common
 

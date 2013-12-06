@@ -7,7 +7,9 @@ sudo yum install                  \
     openssh-server                \
     python-pip ipython            \
     git subversion                \
+    cmake automake                \
     gcc-c++ python-devel          \
+    kernel-devel                  \
     pylint jsl                    \
     nfs-utils nfs-utils-lib
 
