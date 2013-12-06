@@ -22,7 +22,8 @@ Bundle "tomtom/tlib_vim"
 Bundle "garbas/vim-snipmate"
 Bundle "honza/vim-snippets"
 
-Bundle 'ervandew/supertab'
+Bundle 'Valloric/YouCompleteMe'
+"Bundle 'ervandew/supertab'
 
 Bundle 'majutsushi/tagbar'
 Bundle 'techlivezheng/tagbar-phpctags'
@@ -202,19 +203,19 @@ noremap ,s :SyntasticToggleMode<cr>
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
-"Supertab options
-"let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
-let g:SuperTabDefaultCompletionType = "context"
-set completeopt=menuone,longest,preview
-
 "Syntastic options
+"Checkers options
 let g:syntastic_check_on_open=1
 let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
-"Checkers options
 let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
 let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 
+"Ctrlp
 set runtimepath^=~/.vim/bundle/ctrlp.vim
+
+"Custom YCM key
+let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
+let g:ycm_key_list_previous_completion =  ['<C-S-TAB>', '<Up>']
 
 " Markdown options
 let g:vim_markdown_folding_disabled=1

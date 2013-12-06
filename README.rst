@@ -26,6 +26,11 @@ Then run vim and install packages::
  vim
  :BundleInstall
 
+Finally you need to do that manually::
+
+ cd ~/.vim/bundle/YouCompleteMe
+ ./install.sh --clang-completer
+
 Manually
 ========
 
