@@ -217,6 +217,10 @@ set runtimepath^=~/.vim/bundle/ctrlp.vim
 let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
 let g:ycm_key_list_previous_completion =  ['<C-S-TAB>', '<Up>']
 
+"Supertab options
+"let g:SuperTabDefaultCompletionType = "context"
+"set completeopt=menuone,longest,preview
+
 " Markdown options
 let g:vim_markdown_folding_disabled=1
 let g:vim_markdown_initial_foldlevel=1
