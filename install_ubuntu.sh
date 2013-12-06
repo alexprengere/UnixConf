@@ -10,6 +10,7 @@ sudo apt-get install              \
     cmake automake                \
     g++ python-dev                \
     build-essential               \
+    exuberant-ctags               \
     pylint                        \
     nfs-common
 

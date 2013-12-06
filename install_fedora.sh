@@ -10,6 +10,7 @@ sudo yum install                  \
     cmake automake                \
     gcc-c++ python-devel          \
     kernel-devel                  \
+    ctags                         \
     pylint jsl                    \
     nfs-utils nfs-utils-lib
 
