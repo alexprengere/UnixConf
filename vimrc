@@ -181,6 +181,10 @@ let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 
 set runtimepath^=~/.vim/bundle/ctrlp.vim
 
+" Markdown options
+let g:vim_markdown_folding_disabled=1
+let g:vim_markdown_initial_foldlevel=1
+
 "Change highlight line style
 highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
 highlight cursorcolumn  term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
