@@ -47,7 +47,6 @@ Change your default shell to zsh using ``chsh``.
 
 If you want to add private aliases, edit a ~/.shell.aliases file.
 
-
 VIM
 ---
 Copy vimrc as ~/.vimrc.
@@ -56,6 +55,9 @@ Syntastic plugin uses pylint and jsl as syntax checkers.
 Make sure your configuration files are reached for these ones.
 Check the .vimrc to see where syntastic is looking for, usually ~/.pylintrc
 and ~/.jsl.conf.
+
+For older systems, you may directly use the vim.oldsys folder and vimrc.oldsys
+configuration file.
 
 
 SVN
