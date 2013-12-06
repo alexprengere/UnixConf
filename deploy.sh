@@ -18,6 +18,7 @@ SKIPPED=(
     "wgetrc"
     "fstab.ssd"
     "fstab"
+    "vim"
 )
 
 # Special targets, default is $HOME/.$SOURCE
