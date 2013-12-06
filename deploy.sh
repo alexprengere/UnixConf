@@ -80,7 +80,7 @@ msg () {
     local symbol="$2"
     local target="$3"
     local message="$4"
-    printf "%-20s\t%s %-40s %s\n" "$source" "$symbol" "$target" "$message"
+    printf "%-20s\t%2s %-50s %s\n" "$source" "$symbol" "$target" "$message"
 }
 
 
@@ -88,10 +88,19 @@ msg () {
 ALL_SOURCES=`ls`
 SOURCES=()
 
-msg SOURCE S TARGET MESSAGE
+msg SOURCE '??' TARGET MESSAGE
 
 # We remove the elements of SKIPPED array
 for SOURCE in $ALL_SOURCES; do
+
+    if [ "${SPECIALS[${SOURCE}]}" != "" ]; then
+        TARGET="${SPECIALS[${SOURCE}]}"
+        SYMBOL="!"
+    else
+        TARGET="$HOME/.$SOURCE"
+        SYMBOL="."
+    fi
+
     SKIP=false
     for s in "${SKIPPED[@]}"; do
         if [ "$s" = "$SOURCE" ]; then
@@ -101,7 +110,7 @@ for SOURCE in $ALL_SOURCES; do
     if [ "$SKIP" = "false" ]; then
         SOURCES+=($SOURCE)
     else
-        msg $SOURCE "/" "" "skipped"
+        msg $SOURCE "S${SYMBOL}" $TARGET "skipped (conf.)"
     fi
 done
 
@@ -109,7 +118,7 @@ for SOURCE in ${SOURCES[@]}; do
 
     if [ "${SPECIALS[${SOURCE}]}" != "" ]; then
         TARGET="${SPECIALS[${SOURCE}]}"
-        SYMBOL="S"
+        SYMBOL="!"
     else
         TARGET="$HOME/.$SOURCE"
         SYMBOL="."
