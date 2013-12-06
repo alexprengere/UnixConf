@@ -5,6 +5,8 @@ Configuration
 
 Automation
 ==========
+Installation and configuration
+------------------------------
 You may install basic stuff::
 
  ./install_ubuntu.sh # or ./install_fedora.sh
@@ -12,6 +14,17 @@ You may install basic stuff::
 You may deploy automatically using::
 
  ./deploy.sh
+
+Vim plugins
+-----------
+Create basic .vim directory with vundle enabled::
+
+ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+
+Then run vim and install packages::
+
+ vim
+ :BundleInstall
 
 Manually
 ========
@@ -32,7 +45,6 @@ If you want to add private aliases, edit a ~/.shell.aliases file.
 
 VIM
 ---
-Copy vim directory as ~/.vim
 Copy vimrc as ~/.vimrc.
 
 Syntastic plugin uses pylint and jsl as syntax checkers.

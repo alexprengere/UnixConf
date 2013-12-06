@@ -1,13 +1,48 @@
 "~/.vimrc ou /etc/vim/vimrc
 "Fichier de configuration principal de vim 7
 "Révision -- 4 septembre 2009
-"
-"Pathogen
-call pathogen#infect()
 
+set nocompatible                  " Must come first because it changes other options.
+filetype off                      " Necessary on some Linux distros for pathogen to properly load bundles
+
+set rtp+=~/.vim/bundle/vundle/
+
+call vundle#rc()
+let g:vundle_default_git_proto='git'
+
+Bundle 'gmarik/vundle'
+
+Bundle 'sjl/gundo.vim'
+Bundle 'jwhitley/vim-matchit'
+Bundle 'fholgado/minibufexpl.vim'
+Bundle 'scrooloose/nerdtree'
+
+Bundle "MarcWeber/vim-addon-mw-utils"
+Bundle "tomtom/tlib_vim"
+Bundle "garbas/vim-snipmate"
+Bundle "honza/vim-snippets"
+
+Bundle 'ervandew/supertab'
+
+Bundle 'majutsushi/tagbar'
+Bundle 'techlivezheng/tagbar-phpctags'
+
+Bundle 'kien/ctrlp.vim'
+Bundle 'scrooloose/syntastic'
+Bundle 'tpope/vim-fugitive'
+Bundle 'plasticboy/vim-markdown'
+
+Bundle 'tpope/vim-repeat'
+Bundle 'jnwhiteh/vim-golang'
+
+"Bundle 'Valloric/YouCompleteMe'
+"Bundle 'tomasr/molokai'
+"Bundle 'altercation/vim-colors-solarized'
+"Bundle 'wincent/Command-T'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 filetype indent plugin on       "Active les plugins de vim
-set nocompatible                "Desactive le mode de comptabilité
 
 set encoding=utf-8              "Encodage
 set fileencoding=utf-8
