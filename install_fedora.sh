@@ -3,16 +3,17 @@
 # Install common libs
 sudo yum check-update
 sudo yum install                  \
-    vim screen zsh htop colordiff \
+    nfs-utils nfs-utils-lib       \
+    vim screen zsh htop           \
     openssh-server                \
     python-pip ipython            \
     git subversion                \
+    colordiff                     \
     cmake automake                \
     gcc-c++ python-devel          \
     kernel-devel                  \
     ctags                         \
     pylint jsl                    \
-    nfs-utils nfs-utils-lib
 
 # Changing default shell
 #chsh -s /bin/zsh
