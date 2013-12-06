@@ -1,8 +1,0 @@
-let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =6
-let g:netrw_dirhist_1='/home/localoriuser/Dev/featured-results/service'
-let g:netrw_dirhist_2='/home/localoriuser/Dev/fq_logs_parsing.svn'
-let g:netrw_dirhist_3='/home/localoriuser/Dev/featured-results/service'
-let g:netrw_dirhist_4='/home/localoriuser/Dev/featured-results/stat_generation'
-let g:netrw_dirhist_5='/home/localoriuser/Dev/github/carsurfin/launch/launch/templates'
-let g:netrw_dirhist_6='/home/localoriuser/Dev/featured-results/delivery'

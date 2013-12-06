@@ -158,8 +158,7 @@ noremap ,n :bnext     <cr>
 "noremap ,d :bdelete<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
-noremap ,o :TagbarToggle  <cr>
-noremap ,l :TlistToggle   <cr>
+noremap ,l :TagbarToggle  <cr>
 noremap ,t :NERDTreeToggle<cr>
 noremap ,g :GundoToggle   <cr>
 noremap ,s :SyntasticToggleMode<cr>
