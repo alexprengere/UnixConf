@@ -9,6 +9,7 @@ SKIPPED=(
     `basename $0`
     "install_ubuntu.sh"
     "install_fedora.sh"
+    "generate_vim_dir.sh"
     "README.rst"
     "shell.aliases"
     "liquidprompt.oldzsh"

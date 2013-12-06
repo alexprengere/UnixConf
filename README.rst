@@ -5,8 +5,6 @@ Configuration
 
 Automation
 ==========
-Installation and configuration
-------------------------------
 You may install basic stuff::
 
  ./install_ubuntu.sh # or ./install_fedora.sh
@@ -15,21 +13,9 @@ You may deploy automatically using::
 
  ./deploy.sh
 
-Vim plugins
------------
-Create basic .vim directory with vundle enabled::
+Generate vim directory with::
 
- git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-
-Then run vim and install packages::
-
- vim
- :BundleInstall
-
-Finally you need to do that manually::
-
- cd ~/.vim/bundle/YouCompleteMe
- ./install.sh --clang-completer
+ ./generate_vim_dir.sh
 
 Manually
 ========
