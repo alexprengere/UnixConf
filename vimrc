@@ -97,6 +97,14 @@ set t_kb=    "fix weird backspace behaviour
 set splitbelow                  "split horizontally at the bottom
 set splitright                  "split vertically on the right
 
+set previewheight=20            "increase default height for preview window (used by autocomplete)
+au BufEnter ?* call PreviewHeightWorkAround()
+func PreviewHeightWorkAround()
+    if &previewwindow
+        exec 'setlocal winheight='.&previewheight
+    endif
+endfunc
+
 "Code folding za-zR-zM
 "function! MyFoldFunction()                      "Definition personnelle d'une fonction de fold
 "        let line = getline(v:foldstart)
