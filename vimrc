@@ -211,8 +211,8 @@ let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 set runtimepath^=~/.vim/bundle/ctrlp.vim
 
 "Custom snipMate trigger key
-imap <c-a> <Plug>snipMateNextOrTrigger
-smap <c-a> <Plug>snipMateNextOrTrigger
+imap <c-e> <Plug>snipMateNextOrTrigger
+smap <c-e> <Plug>snipMateNextOrTrigger
 
 "Custom YCM key
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
