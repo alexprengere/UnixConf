@@ -20,7 +20,6 @@ SKIPPED=(
     "fstab.ssd"
     "fstab"
     "vimrc.oldsys"
-    "vim.oldsys"
 )
 
 # Special targets, default is $HOME/.$SOURCE
@@ -31,7 +30,6 @@ SPECIALS=(
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
     [vimrc.oldsys]="$HOME/.vimrc"
-    [vim.oldsys]="$HOME/.vim"
 )
 
 ####
