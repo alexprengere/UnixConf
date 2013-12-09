@@ -94,6 +94,9 @@ set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when complet
 
 set t_kb=    "fix weird backspace behaviour
 
+set splitbelow                  "split horizontally at the bottom
+set splitright                  "split vertically on the right
+
 "Code folding za-zR-zM
 "function! MyFoldFunction()                      "Definition personnelle d'une fonction de fold
 "        let line = getline(v:foldstart)
