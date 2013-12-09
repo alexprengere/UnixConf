@@ -94,6 +94,17 @@ set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when complet
 
 set t_kb=    "fix weird backspace behaviour
 
+set splitbelow                  "split horizontally at the bottom
+set splitright                  "split vertically on the right
+
+set previewheight=20            "increase default height for preview window (used by autocomplete)
+au BufEnter ?* call PreviewHeightWorkAround()
+func PreviewHeightWorkAround()
+    if &previewwindow
+        exec 'setlocal winheight='.&previewheight
+    endif
+endfunc
+
 "Code folding za-zR-zM
 "function! MyFoldFunction()                      "Definition personnelle d'une fonction de fold
 "        let line = getline(v:foldstart)
@@ -221,9 +232,10 @@ set runtimepath^=~/.vim/bundle/ctrlp.vim
 imap <c-e> <Plug>snipMateNextOrTrigger
 smap <c-e> <Plug>snipMateNextOrTrigger
 
-"Custom YCM key
+"Custom YCM
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
 "let g:ycm_key_list_previous_completion =  ['<C-S-TAB>', '<Up>']
+let g:ycm_autoclose_preview_window_after_completion = 1
 
 "Supertab options
 let g:SuperTabDefaultCompletionType = "context"
