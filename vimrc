@@ -36,7 +36,6 @@ Bundle 'plasticboy/vim-markdown'
 Bundle 'tpope/vim-repeat'
 Bundle 'jnwhiteh/vim-golang'
 
-"Bundle 'Valloric/YouCompleteMe'
 "Bundle 'tomasr/molokai'
 "Bundle 'altercation/vim-colors-solarized'
 "Bundle 'wincent/Command-T'
