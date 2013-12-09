@@ -137,8 +137,6 @@ autocmd BufRead  *.pl set ft=perl
 augroup filetypedetect
         autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
 augroup END
-au BufRead,BufNewFile *.psp set filetype=psplang
-au! Syntax psplang source $HOME/.vim/indent/psp.vim
 
 autocmd FileType c,cpp,slang set cindent
 autocmd FileType make set noexpandtab shiftwidth=8
