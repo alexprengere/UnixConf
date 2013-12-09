@@ -130,8 +130,6 @@ autocmd BufRead  *.md set ft=markdown
 autocmd BufRead  *.html,*.htm set ft=html
 autocmd BufRead  *.php,*.php3 set ft=php
 autocmd BufRead  *.c,*.h set ft=c
-autocmd FileType c,cpp,slang set cindent
-autocmd FileType make set noexpandtab shiftwidth=8
 autocmd BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
 autocmd BufRead  *.sh set ft=sh
 autocmd BufRead  *.pl set ft=perl
@@ -142,6 +140,8 @@ augroup END
 au BufRead,BufNewFile *.psp set filetype=psplang
 au! Syntax psplang source $HOME/.vim/indent/psp.vim
 
+autocmd FileType c,cpp,slang set cindent
+autocmd FileType make set noexpandtab shiftwidth=8
 
 "Vim jump to the last position when reopening a file
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
