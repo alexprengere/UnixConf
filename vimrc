@@ -232,9 +232,10 @@ set runtimepath^=~/.vim/bundle/ctrlp.vim
 imap <c-e> <Plug>snipMateNextOrTrigger
 smap <c-e> <Plug>snipMateNextOrTrigger
 
-"Custom YCM key
+"Custom YCM
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
 "let g:ycm_key_list_previous_completion =  ['<C-S-TAB>', '<Up>']
+let g:ycm_autoclose_preview_window_after_completion = 1
 
 "Supertab options
 "let g:SuperTabDefaultCompletionType = "context"
