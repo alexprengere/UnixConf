@@ -36,7 +36,6 @@ Bundle 'plasticboy/vim-markdown'
 Bundle 'tpope/vim-repeat'
 Bundle 'jnwhiteh/vim-golang'
 
-"Bundle 'Valloric/YouCompleteMe'
 "Bundle 'tomasr/molokai'
 "Bundle 'altercation/vim-colors-solarized'
 "Bundle 'wincent/Command-T'
@@ -131,8 +130,6 @@ autocmd BufRead  *.md set ft=markdown
 autocmd BufRead  *.html,*.htm set ft=html
 autocmd BufRead  *.php,*.php3 set ft=php
 autocmd BufRead  *.c,*.h set ft=c
-autocmd FileType c,cpp,slang set cindent
-autocmd FileType make set noexpandtab shiftwidth=8
 autocmd BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
 autocmd BufRead  *.sh set ft=sh
 autocmd BufRead  *.pl set ft=perl
@@ -140,9 +137,9 @@ autocmd BufRead  *.pl set ft=perl
 augroup filetypedetect
         autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
 augroup END
-au BufRead,BufNewFile *.psp set filetype=psplang
-au! Syntax psplang source $HOME/.vim/indent/psp.vim
 
+autocmd FileType c,cpp,slang set cindent
+autocmd FileType make set noexpandtab shiftwidth=8
 
 "Vim jump to the last position when reopening a file
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
@@ -214,8 +211,8 @@ let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 set runtimepath^=~/.vim/bundle/ctrlp.vim
 
 "Custom snipMate trigger key
-imap <c-a> <Plug>snipMateNextOrTrigger
-smap <c-a> <Plug>snipMateNextOrTrigger
+imap <c-e> <Plug>snipMateNextOrTrigger
+smap <c-e> <Plug>snipMateNextOrTrigger
 
 "Custom YCM key
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
