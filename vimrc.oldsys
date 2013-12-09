@@ -36,6 +36,10 @@ Bundle 'plasticboy/vim-markdown'
 Bundle 'tpope/vim-repeat'
 Bundle 'jnwhiteh/vim-golang'
 
+Bundle 'scrooloose/nerdcommenter'
+Bundle 'Raimondi/delimitMate'
+Bundle 'docunext/closetag.vim'
+
 "Bundle 'tomasr/molokai'
 "Bundle 'altercation/vim-colors-solarized'
 "Bundle 'wincent/Command-T'
@@ -183,18 +187,21 @@ map  <c-t> :tabnew     <cr>
 "imap <c-n> <esc> :tabnext    <cr>
 "imap <c-t> <esc> :tabnew     <cr>
 
+"Leader
+let mapleader = ","
+
 "Manipulation du buffer
-noremap ,f :buffers   <cr>
-noremap ,b :bprevious <cr>
-noremap ,n :bnext     <cr>
-"noremap ,a :badd 
-"noremap ,d :bdelete<cr>
+noremap <leader>f :buffers   <cr>
+noremap <leader>b :bprevious <cr>
+noremap <leader>n :bnext     <cr>
+"noremap <leader>a :badd 
+"noremap <leader>d :bdelete<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
-noremap ,l :TagbarToggle  <cr>
-noremap ,t :NERDTreeToggle<cr>
-noremap ,g :GundoToggle   <cr>
-noremap ,s :SyntasticToggleMode<cr>
+noremap <leader>l :TagbarToggle  <cr>
+noremap <leader>t :NERDTreeToggle<cr>
+noremap <leader>g :GundoToggle   <cr>
+noremap <leader>s :SyntasticToggleMode<cr>
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
