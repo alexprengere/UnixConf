@@ -22,8 +22,8 @@ Bundle "tomtom/tlib_vim"
 Bundle "garbas/vim-snipmate"
 Bundle "honza/vim-snippets"
 
-Bundle 'Valloric/YouCompleteMe'
-"Bundle 'ervandew/supertab'
+"Bundle 'Valloric/YouCompleteMe'
+Bundle 'ervandew/supertab'
 
 Bundle 'majutsushi/tagbar'
 Bundle 'techlivezheng/tagbar-phpctags'
@@ -238,8 +238,8 @@ smap <c-e> <Plug>snipMateNextOrTrigger
 let g:ycm_autoclose_preview_window_after_completion = 1
 
 "Supertab options
-"let g:SuperTabDefaultCompletionType = "context"
-"set completeopt=menuone,longest,preview
+let g:SuperTabDefaultCompletionType = "context"
+set completeopt=menuone,longest,preview
 
 " Markdown options
 let g:vim_markdown_folding_disabled=1
