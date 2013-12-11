@@ -12,7 +12,6 @@ SKIPPED=(
     "generate_vim_dir.sh"
     "README.rst"
     "shell.aliases"
-    "liquidprompt.oldzsh"
     "aprengere.zsh-theme"
     "gitattributes"
     "conkyrc"
@@ -25,7 +24,6 @@ SKIPPED=(
 declare -A SPECIALS
 SPECIALS=(
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
-    [liquidprompt.oldzsh]="$HOME/.liquidprompt"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
 )
