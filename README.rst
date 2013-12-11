@@ -42,8 +42,8 @@ Make sure your configuration files are reached for these ones.
 Check the .vimrc to see where syntastic is looking for, usually ~/.pylintrc
 and ~/.jsl.conf.
 
-For older systems, you may directly use the vimrc.oldsys configuration file.
-It has no compilable plugins, and you may generate the vim directory with::
+For older systems, you may directly use the branch `vim_no_compile`.
+There vim has no compilable plugins, and you may generate the vim directory with::
 
  ./generate_vim_dir.sh -n
 
