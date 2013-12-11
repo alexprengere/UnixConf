@@ -19,7 +19,6 @@ SKIPPED=(
     "wgetrc"
     "fstab.ssd"
     "fstab"
-    "vimrc.oldsys"
 )
 
 # Special targets, default is $HOME/.$SOURCE
@@ -29,7 +28,6 @@ SPECIALS=(
     [liquidprompt.oldzsh]="$HOME/.liquidprompt"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
-    [vimrc.oldsys]="$HOME/.vimrc"
 )
 
 ####
