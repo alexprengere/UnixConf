@@ -37,9 +37,9 @@ Bundle 'tpope/vim-repeat'
 Bundle 'jnwhiteh/vim-golang'
 
 Bundle 'scrooloose/nerdcommenter'
-Bundle 'Raimondi/delimitMate'
 Bundle 'docunext/closetag.vim'
 
+"Bundle 'Raimondi/delimitMate'
 "Bundle 'tomasr/molokai'
 "Bundle 'altercation/vim-colors-solarized'
 "Bundle 'wincent/Command-T'
