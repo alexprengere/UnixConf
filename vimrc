@@ -37,9 +37,9 @@ Bundle 'tpope/vim-repeat'
 Bundle 'jnwhiteh/vim-golang'
 
 Bundle 'scrooloose/nerdcommenter'
-Bundle 'Raimondi/delimitMate'
 Bundle 'docunext/closetag.vim'
 
+"Bundle 'Raimondi/delimitMate'
 "Bundle 'tomasr/molokai'
 "Bundle 'altercation/vim-colors-solarized'
 "Bundle 'wincent/Command-T'
@@ -234,8 +234,9 @@ smap <c-e> <Plug>snipMateNextOrTrigger
 
 "Custom YCM
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
-"let g:ycm_key_list_previous_completion =  ['<C-S-TAB>', '<Up>']
+"let g:ycm_key_list_previous_completion = ['<C-S-TAB>', '<Up>']
 let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
 
 "Supertab options
 let g:SuperTabDefaultCompletionType = "context"
