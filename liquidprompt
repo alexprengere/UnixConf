@@ -106,6 +106,11 @@ case "$LP_OS" in
     SunOS)   _lp_CPUNUM=$( kstat -m cpu_info | grep -c "module: cpu_info" ) ;;
 esac
 
+# Extended regexp patterns for sed
+# GNU/BSD sed
+_LP_SED_EXTENDED=r
+[[ "$LP_OS" = Darwin ]] && _LP_SED_EXTENDED=E
+
 
 # get current load
 case "$LP_OS" in
@@ -829,10 +834,10 @@ _lp_upwards_find()
     while [[ "$PWD" != "/" ]] ; do
 
         # See if it's in the current directory.
-        local found=$(find "$PWD"/ -maxdepth 1 -name "$@" 2> /dev/null)
+        local found="$(find "$PWD"/ -maxdepth 1 -name "$@" 2> /dev/null)"
 
         # If it is, then echo the path (or anything), and return.
-        if [[ -n found ]] ; then
+        if [[ -n "$found" ]] ; then
             echo $found
             return
         fi
@@ -1079,7 +1084,7 @@ _lp_bzr_branch()
     # First do a simple search to avoid having to invoke bzr -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z $(_lp_upwards_find '.bzr') ]] && return
+    [[ -z "$(_lp_upwards_find '.bzr')" ]] && return
 
     # We found an .bzr folder, so we need to invoke bzr and see if we're
     # actually in a repository.
@@ -1104,7 +1109,7 @@ _lp_bzr_branch_color()
     # First do a simple search to avoid having to invoke bzr -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z $(_lp_upwards_find '.bzr') ]] && return
+    [[ -z "$(_lp_upwards_find '.bzr')" ]] && return
 
     # We found an .bzr folder, so we need to invoke bzr and see if we're
     # actually in a repository.
@@ -1473,18 +1478,15 @@ _lp_temperature() {
 _lp_as_text()
 {
     # Remove colors from the computed prompt
-    case "$LP_OS" in
-        Linux|FreeBSD|OpenBSD|SunOS)  local pst="$(echo $1 | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g")" ;;
-        Darwin) local pst="$(echo $1 | sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g")" ;;
-    esac
-
+    local pst
+    pst="$(echo "$1" | sed -$_LP_SED_EXTENDED 's/\x1B\[[0-9;]*[mK]//g')"
 
     # Remove escape sequences
     # FIXME check the zsh compatibility
     # pst=$(echo $pst | sed "s,\\\\\\[\|\\\\\\],,g")
     local op="$(printf "%q" "$_LP_OPEN_ESC")"
     local cl="$(printf "%q" "$_LP_CLOSE_ESC")"
-    pst="$(echo $pst | sed "s,$op\|$cl,,g")" # replace all open _or_ close tags with nothing
+    pst="$(echo "$pst" | sed "s,$op\|$cl,,g")" # replace all open _or_ close tags with nothing
 
     echo -n "$pst"
 }
@@ -1724,7 +1726,7 @@ _lp_set_prompt()
         source "$LP_PS1_FILE"
     fi
 
-    if [[ -z $LP_PS1 ]] ; then
+    if [[ -z "$LP_PS1" ]] ; then
         # add title escape time, jobs, load and battery
         PS1="${LP_PS1_PREFIX}${LP_TIME}${LP_BATT}${LP_LOAD}${LP_TEMP}${LP_JOBS}"
         # add user, host and permissions colon
