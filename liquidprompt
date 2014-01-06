@@ -242,12 +242,10 @@ _lp_source_config()
     LP_ENABLE_HG=${LP_ENABLE_HG:-1}
     LP_ENABLE_BZR=${LP_ENABLE_BZR:-1}
     LP_ENABLE_TIME=${LP_ENABLE_TIME:-0}
-    if $_LP_SHELL_bash
-    then
+    if $_LP_SHELL_bash; then
         LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-1}
     else
-        [[ "$LP_ENABLE_RUNTIME" == 1 ]] && echo Unfortunately, runtime printing for zsh is not yet supported. Turn LP_ENABLE_RUNTIME off in your config to hide this message.
-        LP_ENABLE_RUNTIME=0
+        LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-0}
     fi
     LP_ENABLE_VIRTUALENV=${LP_ENABLE_VIRTUALENV:-1}
     LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
@@ -358,14 +356,24 @@ case "$LP_OS" in
     *)      [[ "$LP_ENABLE_BATT" = 1 ]] && { command -v acpi >/dev/null || LP_ENABLE_BATT=0 ; };;
 esac
 
+if [[ "$LP_ENABLE_RUNTIME" == 1 ]] && ! $_LP_SHELL_bash; then
+    echo Unfortunately, runtime printing for zsh is not yet supported. Turn LP_ENABLE_RUNTIME off in your config to hide this message.
+    LP_ENABLE_RUNTIME=0
+fi
+
 # If we are running in a terminal multiplexer, brackets are colored
 if [[ "$TERM" == screen* ]]; then
     LP_BRACKET_OPEN="${LP_COLOR_IN_MULTIPLEXER}${LP_MARK_BRACKET_OPEN}${NO_COL}"
     LP_BRACKET_CLOSE="${LP_COLOR_IN_MULTIPLEXER}${LP_MARK_BRACKET_CLOSE}${NO_COL}"
+    (( LP_ENABLE_TITLE = LP_ENABLE_TITLE && LP_ENABLE_SCREEN_TITLE ))
+    LP_TITLE_OPEN="$LP_SCREEN_TITLE_OPEN"
+    LP_TITLE_CLOSE="$LP_SCREEN_TITLE_CLOSE"
 else
     LP_BRACKET_OPEN="${LP_MARK_BRACKET_OPEN}"
     LP_BRACKET_CLOSE="${LP_MARK_BRACKET_CLOSE}"
 fi
+
+[[ "_$TERM" == _linux* ]] && LP_ENABLE_TITLE=0
 
 # update_terminal_cwd is a shell function available on MacOS X Lion that
 # will update an icon of the directory displayed in the title of the terminal
@@ -831,19 +839,14 @@ _lp_git_branch_color()
 # the given name.  Used to avoid invoking 'hg' and 'bzr'.
 _lp_upwards_find()
 {
-    while [[ "$PWD" != "/" ]] ; do
-
-        # See if it's in the current directory.
-        local found="$(find "$PWD"/ -maxdepth 1 -name "$@" 2> /dev/null)"
-
-        # If it is, then echo the path (or anything), and return.
-        if [[ -n "$found" ]] ; then
-            echo $found
-            return
-        fi
-
-        cd ..
+    local dir
+    dir="$PWD"
+    while [[ -n "$dir" ]]
+    do
+        [[ -d "$dir/$1" ]] && return 0
+        dir="${dir%/*}"
     done
+    return 1
 }
 
 # MERCURIAL #
@@ -856,7 +859,7 @@ _lp_hg_branch()
     # First do a simple search to avoid having to invoke hg -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z "$(_lp_upwards_find '.hg')" ]] && return
+    _lp_upwards_find .hg || return
 
     # We found an .hg folder, so we need to invoke hg and see if we're actually
     # in a repository.
@@ -1084,7 +1087,7 @@ _lp_bzr_branch()
     # First do a simple search to avoid having to invoke bzr -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z "$(_lp_upwards_find '.bzr')" ]] && return
+    _lp_upwards_find .bzr || return
 
     # We found an .bzr folder, so we need to invoke bzr and see if we're
     # actually in a repository.
@@ -1109,7 +1112,7 @@ _lp_bzr_branch_color()
     # First do a simple search to avoid having to invoke bzr -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z "$(_lp_upwards_find '.bzr')" ]] && return
+    _lp_upwards_find .bzr || return
 
     # We found an .bzr folder, so we need to invoke bzr and see if we're
     # actually in a repository.
@@ -1474,21 +1477,16 @@ _lp_temperature() {
 # DESIGN #
 ##########
 
+
+# Sed expression using extended regexp to remove shell codes around terminal
+# escape sequences
+_LP_CLEAN_ESC="$(printf "s,%q|%q,,g" "$_LP_OPEN_ESC" "$_LP_CLOSE_ESC")"
+
 # Remove all colors and escape characters of the given string and return a pure text
 _lp_as_text()
 {
     # Remove colors from the computed prompt
-    local pst
-    pst="$(echo "$1" | sed -$_LP_SED_EXTENDED 's/\x1B\[[0-9;]*[mK]//g')"
-
-    # Remove escape sequences
-    # FIXME check the zsh compatibility
-    # pst=$(echo $pst | sed "s,\\\\\\[\|\\\\\\],,g")
-    local op="$(printf "%q" "$_LP_OPEN_ESC")"
-    local cl="$(printf "%q" "$_LP_CLOSE_ESC")"
-    pst="$(echo "$pst" | sed "s,$op\|$cl,,g")" # replace all open _or_ close tags with nothing
-
-    echo -n "$pst"
+    echo -n "$1" | sed -$_LP_SED_EXTENDED "s/\x1B\[[0-9;]*[mK]//g;$_LP_CLEAN_ESC"
 }
 
 _lp_title()
@@ -1496,24 +1494,7 @@ _lp_title()
     [[ "$LP_ENABLE_TITLE" != "1" ]] && return
 
     # Get the current computed prompt as pure text
-    local txt="$(_lp_as_text "$1")"
-
-    # Use it in the window's title
-    # Escapes whill tells bash to ignore the non-printing control characters when calculating the width of the prompt.
-    # Otherwise line editing commands will mess the cursor positionning
-    case "$TERM" in
-      screen*)
-        [[ "$LP_ENABLE_SCREEN_TITLE" != "1" ]] && return
-        local title="${LP_SCREEN_TITLE_OPEN}${txt}${LP_SCREEN_TITLE_CLOSE}"
-      ;;
-      linux*)
-        local title=""
-      ;;
-      *)
-        local title="${_LP_OPEN_ESC}${LP_TITLE_OPEN}${txt}${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
-      ;;
-    esac
-    echo -n "${title}"
+    echo -n "${_LP_OPEN_ESC}${LP_TITLE_OPEN}$(_lp_as_text "$1")${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
 }
 
 # Set the prompt mark to ± if git, to ☿ if mercurial, to ‡ if subversion
