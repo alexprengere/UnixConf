@@ -1,4 +1,3 @@
-
 ################################################################################
 # LIQUID PROMPT
 # An intelligent and non intrusive prompt for bash and zsh
@@ -465,7 +464,7 @@ _chroot()
 {
     if [[ -r /etc/debian_chroot ]] ; then
         local debchroot
-        debchroot="$(cat /etc/debian_chroot)"
+        debchroot="$(< /etc/debian_chroot)"
         echo "(${debchroot})"
     fi
 }
@@ -605,8 +604,7 @@ _lp_set_dirtrim() {
         local q="/${p##*/}"
         local show="$q"
         # +3 because of the ellipsis: "..."
-        while (( ${#show}+3 < max_len ))
-        do
+        while (( ${#show}+3 < max_len )); do
             (( dt++ ))
             p="${p%$q}"
             q="/${p##*/}"
@@ -635,7 +633,7 @@ _lp_jobcount_color()
 
     local running=$(( $(jobs -r | wc -l) ))
     local stopped=$(( $(jobs -s | wc -l) ))
-    local n_screen=$(screen -ls 2> /dev/null | grep -c '([Dd]etach[^)]*)$')
+    local n_screen=$(screen -ls 2> /dev/null | grep -c '[Dd]etach[^)]*)$')
     local n_tmux=$(tmux list-sessions 2> /dev/null | grep -cv attached)
     local detached=$(( $n_screen + $n_tmux ))
     local m_detached="d"
@@ -789,8 +787,7 @@ _lp_upwards_find()
 {
     local dir
     dir="$PWD"
-    while [[ -n "$dir" ]]
-    do
+    while [[ -n "$dir" ]]; do
         [[ -d "$dir/$1" ]] && return 0
         dir="${dir%/*}"
     done
@@ -832,7 +829,7 @@ _lp_hg_branch_color()
     if [[ -n "$branch" ]] ; then
 
         local has_untracked
-        has_untracked=$(hg status 2>/dev/null | grep '\(^\?\)' | wc -l)
+        has_untracked=$(hg status 2>/dev/null | grep -c '\(^\?\)')
         if [[ -z "$has_untracked" ]] ; then
             has_untracked=""
         else
@@ -840,7 +837,7 @@ _lp_hg_branch_color()
         fi
 
         local has_commit
-        has_commit=$(hg outgoing --no-merges ${branch} 2>/dev/null | grep '\(^changeset\:\)' | wc -l)
+        has_commit=$(hg outgoing --no-merges ${branch} 2>/dev/null | grep -c '\(^changeset\:\)')
         if [[ -z "$has_commit" ]] ; then
             has_commit=0
         fi
@@ -954,18 +951,18 @@ _lp_fossil_branch_color()
         local ret
         C2E=$(fossil changes | wc -l)
         C2A=$(fossil extras | wc -l)
-        PLUSLINE=$(fossil diff | egrep '^\+[^+].+$' | wc -l)
-        MINUSLINE=$(fossil diff | egrep '^-[^-].+$' | wc -l)
+        PLUSLINE=$(fossil diff | egrep -c '^\+[^+].+$')
+        MINUSLINE=$(fossil diff | egrep -c '^-[^-].+$')
         ret=""
 
-        C2AA=`fossil changes | grep ADDED | wc -l`
+        C2AA=$(fossil changes | grep -c "ADDED")
         if [[ $C2AA -gt 0 ]] ; then
             # We count the line "à la" git
             local ADDFILE
             local FILE
-            ADDFILE=`fossil changes | grep ADDED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2`
+            ADDFILE=$(fossil changes | grep ADDED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2)
             for FILE in $ADDFILE ; do
-                PLULI=$(wc -l $FILE | cut -d" " -f1)
+                PLULI=$(wc -l < $FILE)
                 let PLUSLINE=$PLUSLINE+$PLULI
             done
         fi
@@ -974,14 +971,14 @@ _lp_fossil_branch_color()
             ret+="+$PLUSLINE"
         fi
 
-        C2D=`fossil changes | grep DELETED | wc -l`
+        C2D=$(fossil changes | grep -c "DELETED")
         if [[ $C2D -gt 0 ]] ; then
             # We count the line "à la" git
             local DELFILE
             local FILE
-            DELFILE=`fossil changes | grep DELETED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2`
+            DELFILE=$(fossil changes | grep DELETED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2)
             for FILE in $DELFILE ; do
-                MINLI=$(wc -l $FILE | cut -d" " -f1)
+                MINLI=$(wc -l < $FILE)
                 let MINUSLINE=$MINUSLINE+$MINLI
             done
         fi
@@ -1388,8 +1385,7 @@ _lp_temp_sensors()
 _lp_temp_acpi()
 {
     local i
-    for i in $(acpi -t | sed 's/.* \([0-9]*\)\.[0-9]* degrees C$/\1/p')
-    do
+    for i in $(acpi -t | sed 's/.* \([0-9]*\)\.[0-9]* degrees C$/\1/p'); do
         [[ $i -gt $temperature ]] && temperature=$i
     done
 }
