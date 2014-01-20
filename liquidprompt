@@ -1,4 +1,3 @@
-
 ################################################################################
 # LIQUID PROMPT
 # An intelligent and non intrusive prompt for bash and zsh
@@ -44,13 +43,17 @@
 # nojhan            <nojhan@gmail.com>            # Original author.
 # Olivier Mengué    <dolmen@cpan.org>             # Major optimizations, refactorings everywhere; current maintainer
 # Poil              <poil@quake.fr>               # Speed improvements
+# Rolf Morel        <rolfmorel@gmail.com>         # "Shorten path" refactoring and fixes
 # Thomas Debesse    <thomas.debesse@gmail.com>    # Fix columns use.
 # Yann 'Ze' Richard <ze@nbox.org>                 # Do not fail on missing commands.
 
 # See the README.md file for a summary of features.
 
+# Issue #161: do not load if not an interactive shell
+test -z "$TERM" -o "x$TERM" = dumb && return
+
 # Check for recent enough version of bash.
-if test -n "$BASH_VERSION" -a -n "$PS1" -a -n "$TERM" ; then
+if test -n "$BASH_VERSION" -a -n "$PS1" ; then
     bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
     if [[ $bmajor -lt 3 ]] || [[ $bmajor -eq 3 && $bminor -lt 2 ]]; then
         unset bash bmajor bminor
@@ -105,6 +108,11 @@ case "$LP_OS" in
     FreeBSD|Darwin|OpenBSD) _lp_CPUNUM=$( sysctl -n hw.ncpu ) ;;
     SunOS)   _lp_CPUNUM=$( kstat -m cpu_info | grep -c "module: cpu_info" ) ;;
 esac
+
+# Extended regexp patterns for sed
+# GNU/BSD sed
+_LP_SED_EXTENDED=r
+[[ "$LP_OS" = Darwin ]] && _LP_SED_EXTENDED=E
 
 
 # get current load
@@ -237,12 +245,10 @@ _lp_source_config()
     LP_ENABLE_HG=${LP_ENABLE_HG:-1}
     LP_ENABLE_BZR=${LP_ENABLE_BZR:-1}
     LP_ENABLE_TIME=${LP_ENABLE_TIME:-0}
-    if $_LP_SHELL_bash
-    then
+    if $_LP_SHELL_bash; then
         LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-1}
     else
-        [[ "$LP_ENABLE_RUNTIME" == 1 ]] && echo Unfortunately, runtime printing for zsh is not yet supported. Turn LP_ENABLE_RUNTIME off in your config to hide this message.
-        LP_ENABLE_RUNTIME=0
+        LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-0}
     fi
     LP_ENABLE_VIRTUALENV=${LP_ENABLE_VIRTUALENV:-1}
     LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
@@ -353,14 +359,24 @@ case "$LP_OS" in
     *)      [[ "$LP_ENABLE_BATT" = 1 ]] && { command -v acpi >/dev/null || LP_ENABLE_BATT=0 ; };;
 esac
 
+if [[ "$LP_ENABLE_RUNTIME" == 1 ]] && ! $_LP_SHELL_bash; then
+    echo Unfortunately, runtime printing for zsh is not yet supported. Turn LP_ENABLE_RUNTIME off in your config to hide this message.
+    LP_ENABLE_RUNTIME=0
+fi
+
 # If we are running in a terminal multiplexer, brackets are colored
 if [[ "$TERM" == screen* ]]; then
     LP_BRACKET_OPEN="${LP_COLOR_IN_MULTIPLEXER}${LP_MARK_BRACKET_OPEN}${NO_COL}"
     LP_BRACKET_CLOSE="${LP_COLOR_IN_MULTIPLEXER}${LP_MARK_BRACKET_CLOSE}${NO_COL}"
+    (( LP_ENABLE_TITLE = LP_ENABLE_TITLE && LP_ENABLE_SCREEN_TITLE ))
+    LP_TITLE_OPEN="$LP_SCREEN_TITLE_OPEN"
+    LP_TITLE_CLOSE="$LP_SCREEN_TITLE_CLOSE"
 else
     LP_BRACKET_OPEN="${LP_MARK_BRACKET_OPEN}"
     LP_BRACKET_CLOSE="${LP_MARK_BRACKET_CLOSE}"
 fi
+
+[[ "_$TERM" == _linux* ]] && LP_ENABLE_TITLE=0
 
 # update_terminal_cwd is a shell function available on MacOS X Lion that
 # will update an icon of the directory displayed in the title of the terminal
@@ -374,6 +390,9 @@ if [[ "$TERM_PROGRAM" == Apple_Terminal ]] && command -v update_terminal_cwd >/d
 else
     _LP_TERM_UPDATE_DIR=:
 fi
+
+# Default value for LP_PERM when LP_ENABLE_PERM is 0
+LP_PERM=:   # without color
 
 
 # Escape the given strings
@@ -445,7 +464,7 @@ _chroot()
 {
     if [[ -r /etc/debian_chroot ]] ; then
         local debchroot
-        debchroot="$(cat /etc/debian_chroot)"
+        debchroot="$(< /etc/debian_chroot)"
         echo "(${debchroot})"
     fi
 }
@@ -499,18 +518,11 @@ esac
 unset _lp_connection
 
 
-# BASH/ZSH function that shortens
-# a very long path for display by removing
-# the left most parts and replacing them
-# with a leading ...
-#
-# the first argument is the path
-#
-# the second argument is the maximum allowed
-# length including the '/'s and ...
-# http://hbfs.wordpress.com/2009/09/01/short-pwd-in-bash-prompts/
-#
-# + keep some left part of the path if asked
+# Shorten the path of the current working directory
+# * Show only the current directory
+# * Show as much of the cwd path as possible, if shortened display a
+#   leading mark, such as ellipses, to indicate that part is missing
+# * show at least LP_PATH_KEEP leading dirs and current directory
 _lp_shorten_path()
 {
 
@@ -524,93 +536,65 @@ _lp_shorten_path()
         return
     fi
 
-    local p
-    p="${PWD/#$HOME/~}"
-    local -i len max_len
-    len=${#p}
-    (( max_len = ${COLUMNS:-80} * $LP_PATH_LENGTH / 100 ))
+    local ret=""
 
+    local p="${PWD/#$HOME/~}"
+    local mask="${LP_MARK_SHORTEN_PATH}"
+    local -i max_len=$(( ${COLUMNS:-80} * $LP_PATH_LENGTH / 100 ))
+
+    if [[ ${LP_PATH_KEEP} == -1 ]]; then
+        # only show the current directory, excluding any parent dirs
+        ret="${p##*/}" # discard everything upto and including the last slash
+        [[ "${ret}" == "" ]] && ret="/" # if in root directory
+    elif (( ${#p} <= ${max_len} )); then
+        ret="${p}"
+    elif [[ ${LP_PATH_KEEP} == 0 ]]; then
+        # len is over max len, show as much of the tail as is allowed
+        ret="${p##*/}" # show at least complete current directory
+        p="${p:0:${#p} - ${#ret}}"
+        ret="${mask}${p:${#p} - (${max_len} - ${#ret} - ${#mask})}${ret}"
+    else
+        # len is over max len, show at least LP_PATH_KEEP leading dirs and
+        # current directory
+        local tmp=${p//\//}
+        local -i delims=$(( ${#p} - ${#tmp} ))
+
+        for (( dir=0; dir < ${LP_PATH_KEEP}; dir++ )); do
+            (( ${dir} == ${delims} )) && break
+
+            local left="${p#*/}"
+            local name="${p:0:${#p} - ${#left}}"
+            p="${left}"
+            ret="${ret}${name%/}/"
+        done
+
+        if (( ${delims} <= ${LP_PATH_KEEP} )); then
+            # no dirs between LP_PATH_KEEP leading dirs and current dir
+            ret="${ret}${p##*/}"
+        else
+            local base="${p##*/}"
+
+            p="${p:0:${#p} - ${#base}}"
+
+            [[ ${ret} != "/" ]] && ret="${ret%/}" # strip trailing slash
+
+            local -i len_left=$(( ${max_len} - ${#ret} - ${#base} - ${#mask} ))
+
+            ret="${ret}${mask}${p:${#p} - ${len_left}}${base}"
+        fi
+    fi
+    # Escape special chars
     if $_LP_SHELL_bash; then
-        if (( len > max_len ))
-        then
-            # index of the directory to keep from the root
-            # (starts at 0 whith bash, 1 with zsh)
-            local -i keep=LP_PATH_KEEP-1
-            # the character that will replace the part of the path that is
-            # masked
-            local mask="$LP_MARK_SHORTEN_PATH"
-            local -i mask_len=${#mask}
-            # finds all the '/' in
-            # the path and stores their
-            # positions
-            #
-            local pos=()
-            local -i slashes=0
-            for ((i=0;i<len;i++))
-            do
-                if [[ "${p:i:1}" == / ]]
-                then
-                    pos=(${pos[@]} $i)
-                    let slashes++
-                fi
-            done
-            pos=(${pos[@]} $len)
-
-            # we have the '/'s, let's find the
-            # left-most that doesn't break the
-            # length limit
-            #
-            local -i i=keep
-            if (( keep > slashes )) ; then
-                i=slashes
-            fi
-            while (( len-pos[i] > max_len-mask_len ))
-            do
-                let i++
-            done
-
-            # let us check if it's OK to
-            # print the whole thing
-            #
-            if (( pos[i] == 0 ))
-            then
-                # the path is shorter than
-                # the maximum allowed length,
-                # so no need for '…'
-                #
-                LP_PWD="$p"
-
-            elif (( pos[i] == len ))
-            then
-                # constraints are broken because
-                # the maximum allowed size is smaller
-                # than the last part of the path, plus
-                # ' … '
-                #
-                LP_PWD="${p:0:pos[keep]+1}${mask}${p:len-max_len+mask_len}"
-            else
-                # constraints are satisfied, at least
-                # some parts of the path, plus ' … ', are
-                # shorter than the maximum allowed size
-                #
-                LP_PWD="${p:0:pos[keep]+1}${mask}${p:pos[i]}"
-            fi
-        else
-            LP_PWD="$p"
-        fi
+        LP_PWD="${ret//\\/\\\\}"
     else # zsh
-        if (( len > max_len )); then
-            LP_PWD="%-${LP_PATH_KEEP}~%${max_len}<${LP_MARK_SHORTEN_PATH}<%~%<<"
-        else
-            LP_PWD='%~'
-        fi
+        LP_PWD="${ret//\%/%%}"
     fi
 }
 
 # In bash shell, PROMPT_DIRTRIM is the number of directory to keep at the end
 # of the displayed path (if "\w" is present in the PS1 var).
 # liquidprompt can calculate this number under two condition, path shortening
-# must be activated and PROMPT_DIRTRIM must be already set.
+# must be disabled and PROMPT_DIRTRIM must be already set.
 _lp_set_dirtrim() {
     local p="${PWD/$HOME/~}"
     local -i max_len=${COLUMNS:-80}*$LP_PATH_LENGTH/100
@@ -620,8 +604,7 @@ _lp_set_dirtrim() {
         local q="/${p##*/}"
         local show="$q"
         # +3 because of the ellipsis: "..."
-        while (( ${#show}+3 < max_len ))
-        do
+        while (( ${#show}+3 < max_len )); do
             (( dt++ ))
             p="${p%$q}"
             q="/${p##*/}"
@@ -634,30 +617,6 @@ _lp_set_dirtrim() {
     # echo PROMPT_DIRTRIM=$PROMPT_DIRTRIM >&2
 }
 
-# Display a ":"
-# colored in green if user have write permission on the current directory
-# colored in red if it have not.
-_lp_permissions_color()
-{
-    if [[ "$LP_ENABLE_PERM" != 1 ]]; then
-        echo : # without color
-    else
-        if [[ -w "${PWD}" ]]; then
-            echo "${LP_COLOR_WRITE}:${NO_COL}"
-        else
-            echo "${LP_COLOR_NOWRITE}:${NO_COL}"
-        fi
-    fi
-}
-
-# Display the current Python virtual environnement, if available.
-_lp_virtualenv()
-{
-    [[ "$LP_ENABLE_VIRTUALENV" != 1 ]] && return
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        echo "[${LP_COLOR_VIRTUALENV}$(basename $VIRTUAL_ENV)${NO_COL}]"
-    fi
-}
 
 
 ################
@@ -674,7 +633,7 @@ _lp_jobcount_color()
 
     local running=$(( $(jobs -r | wc -l) ))
     local stopped=$(( $(jobs -s | wc -l) ))
-    local n_screen=$(screen -ls 2> /dev/null | grep -c '([Dd]etach[^)]*)$')
+    local n_screen=$(screen -ls 2> /dev/null | grep -c '[Dd]etach[^)]*)$')
     local n_tmux=$(tmux list-sessions 2> /dev/null | grep -cv attached)
     local detached=$(( $n_screen + $n_tmux ))
     local m_detached="d"
@@ -826,19 +785,13 @@ _lp_git_branch_color()
 # the given name.  Used to avoid invoking 'hg' and 'bzr'.
 _lp_upwards_find()
 {
-    while [[ "$PWD" != "/" ]] ; do
-
-        # See if it's in the current directory.
-        local found=$(find "$PWD"/ -maxdepth 1 -name "$@" 2> /dev/null)
-
-        # If it is, then echo the path (or anything), and return.
-        if [[ -n found ]] ; then
-            echo $found
-            return
-        fi
-
-        cd ..
+    local dir
+    dir="$PWD"
+    while [[ -n "$dir" ]]; do
+        [[ -d "$dir/$1" ]] && return 0
+        dir="${dir%/*}"
     done
+    return 1
 }
 
 # MERCURIAL #
@@ -851,7 +804,7 @@ _lp_hg_branch()
     # First do a simple search to avoid having to invoke hg -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z "$(_lp_upwards_find '.hg')" ]] && return
+    _lp_upwards_find .hg || return
 
     # We found an .hg folder, so we need to invoke hg and see if we're actually
     # in a repository.
@@ -876,32 +829,31 @@ _lp_hg_branch_color()
     if [[ -n "$branch" ]] ; then
 
         local has_untracked
-        has_untracked=$(hg status 2>/dev/null | grep '\(^\?\)' | wc -l)
-        if [[ -z "$has_untracked" ]] ; then
-            has_untracked=""
-        else
+        has_untracked=
+        if hg status -u 2>/dev/null | grep -q '^\?' >/dev/null ; then
             has_untracked="$LP_COLOR_CHANGES$LP_MARK_UNTRACKED"
         fi
 
-        local has_commit
-        has_commit=$(hg outgoing --no-merges ${branch} 2>/dev/null | grep '\(^changeset\:\)' | wc -l)
-        if [[ -z "$has_commit" ]] ; then
-            has_commit=0
-        fi
+        # Count local commits waiting for a push
+        local -i commits
+        commits=$(hg outgoing --no-merges ${branch} 2>/dev/null | grep -c '\(^changeset\:\)')
 
-        if [[ $(( $(hg status --quiet -n | wc -l) )) = 0 ]] ; then
-            if [[ "$has_commit" -gt "0" ]] ; then
+        # Check if there is some uncommitted stuff
+        if [[ -z "$(hg status --quiet -n)" ]] ; then
+            if (( commits > 0 )) ; then
                 # some commit(s) to push
-                ret="${LP_COLOR_COMMITS}${branch}${NO_COL}(${LP_COLOR_COMMITS}$has_commit${NO_COL})${has_untracked}${NO_COL}"
+                ret="${LP_COLOR_COMMITS}${branch}${NO_COL}(${LP_COLOR_COMMITS}$commits${NO_COL})${has_untracked}${NO_COL}"
             else
-                ret="${LP_COLOR_UP}${branch}${has_untracked}${NO_COL}" # nothing to commit or push
+                # nothing to commit or push
+                ret="${LP_COLOR_UP}${branch}${has_untracked}${NO_COL}"
             fi
         else
             local has_lines
-            has_lines=$(hg diff --stat 2>/dev/null | tail -n 1 | awk 'FS=" " {printf("+%s/-%s\n", $4, $6)}')
-            if [[ "$has_commit" -gt "0" ]] ; then
+            # Parse the last line of the diffstat-style output
+            has_lines="$(hg diff --stat 2>/dev/null | sed -n '$ s!^.*, \([0-9]*\) .*, \([0-9]*\).*$!+\1/-\2!p')"
+            if (( commits > 0 )) ; then
                 # Changes to commit and commits to push
-                ret="${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL},${LP_COLOR_COMMITS}$has_commit${NO_COL})${has_untracked}${NO_COL}"
+                ret="${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL},${LP_COLOR_COMMITS}$commits${NO_COL})${has_untracked}${NO_COL}"
             else
                 ret="${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL})${has_untracked}${NO_COL}" # changes to commit
             fi
@@ -998,18 +950,18 @@ _lp_fossil_branch_color()
         local ret
         C2E=$(fossil changes | wc -l)
         C2A=$(fossil extras | wc -l)
-        PLUSLINE=$(fossil diff | egrep '^\+[^+].+$' | wc -l)
-        MINUSLINE=$(fossil diff | egrep '^-[^-].+$' | wc -l)
+        PLUSLINE=$(fossil diff | egrep -c '^\+[^+].+$')
+        MINUSLINE=$(fossil diff | egrep -c '^-[^-].+$')
         ret=""
 
-        C2AA=`fossil changes | grep ADDED | wc -l`
+        C2AA=$(fossil changes | grep -c "ADDED")
         if [[ $C2AA -gt 0 ]] ; then
             # We count the line "à la" git
             local ADDFILE
             local FILE
-            ADDFILE=`fossil changes | grep ADDED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2`
+            ADDFILE=$(fossil changes | grep ADDED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2)
             for FILE in $ADDFILE ; do
-                PLULI=$(wc -l $FILE | cut -d" " -f1)
+                PLULI=$(wc -l < $FILE)
                 let PLUSLINE=$PLUSLINE+$PLULI
             done
         fi
@@ -1018,14 +970,14 @@ _lp_fossil_branch_color()
             ret+="+$PLUSLINE"
         fi
 
-        C2D=`fossil changes | grep DELETED | wc -l`
+        C2D=$(fossil changes | grep -c "DELETED")
         if [[ $C2D -gt 0 ]] ; then
             # We count the line "à la" git
             local DELFILE
             local FILE
-            DELFILE=`fossil changes | grep DELETED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2`
+            DELFILE=$(fossil changes | grep DELETED | sed -e 's/\s\{2,\}/ /g' | cut -d" " -f2)
             for FILE in $DELFILE ; do
-                MINLI=$(wc -l $FILE | cut -d" " -f1)
+                MINLI=$(wc -l < $FILE)
                 let MINUSLINE=$MINUSLINE+$MINLI
             done
         fi
@@ -1079,7 +1031,7 @@ _lp_bzr_branch()
     # First do a simple search to avoid having to invoke bzr -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z $(_lp_upwards_find '.bzr') ]] && return
+    _lp_upwards_find .bzr || return
 
     # We found an .bzr folder, so we need to invoke bzr and see if we're
     # actually in a repository.
@@ -1104,7 +1056,7 @@ _lp_bzr_branch_color()
     # First do a simple search to avoid having to invoke bzr -- at least on my
     # machine, the python startup causes a noticeable hitch when changing
     # directories.
-    [[ -z $(_lp_upwards_find '.bzr') ]] && return
+    _lp_upwards_find .bzr || return
 
     # We found an .bzr folder, so we need to invoke bzr and see if we're
     # actually in a repository.
@@ -1432,8 +1384,7 @@ _lp_temp_sensors()
 _lp_temp_acpi()
 {
     local i
-    for i in $(acpi -t | sed 's/.* \([0-9]*\)\.[0-9]* degrees C$/\1/p')
-    do
+    for i in $(acpi -t | sed 's/.* \([0-9]*\)\.[0-9]* degrees C$/\1/p'); do
         [[ $i -gt $temperature ]] && temperature=$i
     done
 }
@@ -1469,24 +1420,16 @@ _lp_temperature() {
 # DESIGN #
 ##########
 
+
+# Sed expression using extended regexp to remove shell codes around terminal
+# escape sequences
+_LP_CLEAN_ESC="$(printf "s,%q|%q,,g" "$_LP_OPEN_ESC" "$_LP_CLOSE_ESC")"
+
 # Remove all colors and escape characters of the given string and return a pure text
 _lp_as_text()
 {
     # Remove colors from the computed prompt
-    case "$LP_OS" in
-        Linux|FreeBSD|OpenBSD|SunOS)  local pst="$(echo $1 | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g")" ;;
-        Darwin) local pst="$(echo $1 | sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g")" ;;
-    esac
-
-
-    # Remove escape sequences
-    # FIXME check the zsh compatibility
-    # pst=$(echo $pst | sed "s,\\\\\\[\|\\\\\\],,g")
-    local op="$(printf "%q" "$_LP_OPEN_ESC")"
-    local cl="$(printf "%q" "$_LP_CLOSE_ESC")"
-    pst="$(echo $pst | sed "s,$op\|$cl,,g")" # replace all open _or_ close tags with nothing
-
-    echo -n "$pst"
+    echo -n "$1" | sed -$_LP_SED_EXTENDED "s/\x1B\[[0-9;]*[mK]//g;$_LP_CLEAN_ESC"
 }
 
 _lp_title()
@@ -1494,24 +1437,7 @@ _lp_title()
     [[ "$LP_ENABLE_TITLE" != "1" ]] && return
 
     # Get the current computed prompt as pure text
-    local txt="$(_lp_as_text "$1")"
-
-    # Use it in the window's title
-    # Escapes whill tells bash to ignore the non-printing control characters when calculating the width of the prompt.
-    # Otherwise line editing commands will mess the cursor positionning
-    case "$TERM" in
-      screen*)
-        [[ "$LP_ENABLE_SCREEN_TITLE" != "1" ]] && return
-        local title="${LP_SCREEN_TITLE_OPEN}${txt}${LP_SCREEN_TITLE_CLOSE}"
-      ;;
-      linux*)
-        local title=""
-      ;;
-      *)
-        local title="${_LP_OPEN_ESC}${LP_TITLE_OPEN}${txt}${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
-      ;;
-    esac
-    echo -n "${title}"
+    echo -n "${_LP_OPEN_ESC}${LP_TITLE_OPEN}$(_lp_as_text "$1")${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
 }
 
 # Set the prompt mark to ± if git, to ☿ if mercurial, to ‡ if subversion
@@ -1643,12 +1569,16 @@ _lp_set_prompt()
         LP_PROXY=
     fi
 
-    # right of main prompt: space at left
-    LP_VENV="$(_lp_sl "$(_lp_virtualenv)")"
-    # if change of working directory
+    # Display the current Python virtual environnement, if available
+    if [[ "$LP_ENABLE_VIRTUALENV,$VIRTUAL_ENV" = 1,?* ]] ; then
+        LP_VENV=" [${LP_COLOR_VIRTUALENV}${VIRTUAL_ENV##*/}${NO_COL}]"
+    else
+        LP_VENV=
+    fi
 
     LP_RUNTIME=$(_lp_sl "$(_lp_runtime)")
 
+    # if change of working directory
     if [[ "$LP_OLD_PWD" != "LP:$PWD" ]]; then
         # Update directory icon for MacOS X
         $_LP_TERM_UPDATE_DIR
@@ -1656,7 +1586,18 @@ _lp_set_prompt()
         LP_VCS=""
         LP_VCS_TYPE=""
         # LP_HOST is a global set at load time
-        LP_PERM="$(_lp_permissions_color)"
+
+        # LP_PERM: shows a ":"
+        # - colored in green if user has write permission on the current dir
+        # - colored in red if not
+        if [[ "$LP_ENABLE_PERM" = 1 ]]; then
+            if [[ -w "${PWD}" ]]; then
+                LP_PERM="${LP_COLOR_WRITE}:${NO_COL}"
+            else
+                LP_PERM="${LP_COLOR_NOWRITE}:${NO_COL}"
+            fi
+        fi
+
         _lp_shorten_path   # set LP_PWD
 
         if _lp_are_vcs_enabled; then
@@ -1724,7 +1665,7 @@ _lp_set_prompt()
         source "$LP_PS1_FILE"
     fi
 
-    if [[ -z $LP_PS1 ]] ; then
+    if [[ -z "$LP_PS1" ]] ; then
         # add title escape time, jobs, load and battery
         PS1="${LP_PS1_PREFIX}${LP_TIME}${LP_BATT}${LP_LOAD}${LP_TEMP}${LP_JOBS}"
         # add user, host and permissions colon
