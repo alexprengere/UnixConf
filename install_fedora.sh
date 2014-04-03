@@ -4,20 +4,19 @@
 sudo yum check-update
 sudo yum install                  \
     nfs-utils nfs-utils-lib       \
-    vim screen zsh htop           \
     openssh-server                \
-    python-pip ipython            \
-    ruby-irb                      \
-    numpy scipy                   \
-    python-matplotlib             \
-    mongodb                       \
-    memcached redis               \
-    R                             \
-    git subversion                \
-    colordiff                     \
+    vim screen zsh htop colordiff \
     cmake automake                \
     gcc-c++ python-devel          \
     kernel-devel                  \
+    git subversion cvs            \
+    python-pip ipython            \
+    numpy scipy                   \
+    python-matplotlib             \
+    ruby-irb                      \
+    R                             \
+    mongodb                       \
+    memcached redis               \
     ctags                         \
     pylint                        \
     jsl                           \

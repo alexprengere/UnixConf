@@ -4,20 +4,19 @@
 sudo apt-get update
 sudo apt-get install              \
     nfs-common                    \
-    vim screen zsh htop           \
     openssh-server                \
-    python-pip ipython            \
-    ruby                          \
-    python-numpy python-scipy     \
-    python-matplotlib             \
-    mongodb                       \
-    memcached redis-server        \
-    r-base                        \
-    git subversion                \
-    colordiff                     \
+    vim screen zsh htop colordiff \
     cmake automake                \
     g++ python-dev                \
     build-essential               \
+    git subversion cvs            \
+    python-pip ipython            \
+    python-numpy python-scipy     \
+    python-matplotlib             \
+    ruby                          \
+    r-base                        \
+    mongodb                       \
+    memcached redis-server        \
     exuberant-ctags               \
     pylint                        \
 
