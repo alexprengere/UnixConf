@@ -7,16 +7,19 @@ sudo yum install                  \
     openssh-server                \
     vim screen zsh htop colordiff \
     cmake automake                \
-    gcc-c++ python-devel          \
-    kernel-devel                  \
+    gcc-c++ kernel-devel          \
     git subversion cvs            \
-    python-pip ipython            \
+    python-devel                  \
+    python-setuptools python-pip  \
+    ipython                       \
     numpy scipy                   \
     python-matplotlib             \
     ruby-irb                      \
     R                             \
     mongodb                       \
     memcached redis               \
+    tokyocabinet                  \
+    tokyocabinet-devel            \
     ctags                         \
     pylint                        \
     jsl                           \

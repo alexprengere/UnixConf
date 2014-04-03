@@ -7,16 +7,19 @@ sudo apt-get install              \
     openssh-server                \
     vim screen zsh htop colordiff \
     cmake automake                \
-    g++ python-dev                \
-    build-essential               \
+    g++ build-essential           \
     git subversion cvs            \
-    python-pip ipython            \
+    python-dev                    \
+    python-setuptools python-pip  \
+    ipython                       \
     python-numpy python-scipy     \
     python-matplotlib             \
     ruby                          \
     r-base                        \
     mongodb                       \
     memcached redis-server        \
+    tokyocabinet-bin              \
+    libtokyocabinet-dev           \
     exuberant-ctags               \
     pylint                        \
 
