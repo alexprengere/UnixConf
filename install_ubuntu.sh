@@ -7,6 +7,12 @@ sudo apt-get install              \
     vim screen zsh htop           \
     openssh-server                \
     python-pip ipython            \
+    ruby                          \
+    python-numpy python-scipy     \
+    python-matplotlib             \
+    mongodb                       \
+    memcached redis-server        \
+    r-base                        \
     git subversion                \
     colordiff                     \
     cmake automake                \

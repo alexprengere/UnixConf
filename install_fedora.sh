@@ -7,13 +7,20 @@ sudo yum install                  \
     vim screen zsh htop           \
     openssh-server                \
     python-pip ipython            \
+    ruby-irb                      \
+    numpy scipy                   \
+    python-matplotlib             \
+    mongodb                       \
+    memcached redis               \
+    R                             \
     git subversion                \
     colordiff                     \
     cmake automake                \
     gcc-c++ python-devel          \
     kernel-devel                  \
     ctags                         \
-    pylint jsl                    \
+    pylint                        \
+    jsl                           \
 
 # Changing default shell
 #chsh -s /bin/zsh
