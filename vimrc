@@ -39,6 +39,7 @@ Bundle 'jnwhiteh/vim-golang'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'docunext/closetag.vim'
 
+Bundle 'alexprengere/csv.vim'
 "Bundle 'Raimondi/delimitMate'
 "Bundle 'tomasr/molokai'
 "Bundle 'altercation/vim-colors-solarized'
