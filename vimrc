@@ -116,7 +116,7 @@ endfunc
 "set foldtext=MyFoldFunction()           "Fold avec MyFoldFunction
 set foldlevel=100                       "Ouvrir tous les folds à l'ouverture du fichier
                                         "Surchargé par le plugin latex-suite pour les .tex
-set foldcolumn=2                       "Barre à gauche de l'écran et gérer les folds avec
+set foldcolumn=0                       "Barre à gauche de l'écran et gérer les folds avec
 " Make folding indent sensitive
 set foldmethod=indent
 
