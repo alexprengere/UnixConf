@@ -99,7 +99,7 @@ set splitright                  "split vertically on the right
 
 set previewheight=20            "increase default height for preview window (used by autocomplete)
 au BufEnter ?* call PreviewHeightWorkAround()
-func PreviewHeightWorkAround()
+func! PreviewHeightWorkAround()
     if &previewwindow
         exec 'setlocal winheight='.&previewheight
     endif
