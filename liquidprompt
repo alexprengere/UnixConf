@@ -104,7 +104,11 @@ fi
 _lp_bool()
 {
     local res=${2:-$?}
-    [[ $res = 0 ]] && eval $1=true || eval $1=false
+    if [[ $res = 0 ]]; then
+        eval $1=true
+    else
+        eval $1=false
+    fi
     return $res
 }
 
@@ -155,7 +159,7 @@ case "$LP_OS" in
             # If you have problems with syntax coloring due to the following
             # line, do this: ln -s liquidprompt liquidprompt.bash
             # and edit liquidprompt.bash
-            read bol load eol <<<$( LANG=C sysctl -n vm.loadavg )
+            read bol load eol <<<"$( LANG=C sysctl -n vm.loadavg )"
             echo "$load"
         }
         ;;
@@ -462,7 +466,7 @@ _lp_escape()
 # Yellow for root, bold if the user is not the login one, else no color.
 if [[ "$EUID" -ne "0" ]] ; then  # if user is not root
     # if user is not login user
-    if [[ ${USER} != "$(logname 2>/dev/null || echo $LOGNAME)" ]]; then
+    if [[ ${USER} != "$(logname 2>/dev/null || echo "$LOGNAME")" ]]; then
         LP_USER="${LP_COLOR_USER_ALT}${_LP_USER_SYMBOL}${NO_COL}"
     else
         if [[ "${LP_USER_ALWAYS}" -ne "0" ]] ; then
@@ -552,7 +556,7 @@ unset _lp_connection
 _lp_get_home_tilde_collapsed()
 {
     local tilde="~"
-    echo ${PWD/#$HOME/$tilde}
+    echo "${PWD/#$HOME/$tilde}"
 }
 
 # Shorten the path of the current working directory
@@ -577,13 +581,13 @@ _lp_shorten_path()
 
     local p="$(_lp_get_home_tilde_collapsed)"
     local mask="${LP_MARK_SHORTEN_PATH}"
-    local -i max_len=$(( ${COLUMNS:-80} * $LP_PATH_LENGTH / 100 ))
+    local -i max_len=$(( ${COLUMNS:-80} * LP_PATH_LENGTH / 100 ))
 
     if [[ ${LP_PATH_KEEP} == -1 ]]; then
         # only show the current directory, excluding any parent dirs
         ret="${p##*/}" # discard everything up to and including the last slash
         [[ "${ret}" == "" ]] && ret="/" # if in root directory
-    elif (( ${#p} <= ${max_len} )); then
+    elif (( ${#p} <= max_len )); then
         ret="${p}"
     elif [[ ${LP_PATH_KEEP} == 0 ]]; then
         # len is over max len, show as much of the tail as is allowed
@@ -596,8 +600,8 @@ _lp_shorten_path()
         local tmp=${p//\//}
         local -i delims=$(( ${#p} - ${#tmp} ))
 
-        for (( dir=0; dir < ${LP_PATH_KEEP}; dir++ )); do
-            (( ${dir} == ${delims} )) && break
+        for (( dir=0; dir < LP_PATH_KEEP; dir++ )); do
+            (( dir == delims )) && break
 
             local left="${p#*/}"
             local name="${p:0:${#p} - ${#left}}"
@@ -605,7 +609,7 @@ _lp_shorten_path()
             ret="${ret}${name%/}/"
         done
 
-        if (( ${delims} <= ${LP_PATH_KEEP} )); then
+        if (( delims <= LP_PATH_KEEP )); then
             # no dirs between LP_PATH_KEEP leading dirs and current dir
             ret="${ret}${p##*/}"
         else
@@ -615,7 +619,7 @@ _lp_shorten_path()
 
             [[ ${ret} != "/" ]] && ret="${ret%/}" # strip trailing slash
 
-            local -i len_left=$(( ${max_len} - ${#ret} - ${#base} - ${#mask} ))
+            local -i len_left=$(( max_len - ${#ret} - ${#base} - ${#mask} ))
 
             ret="${ret}${mask}${p:${#p} - ${len_left}}${base}"
         fi
@@ -634,7 +638,7 @@ _lp_shorten_path()
 # must be disabled and PROMPT_DIRTRIM must be already set.
 _lp_set_dirtrim() {
     local p="$(_lp_get_home_tilde_collapsed)"
-    local -i max_len=${COLUMNS:-80}*$LP_PATH_LENGTH/100
+    local -i max_len="${COLUMNS:-80}*$LP_PATH_LENGTH/100"
     local -i dt=0
 
     if (( ${#p} > max_len )); then
@@ -909,7 +913,7 @@ _lp_svn_branch()
     [[ "$LP_ENABLE_SVN" != 1 ]] && return
     local root
     local url
-    eval $(LANG=C LC_ALL=C svn info 2>/dev/null | sed -n 's/^URL: \(.*\)/url="\1"/p;s/^Repository Root: \(.*\)/root="\1"/p' )
+    eval "$(LANG=C LC_ALL=C svn info 2>/dev/null | sed -n 's/^URL: \(.*\)/url="\1"/p;s/^Repository Root: \(.*\)/root="\1"/p' )"
     [[ -z "$root" ]] && return
 
     # Make url relative to root
@@ -997,7 +1001,7 @@ _lp_fossil_branch_color()
             ret="(${LP_COLOR_DIFF}${ret}${C2E}${NO_COL})"
         fi
 
-        if (( $C2A > 0 )); then
+        if (( C2A > 0 )); then
             C2A="$LP_COLOR_CHANGES$LP_MARK_UNTRACKED"
         else
             C2A=""
@@ -1351,7 +1355,7 @@ _lp_load_color()
     tmp=${tmp#0}    # Remove leading '0', again (ex: 0.09)
     local -i load=${tmp:-0}/$_lp_CPUNUM
 
-    if (( load > $LP_LOAD_THRESHOLD )); then
+    if (( load > LP_LOAD_THRESHOLD )); then
         local ret="$(_lp_color_map $load 200)${LP_MARK_LOAD}"
 
         if [[ "$LP_PERCENTS_ALWAYS" == 1 ]]; then
@@ -1533,7 +1537,7 @@ _lp_set_prompt()
     if (( err != 0 )); then
         LP_ERR=" $LP_COLOR_ERR$err$NO_COL"
     else
-        LP_ERR=     # Hidden
+        LP_ERR=''     # Hidden
     fi
 
     # Reset IFS to its default value to avoid strange behaviors
