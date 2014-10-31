@@ -7,7 +7,8 @@ sudo yum install                  \
     openssh-server                \
     vim screen zsh htop colordiff \
     cmake automake                \
-    gcc-c++ kernel-devel          \
+    gcc-c++                       \
+    kernel-devel kernel-headers   \
     git subversion cvs            \
     python-devel                  \
     python-setuptools python-pip  \
