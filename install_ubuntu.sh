@@ -8,6 +8,7 @@ sudo apt-get install              \
     vim screen zsh htop colordiff \
     cmake automake                \
     g++ build-essential           \
+    linux-headers-generic         \
     git subversion cvs            \
     python-dev                    \
     python-setuptools python-pip  \
