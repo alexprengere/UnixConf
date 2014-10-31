@@ -9,6 +9,7 @@ sudo apt-get install              \
     cmake automake                \
     g++ build-essential           \
     linux-headers-generic         \
+    dkms                          \
     git subversion cvs            \
     python-dev                    \
     python-setuptools python-pip  \
