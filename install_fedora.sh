@@ -9,6 +9,7 @@ sudo yum install                  \
     cmake automake                \
     gcc-c++                       \
     kernel-devel kernel-headers   \
+    dkms                          \
     git subversion cvs            \
     python-devel                  \
     python-setuptools python-pip  \
