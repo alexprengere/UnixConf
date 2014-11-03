@@ -13,7 +13,7 @@
     br = branch
     ds = diff --stat
     ls = ls-files
-    logg = log --graph --decorate --pretty=oneline --abbrev-commit --all
+    logg = log --graph --decorate --pretty=format:'%C(yellow)%h%Creset %Cgreen(%cr)%Creset %s%C(red)%d%Creset %C(bold blue)<%an>%Creset' --abbrev-commit --all
 [core]
     editor = vim
 [diff "zip"]
