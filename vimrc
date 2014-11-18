@@ -14,7 +14,6 @@ Bundle 'gmarik/vundle'
 
 Bundle 'sjl/gundo.vim'
 Bundle 'jwhitley/vim-matchit'
-Bundle 'fholgado/minibufexpl.vim'
 Bundle 'scrooloose/nerdtree'
 
 Bundle "MarcWeber/vim-addon-mw-utils"
@@ -196,18 +195,12 @@ map  <c-t> :tabnew     <cr>
 "Leader
 let mapleader = ","
 
-"Manipulation du buffer
-noremap <leader>f :buffers   <cr>
-noremap <leader>b :bprevious <cr>
-noremap <leader>n :bnext     <cr>
-"noremap <leader>a :badd 
-"noremap <leader>d :bdelete<cr>
-
 "Remappage pour les plugins taglist et Nerdtree
-noremap <leader>l :TagbarToggle  <cr>
-noremap <leader>t :NERDTreeToggle<cr>
-noremap <leader>g :GundoToggle   <cr>
-noremap <leader>s :SyntasticToggleMode<cr>
+noremap <leader>b :CtrlPBuffer          <cr>
+noremap <leader>l :TagbarToggle         <cr>
+noremap <leader>t :NERDTreeToggle       <cr>
+noremap <leader>g :GundoToggle          <cr>
+noremap <leader>s :SyntasticToggleMode  <cr>
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
