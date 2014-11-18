@@ -40,13 +40,8 @@ Bundle 'scrooloose/nerdcommenter'
 Bundle 'docunext/closetag.vim'
 
 Bundle 'alexprengere/csv.vim'
-"Bundle 'Raimondi/delimitMate'
-"Bundle 'tomasr/molokai'
-"Bundle 'altercation/vim-colors-solarized'
-"Bundle 'wincent/Command-T'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 filetype indent plugin on       "Active les plugins de vim
 
 set encoding=utf-8              "Encodage
@@ -166,9 +161,8 @@ set spellsuggest=7      "Nombre de propositions par défaut
 "set spell              "Désactivé à l'ouverture du document
 
 "Remappage des touches classiques -- help/recherche/orthographe/numeros/viewports
-nmap <F2> :vertical botright help 
-map  <F2> :vertical botright help 
-imap <F2> <esc> :vertical botright help 
+set pastetoggle=<F2>
+nnoremap <F2> :set invpaste paste?<CR>
 nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 imap <F3> <esc> :set hlsearch!<cr> :set hlsearch?<cr>
