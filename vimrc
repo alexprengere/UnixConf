@@ -242,8 +242,8 @@ let g:vim_markdown_folding_disabled=1
 let g:vim_markdown_initial_foldlevel=1
 
 "Change highlight line style
-highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
-highlight cursorcolumn  term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
+highlight CursorLine   cterm=bold ctermbg=darkgray guibg=darkgray
+highlight CursorColumn cterm=bold ctermbg=darkgray guibg=darkgray
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations
