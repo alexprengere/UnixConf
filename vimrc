@@ -31,6 +31,7 @@ Bundle 'kien/ctrlp.vim'
 Bundle 'scrooloose/syntastic'
 Bundle 'tpope/vim-fugitive'
 Bundle 'plasticboy/vim-markdown'
+Bundle 'kchmck/vim-coffee-script'
 
 Bundle 'tpope/vim-repeat'
 Bundle 'jnwhiteh/vim-golang'
