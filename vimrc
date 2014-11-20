@@ -181,20 +181,16 @@ nmap <F9> <c-w>w
 map  <F9> <c-w>w
 imap <F9> <esc><c-w>w
 
-"Navigation entre onglets
-map  <c-b> :tabprevious<cr>
-map  <c-n> :tabnext    <cr>
-map  <c-t> :tabnew     <cr>
-
-"Leader
-let mapleader = ","
+"Buffers
+map  <c-b> :bnext    <cr>
+map  <c-n> :bprevious<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
+let mapleader = ","
 noremap <leader>b :CtrlPBuffer          <cr>
 noremap <leader>l :TagbarToggle         <cr>
 noremap <leader>t :NERDTreeToggle       <cr>
 noremap <leader>g :GundoToggle          <cr>
-noremap <leader>s :SyntasticToggleMode  <cr>
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
