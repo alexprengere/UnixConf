@@ -207,6 +207,7 @@ let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 
 "Ctrlp
 set runtimepath^=~/.vim/bundle/ctrlp.vim
+let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|(\.(swp|swo|pyc|so|dll|exe|ico|git|svn))$'
 
 "Custom snipMate trigger key
 imap <c-e> <Plug>snipMateNextOrTrigger
