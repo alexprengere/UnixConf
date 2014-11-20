@@ -12,9 +12,13 @@ let g:vundle_default_git_proto='git'
 
 Bundle 'gmarik/vundle'
 
+Bundle 'kien/ctrlp.vim'
+Bundle 'majutsushi/tagbar'
+Bundle 'techlivezheng/tagbar-phpctags'
 Bundle 'sjl/gundo.vim'
-Bundle 'jwhitley/vim-matchit'
 Bundle 'scrooloose/nerdtree'
+Bundle 'scrooloose/syntastic'
+Bundle 'scrooloose/nerdcommenter'
 
 Bundle "MarcWeber/vim-addon-mw-utils"
 Bundle "tomtom/tlib_vim"
@@ -24,20 +28,14 @@ Bundle "honza/vim-snippets"
 Bundle 'Valloric/YouCompleteMe'
 "Bundle 'ervandew/supertab'
 
-Bundle 'majutsushi/tagbar'
-Bundle 'techlivezheng/tagbar-phpctags'
-
-Bundle 'kien/ctrlp.vim'
-Bundle 'scrooloose/syntastic'
+Bundle 'jwhitley/vim-matchit'
+Bundle 'docunext/closetag.vim'
 Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-repeat'
+
+Bundle 'jnwhiteh/vim-golang'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'kchmck/vim-coffee-script'
-
-Bundle 'tpope/vim-repeat'
-Bundle 'jnwhiteh/vim-golang'
-
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'docunext/closetag.vim'
 
 Bundle 'alexprengere/csv.vim'
 
@@ -183,15 +181,9 @@ map  <F9> <c-w>w
 imap <F9> <esc><c-w>w
 
 "Navigation entre onglets
-"nmap <c-b> :tabprevious<cr>
-"nmap <c-n> :tabnext    <cr>
-"nmap <c-t> :tabnew     <cr>
 map  <c-b> :tabprevious<cr>
 map  <c-n> :tabnext    <cr>
 map  <c-t> :tabnew     <cr>
-"imap <c-b> <esc> :tabprevious<cr>
-"imap <c-n> <esc> :tabnext    <cr>
-"imap <c-t> <esc> :tabnew     <cr>
 
 "Leader
 let mapleader = ","
@@ -208,7 +200,6 @@ let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglis
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
 "Syntastic options
-"Checkers options
 let g:syntastic_check_on_open=1
 let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
 let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
