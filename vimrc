@@ -32,12 +32,13 @@ Bundle 'jwhitley/vim-matchit'
 Bundle 'docunext/closetag.vim'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-repeat'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'tpope/vim-abolish'
 
 Bundle 'jnwhiteh/vim-golang'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'kchmck/vim-coffee-script'
-
-Bundle 'alexprengere/csv.vim'
+Bundle 'chrisbra/csv.vim'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype indent plugin on       "Active les plugins de vim
