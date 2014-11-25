@@ -18,8 +18,9 @@ Generate vim directory with::
  rm -rf ~/.vim
  git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
  vim +BundleInstall +qall
+ # If you use YCM plugin
  cd ~/.vim/bundle/YouCompleteMe
- ./install.sh # --clang-completer
+ ./install.sh # add --clang-completer for LLVM based autocomplete
 
 Manually
 ========
@@ -39,7 +40,8 @@ If you want to add private aliases, edit a ~/.shell.aliases file.
 
 VIM
 ---
-Copy vimrc as ~/.vimrc.
+Copy vimrc as ~/.vimrc. Then generate the vim directory following instructions
+in the ``Automation`` section.
 
 Syntastic plugin uses pylint and jsl as syntax checkers.
 Make sure your configuration files are reached for these ones.
