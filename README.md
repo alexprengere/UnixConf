@@ -6,20 +6,20 @@ Automation
 
 You may install basic stuff:
 ```bash
- ./install_ubuntu.sh # or ./install_fedora.sh
+./install_ubuntu.sh # or ./install_fedora.sh
 ```
 You may deploy automatically using:
 ```bash
- ./deploy.sh
+./deploy.sh
 ```
 Generate vim directory with:
 ```bash
- rm -rf ~/.vim
- git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
- vim +BundleInstall +qall
- # If you use YCM plugin
- cd ~/.vim/bundle/YouCompleteMe
- ./install.sh # add --clang-completer for LLVM based autocomplete
+rm -rf ~/.vim
+git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+vim +BundleInstall +qall
+# If you use YCM plugin
+cd ~/.vim/bundle/YouCompleteMe
+./install.sh # add --clang-completer for LLVM based autocomplete
 ```
 
 Manually
@@ -28,12 +28,10 @@ Manually
 ### Liquidprompt
 
 This is a pretty elaborate zsh prompt, highly configurable, bash / zsh
-compliant, supporting VCS, jobs, battery, and many others.
-
+compliant, supporting VCS, jobs, battery, etc...
 ```bash
 cp liquidprompt ~/.liquidprompt
-cp liquidpromptrc-dist a~/.liquidpromptrc # configuration, edit if
-needed
+cp liquidpromptrc-dist ~/.liquidpromptrc # configuration, edit if needed
 cp bashrc ~/.bashrc
 cp zshrc ~/.zshrc
 chsh # change default shell to zsh
@@ -41,17 +39,15 @@ chsh # change default shell to zsh
 If you want to add private aliases, edit a `~/.shell.aliases` file.
 
 ### VIM
+Copy `vimrc`, then generate the vim directory usgin same instructions in the `Automation` section.
 ```bash
 cp vimrc ~/.vimrc
-```
-Then generate the vim directory usgin same instructions in the `Automation` section.
-```bash
- rm -rf ~/.vim
- git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
- vim +BundleInstall +qall
- # If you use YCM plugin
- cd ~/.vim/bundle/YouCompleteMe
- ./install.sh # add --clang-completer for LLVM based autocomplete
+rm -rf ~/.vim
+git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+vim +BundleInstall +qall
+# If you use YCM plugin
+cd ~/.vim/bundle/YouCompleteMe
+./install.sh # add --clang-completer for LLVM based autocomplete
 ```
 
 Syntastic plugin uses pylint and jsl as syntax checkers. Make sure your
