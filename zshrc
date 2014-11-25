@@ -158,6 +158,13 @@ then
         fi
 fi
 
+# Enable 256 colors
+if [ -e /usr/share/terminfo/x/xterm-256color ]; then
+    export TERM='xterm-256color'
+else
+    export TERM='xterm-color'
+fi
+
 
 
 ###########################################
@@ -262,6 +269,7 @@ setopt extendedglob
 setopt prompt_subst
 
 
+
 ###############################################
 # 4. Paramètres de l'historique des commandes #
 ###############################################
@@ -301,20 +309,18 @@ setopt hist_expire_dups_first
 setopt hist_find_no_dups
 
 
+
 ########################################################
 # 5. Définitions persos pour variables d'environnement #
 ########################################################
 
 # Modification du PATH pour scripts
 export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.cabal/bin
 export PATH=$PATH:/opt/vagrant/bin
-export PATH=$PATH:$HOME/Dev/distribution
-export PATH=$HOME/.cabal/bin:$PATH
-export PATH=/usr/local/heroku/bin:$PATH
-
+export PATH=$PATH:/usr/local/heroku/bin
 
 # Go variables
-#export PATH=$PATH:/usr/local/go/bin
 export GOROOT=/opt/go
 export PATH=$PATH:$GOROOT/bin
 
@@ -337,6 +343,7 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'    # begin underline
 
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
+
 
 
 ###########################################
@@ -379,6 +386,7 @@ PATH_ESPACE=`echo $PATH |tr : " "`
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
 /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin \
 `echo $PATH_ESPACE`
+
 
 
 #############

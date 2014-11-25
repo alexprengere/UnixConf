@@ -12,40 +12,36 @@ let g:vundle_default_git_proto='git'
 
 Bundle 'gmarik/vundle'
 
+Bundle 'kien/ctrlp.vim'
+Bundle 'majutsushi/tagbar'
+Bundle 'techlivezheng/tagbar-phpctags'
 Bundle 'sjl/gundo.vim'
-Bundle 'jwhitley/vim-matchit'
-Bundle 'fholgado/minibufexpl.vim'
 Bundle 'scrooloose/nerdtree'
+Bundle 'scrooloose/syntastic'
+Bundle 'scrooloose/nerdcommenter'
 
-Bundle "MarcWeber/vim-addon-mw-utils"
-Bundle "tomtom/tlib_vim"
-Bundle "garbas/vim-snipmate"
-Bundle "honza/vim-snippets"
+Bundle 'MarcWeber/vim-addon-mw-utils'
+Bundle 'tomtom/tlib_vim'
+Bundle 'garbas/vim-snipmate'
+Bundle 'honza/vim-snippets'
 
 "Bundle 'Valloric/YouCompleteMe'
 Bundle 'ervandew/supertab'
 
-Bundle 'majutsushi/tagbar'
-Bundle 'techlivezheng/tagbar-phpctags'
-
-Bundle 'kien/ctrlp.vim'
-Bundle 'scrooloose/syntastic'
-Bundle 'tpope/vim-fugitive'
-Bundle 'plasticboy/vim-markdown'
-
-Bundle 'tpope/vim-repeat'
-Bundle 'jnwhiteh/vim-golang'
-
-Bundle 'scrooloose/nerdcommenter'
+Bundle 'jwhitley/vim-matchit'
 Bundle 'docunext/closetag.vim'
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-repeat'
+Bundle 'tpope/vim-abolish'
+Bundle 'Lokaltog/vim-easymotion'
 
-"Bundle 'Raimondi/delimitMate'
-"Bundle 'tomasr/molokai'
-"Bundle 'altercation/vim-colors-solarized'
-"Bundle 'wincent/Command-T'
+Bundle 'jnwhiteh/vim-golang'
+Bundle 'plasticboy/vim-markdown'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'chrisbra/csv.vim'
+Bundle 'bling/vim-airline'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 filetype indent plugin on       "Active les plugins de vim
 
 set encoding=utf-8              "Encodage
@@ -99,7 +95,7 @@ set splitright                  "split vertically on the right
 
 set previewheight=20            "increase default height for preview window (used by autocomplete)
 au BufEnter ?* call PreviewHeightWorkAround()
-func PreviewHeightWorkAround()
+func! PreviewHeightWorkAround()
     if &previewwindow
         exec 'setlocal winheight='.&previewheight
     endif
@@ -116,7 +112,7 @@ endfunc
 "set foldtext=MyFoldFunction()           "Fold avec MyFoldFunction
 set foldlevel=100                       "Ouvrir tous les folds à l'ouverture du fichier
                                         "Surchargé par le plugin latex-suite pour les .tex
-set foldcolumn=2                       "Barre à gauche de l'écran et gérer les folds avec
+set foldcolumn=0                       "Barre à gauche de l'écran et gérer les folds avec
 " Make folding indent sensitive
 set foldmethod=indent
 
@@ -127,7 +123,7 @@ augroup aspect
 augroup END
 
 augroup aspect
-    autocmd BufRead *.py highlight OverLength ctermbg=darkgray guibg=darkgray
+    autocmd BufRead *.py highlight OverLength ctermbg=darkmagenta guibg=darkmagenta
     autocmd BufRead *.py match OverLength /\%80v.*/
 augroup END
 
@@ -165,9 +161,8 @@ set spellsuggest=7      "Nombre de propositions par défaut
 "set spell              "Désactivé à l'ouverture du document
 
 "Remappage des touches classiques -- help/recherche/orthographe/numeros/viewports
-nmap <F2> :vertical botright help 
-map  <F2> :vertical botright help 
-imap <F2> <esc> :vertical botright help 
+set pastetoggle=<F2>
+nnoremap <F2> :set invpaste paste?<CR>
 nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 imap <F3> <esc> :set hlsearch!<cr> :set hlsearch?<cr>
@@ -187,39 +182,22 @@ nmap <F9> <c-w>w
 map  <F9> <c-w>w
 imap <F9> <esc><c-w>w
 
-"Navigation entre onglets
-"nmap <c-b> :tabprevious<cr>
-"nmap <c-n> :tabnext    <cr>
-"nmap <c-t> :tabnew     <cr>
-map  <c-b> :tabprevious<cr>
-map  <c-n> :tabnext    <cr>
-map  <c-t> :tabnew     <cr>
-"imap <c-b> <esc> :tabprevious<cr>
-"imap <c-n> <esc> :tabnext    <cr>
-"imap <c-t> <esc> :tabnew     <cr>
-
-"Leader
-let mapleader = ","
-
-"Manipulation du buffer
-noremap <leader>f :buffers   <cr>
-noremap <leader>b :bprevious <cr>
-noremap <leader>n :bnext     <cr>
-"noremap <leader>a :badd 
-"noremap <leader>d :bdelete<cr>
+"Buffers
+map  <c-b> :bnext    <cr>
+map  <c-n> :bprevious<cr>
 
 "Remappage pour les plugins taglist et Nerdtree
-noremap <leader>l :TagbarToggle  <cr>
-noremap <leader>t :NERDTreeToggle<cr>
-noremap <leader>g :GundoToggle   <cr>
-noremap <leader>s :SyntasticToggleMode<cr>
+let mapleader = ","
+noremap <leader>b :CtrlPBuffer          <cr>
+noremap <leader>l :TagbarToggle         <cr>
+noremap <leader>t :NERDTreeToggle       <cr>
+noremap <leader>g :GundoToggle          <cr>
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
 "Syntastic options
-"Checkers options
 let g:syntastic_check_on_open=1
 let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
 let g:syntastic_python_checker_args = '--rcfile=~/.pylintrc'
@@ -227,6 +205,7 @@ let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 
 "Ctrlp
 set runtimepath^=~/.vim/bundle/ctrlp.vim
+let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|(\.(swp|swo|pyc|so|dll|exe|ico|git|svn))$'
 
 "Custom snipMate trigger key
 imap <c-e> <Plug>snipMateNextOrTrigger
@@ -246,9 +225,12 @@ set completeopt=menuone,longest,preview
 let g:vim_markdown_folding_disabled=1
 let g:vim_markdown_initial_foldlevel=1
 
+"vim-airline options
+set laststatus=2
+
 "Change highlight line style
-highlight cursorline    term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
-highlight cursorcolumn  term=bold cterm=bold   ctermbg=16 gui=bold   guibg=darkgrey
+highlight CursorLine   cterm=bold ctermbg=235 guibg=235
+highlight CursorColumn cterm=bold ctermbg=235 guibg=235
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations

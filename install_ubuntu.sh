@@ -4,14 +4,24 @@
 sudo apt-get update
 sudo apt-get install              \
     nfs-common                    \
-    vim screen zsh htop           \
     openssh-server                \
-    python-pip ipython            \
-    git subversion                \
-    colordiff                     \
+    vim screen zsh htop colordiff \
     cmake automake                \
-    g++ python-dev                \
-    build-essential               \
+    g++ build-essential           \
+    linux-headers-generic         \
+    dkms                          \
+    git subversion cvs            \
+    python-dev                    \
+    python-setuptools python-pip  \
+    ipython                       \
+    python-numpy python-scipy     \
+    python-matplotlib             \
+    ruby                          \
+    r-base                        \
+    mongodb                       \
+    memcached redis-server        \
+    tokyocabinet-bin              \
+    libtokyocabinet-dev           \
     exuberant-ctags               \
     pylint                        \
 

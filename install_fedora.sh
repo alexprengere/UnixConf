@@ -4,16 +4,27 @@
 sudo yum check-update
 sudo yum install                  \
     nfs-utils nfs-utils-lib       \
-    vim screen zsh htop           \
     openssh-server                \
-    python-pip ipython            \
-    git subversion                \
-    colordiff                     \
+    vim screen zsh htop colordiff \
     cmake automake                \
-    gcc-c++ python-devel          \
-    kernel-devel                  \
+    gcc-c++                       \
+    kernel-devel kernel-headers   \
+    dkms                          \
+    git subversion cvs            \
+    python-devel                  \
+    python-setuptools python-pip  \
+    ipython                       \
+    numpy scipy                   \
+    python-matplotlib             \
+    ruby-irb                      \
+    R                             \
+    mongodb                       \
+    memcached redis               \
+    tokyocabinet                  \
+    tokyocabinet-devel            \
     ctags                         \
-    pylint jsl                    \
+    pylint                        \
+    jsl                           \
 
 # Changing default shell
 #chsh -s /bin/zsh

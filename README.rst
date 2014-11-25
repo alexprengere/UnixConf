@@ -15,7 +15,11 @@ You may deploy automatically using::
 
 Generate vim directory with::
 
- ./generate_vim_dir.sh
+ rm -rf ~/.vim
+ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+ vim +BundleInstall +qall
+ cd ~/.vim/bundle/YouCompleteMe
+ ./install.sh # --clang-completer
 
 Manually
 ========
@@ -42,22 +46,15 @@ Make sure your configuration files are reached for these ones.
 Check the .vimrc to see where syntastic is looking for, usually ~/.pylintrc
 and ~/.jsl.conf.
 
-For older systems, you may directly use the branch `vim_no_compile`.
-There vim has no compilable plugins, and you may generate the vim directory with::
-
- ./generate_vim_dir.sh -n
-
 SVN
 ---
 For SVN colorization, edit the ~/.subversion/config to set the 
 diff-cmd to colordiff. Make sure colordiff is installed, then copy
 the .colordiffrc in ~. The resulting colors should be the same as git.
 
-
 Git
 ---
 Copy the gitconfig in ~, edit the file to insert you name and mail.
-
 
 fstab
 -----
