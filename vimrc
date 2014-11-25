@@ -20,10 +20,10 @@ Bundle 'scrooloose/nerdtree'
 Bundle 'scrooloose/syntastic'
 Bundle 'scrooloose/nerdcommenter'
 
-Bundle "MarcWeber/vim-addon-mw-utils"
-Bundle "tomtom/tlib_vim"
-Bundle "garbas/vim-snipmate"
-Bundle "honza/vim-snippets"
+Bundle 'MarcWeber/vim-addon-mw-utils'
+Bundle 'tomtom/tlib_vim'
+Bundle 'garbas/vim-snipmate'
+Bundle 'honza/vim-snippets'
 
 Bundle 'Valloric/YouCompleteMe'
 "Bundle 'ervandew/supertab'
@@ -32,8 +32,8 @@ Bundle 'jwhitley/vim-matchit'
 Bundle 'docunext/closetag.vim'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-repeat'
-Bundle 'Lokaltog/vim-easymotion'
 Bundle 'tpope/vim-abolish'
+Bundle 'Lokaltog/vim-easymotion'
 
 Bundle 'jnwhiteh/vim-golang'
 Bundle 'plasticboy/vim-markdown'
