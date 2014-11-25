@@ -123,7 +123,7 @@ augroup aspect
 augroup END
 
 augroup aspect
-    autocmd BufRead *.py highlight OverLength ctermbg=darkgray guibg=darkgray
+    autocmd BufRead *.py highlight OverLength ctermbg=darkmagenta guibg=darkmagenta
     autocmd BufRead *.py match OverLength /\%80v.*/
 augroup END
 
