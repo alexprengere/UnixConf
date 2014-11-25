@@ -39,6 +39,7 @@ Bundle 'jnwhiteh/vim-golang'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'chrisbra/csv.vim'
+Bundle 'bling/vim-airline'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype indent plugin on       "Active les plugins de vim
@@ -224,9 +225,12 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 let g:vim_markdown_folding_disabled=1
 let g:vim_markdown_initial_foldlevel=1
 
+"vim-airline options
+set laststatus=2
+
 "Change highlight line style
-highlight CursorLine   cterm=bold ctermbg=darkgray guibg=darkgray
-highlight CursorColumn cterm=bold ctermbg=darkgray guibg=darkgray
+highlight CursorLine   cterm=bold ctermbg=235 guibg=235
+highlight CursorColumn cterm=bold ctermbg=235 guibg=235
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations
