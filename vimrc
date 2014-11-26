@@ -228,6 +228,12 @@ let g:vim_markdown_initial_foldlevel=1
 "vim-airline options
 set laststatus=2
 
+"Change csv colors
+hi CSVColumnEven      term=bold ctermbg=52 guibg=52 ctermfg=231 guifg=231
+hi CSVColumnHeader    term=bold ctermbg=52 guibg=52 ctermfg=231 guifg=231
+hi CSVColumnOdd       term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
+hi CSVColumnHeaderOdd term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
+
 "Change highlight line style
 highlight CursorLine   cterm=bold ctermbg=235 guibg=235
 highlight CursorColumn cterm=bold ctermbg=235 guibg=235
