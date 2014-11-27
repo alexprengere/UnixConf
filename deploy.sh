@@ -26,6 +26,7 @@ SPECIALS=(
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
+    [ssh_config]="$HOME/.ssh/config"
 )
 
 ####
