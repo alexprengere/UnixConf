@@ -1,0 +1,7 @@
+--ignore-dir=node_modules
+--ignore-dir=target
+--ignore-dir=build
+--ignore-dir=lib
+--ignore-dir=.venv
+--type-set=SVG=.svg
+--noSVG
