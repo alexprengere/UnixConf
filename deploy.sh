@@ -134,7 +134,7 @@ for SOURCE in ${SOURCES[@]}; do
         fi
 
     elif [ -f "$SOURCE" ]; then
-        DIFF=$(diff -u $TARGET $SOURCE)
+        DIFF=$(diff -u $SOURCE $TARGET)
 
         if [ "$DIFF" = "" ]; then
             msg $SOURCE $SYMBOL $TARGET "skipped, exists with no differences"
@@ -142,7 +142,7 @@ for SOURCE in ${SOURCES[@]}; do
             if [ "$FORCE" = "true" ]; then
                 msg $SOURCE $SYMBOL $TARGET "moved to target, *overriding*"
                 if [ "$DIFFS" = "true" ]; then
-                    diff -u $TARGET $SOURCE
+                    diff -u $SOURCE $TARGET
                 fi
                 if [ "$TEST" = "false" ]; then
                     mv $TARGET $TARGET.back
@@ -151,7 +151,7 @@ for SOURCE in ${SOURCES[@]}; do
             else
                 msg $SOURCE $SYMBOL $TARGET "skipped, exists *with* differences"
                 if [ "$DIFFS" = "true" ]; then
-                    diff -u $TARGET $SOURCE
+                    diff -u $SOURCE $TARGET
                 fi
             fi
         fi
