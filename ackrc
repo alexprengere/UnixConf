@@ -1,7 +1,15 @@
 --ignore-dir=node_modules
---ignore-dir=target
+--ignore-dir=.pygments-cache
+--ignore-dir=.sass-cache
+
 --ignore-dir=build
 --ignore-dir=lib
 --ignore-dir=.venv
+
+--ignore-dir=.gist-cache
+
 --type-set=SVG=.svg
 --noSVG
+
+--type-set=LOG=.log
+--noLOG
