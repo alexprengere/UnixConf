@@ -59,6 +59,8 @@ alias -g M="| more"
 alias -g H="| head"
 alias -g T="| tail"
 alias -g G="| grep"
+alias -g S="| sort"
+alias -g U="| uniq -c"
 alias -g W="| wc -l"
 
 
