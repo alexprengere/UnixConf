@@ -63,12 +63,10 @@ cp gitconfig ~/.gitconfig
 Editing `/etc/fstab` is required to mount stuff. Edit this file
 as root and *carefully* copy the needed lines from the local fstab file.
 
-### Ack / Ag
+### Ag
 
-These may be installed automatically with the install script if packages are available.
+This may be installed automatically with the install script if packages are available.
 If not, try installing from source.
-
-To install `Ag`, *the silver searcher*:
 ```bash
 # Prerequisistes
 # apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
@@ -79,7 +77,10 @@ cd the_silver_searcher
 sudo make install
 ```
 
-To install `ack2`:
+### Ack
+
+This may be installed automatically with the install script if packages are available.
+If not, try installing from source.
 ```bash
 git clone https://github.com/petdance/ack2.git
 cd ack2
