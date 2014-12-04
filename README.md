@@ -49,17 +49,6 @@ to `colordiff`. Make sure `colordiff` is installed.
 cp colordiffrc ~/.colordiffrc
 ```
 
-### Git
-
-```bash
-cp gitconfig ~/.gitconfig
-```
-
-### fstab
-
-Editing `/etc/fstab` is required to mount stuff. Edit this file
-as root and *carefully* copy the needed lines from the local fstab file.
-
 ### Ag
 
 This may be installed automatically with the install script if packages are available.
@@ -74,15 +63,8 @@ cd the_silver_searcher
 sudo make install
 ```
 
-### Ack
+### fstab
 
-This may be installed automatically with the install script if packages are available.
-If not, try installing from source.
-```bash
-git clone https://github.com/petdance/ack2.git
-cd ack2
-perl Makefile.PL
-make
-make test
-sudo make install
-```
+Editing `/etc/fstab` is required to mount stuff. Edit this file
+as root and *carefully* copy the needed lines from the local fstab file.
+

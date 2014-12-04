@@ -1,0 +1,24 @@
+# Python / vim
+*py[co]
+*.sw[po]
+# Eclipse / Pydev
+.settings
+.project
+.pydevproject
+# Ignoring build dir
+/build
+/dist
+/*.egg-info/
+# Ignoring virtualenv
+/bin/
+/lib/
+/lib64
+/include/
+/local
+# Ignoring api doc
+/doc/_build
+/.coverage
+/coverage/htmlcov
+# Ignoring profiling reports
+/*.prof
+/*.lprof
