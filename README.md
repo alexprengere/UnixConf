@@ -17,9 +17,6 @@ Generate vim directory with:
 rm -rf ~/.vim
 git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
 vim +BundleInstall +qall
-# Finish YCM plugin installation
-cd ~/.vim/bundle/YouCompleteMe
-./install.sh # --clang-completer for LLVM based autocomplete
 ```
 Syntastic plugin uses `pylint` and `jsl` as syntax checkers. Make sure these are
 installed and configuration files are there. Check the `.vimrc` to see
