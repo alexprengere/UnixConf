@@ -25,6 +25,7 @@ sudo yum install                  \
     ctags                         \
     pylint                        \
     jsl                           \
+    the_silver_searcher           \
 
 # Changing default shell
 #chsh -s /bin/zsh

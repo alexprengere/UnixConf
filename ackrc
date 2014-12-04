@@ -1,0 +1,10 @@
+--ignore-dir=node_modules
+--ignore-dir=.pygments-cache
+--ignore-dir=.sass-cache
+--ignore-dir=build
+--ignore-dir=match:/[.-]egg-info$/
+--ignore-dir=.venv
+--ignore-dir=.gist-cache
+
+--ignore-file=ext:svg
+--ignore-file=ext:log
