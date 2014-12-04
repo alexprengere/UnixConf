@@ -16,7 +16,6 @@ SKIPPED=(
     "gitattributes"
     "gitignore"
     "conkyrc"
-    "wgetrc"
     "fstab.ssd"
     "fstab"
 )
