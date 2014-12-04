@@ -14,6 +14,7 @@ SKIPPED=(
     "shell.aliases"
     "aprengere.zsh-theme"
     "gitattributes"
+    "gitignore"
     "conkyrc"
     "wgetrc"
     "fstab.ssd"
