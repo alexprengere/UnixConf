@@ -7,10 +7,10 @@
 # Skipped files
 SKIPPED=(
     `basename $0`
+    "README.md"
     "install_ubuntu.sh"
     "install_fedora.sh"
     "generate_vim_dir.sh"
-    "README.rst"
     "shell.aliases"
     "aprengere.zsh-theme"
     "gitattributes"
