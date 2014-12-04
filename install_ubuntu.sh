@@ -24,6 +24,7 @@ sudo apt-get install              \
     libtokyocabinet-dev           \
     exuberant-ctags               \
     pylint                        \
+    silversearcher-ag             \
 
 # Changing default shell
 #chsh -s /bin/zsh
