@@ -39,7 +39,8 @@ chsh # change default shell to zsh
 If you want to add private aliases, edit a `~/.shell.aliases` file.
 
 ### VIM
-Copy `vimrc`, then generate the vim directory usgin same instructions in the `Automation` section.
+
+Copy `vimrc`, then generate the vim directory using same instructions in the `Automation` section.
 ```bash
 cp vimrc ~/.vimrc
 rm -rf ~/.vim
@@ -72,3 +73,27 @@ cp gitconfig ~/.gitconfig
 
 Editing `/etc/fstab` is required to mount stuff. Edit this file
 as root and *carefully* copy the needed lines from the local fstab file.
+
+### Ack / Ag
+
+To install Ag, *the silder searcher*:
+```bash
+# Prerequisistes
+# apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
+# yum -y install pkgconfig automake gcc zlib-devel pcre-devel xz-devel
+git clone https://github.com/ggreer/the_silver_searcher.git
+cd the_silver_searcher
+./build.sh
+sudo make install
+```
+
+To install ack2:
+```bash
+git clone https://github.com/petdance/ack2.git
+cd ack2
+perl Makefile.PL
+make
+make test
+sudo make install
+```
+
