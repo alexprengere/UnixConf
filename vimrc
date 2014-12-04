@@ -13,6 +13,7 @@ let g:vundle_default_git_proto='git'
 Bundle 'gmarik/vundle'
 
 Bundle 'kien/ctrlp.vim'
+Bundle 'mileszs/ack.vim'
 Bundle 'majutsushi/tagbar'
 Bundle 'techlivezheng/tagbar-phpctags'
 Bundle 'sjl/gundo.vim'
