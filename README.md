@@ -78,7 +78,7 @@ as root and *carefully* copy the needed lines from the local fstab file.
 
 ### Ack / Ag
 
-To install Ag, *the silder searcher*:
+To install Ag, *the silver searcher*:
 ```bash
 # Prerequisistes
 # apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
