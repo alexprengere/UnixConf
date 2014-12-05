@@ -405,16 +405,14 @@ function preexec() {
     command="${1%% *}"
 }
 
-# my_precmd will be overriden by liquidprompt
-function my_precmd() {
-
+function precmd() {
     # Update this variables, which are displayed in the prompt
-    CONNECTIONS=`who |grep -v $USER |awk {'print $1'} |sort |uniq| wc -l`
+    local connections=`who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l`
 
-    if [ "$CONNECTIONS" -eq 0 ]; then
-        COLOR_CONNECTIONS="%{[0;37m%}$CONNECTIONS"
+    if [ "$connections" -eq 0 ]; then
+        COLOR_CONNECTIONS="%{[0;37m%}$connections"
     else
-        COLOR_CONNECTIONS="%{[0;31m%}$CONNECTIONS"
+        COLOR_CONNECTIONS="%{[0;31m%}$connections"
     fi
 
     (($?)) && [ -n "$command" ] && [ -x /usr/lib/command-not-found ] && {
@@ -425,19 +423,6 @@ function my_precmd() {
 }
 
 # Aliases and liquid prompt
-ALIASES_FILE="$HOME/.shell.aliases"
-LIQUIDP_FILE="$HOME/.liquidprompt"
+[ -f "$HOME/.shell.aliases" ] && source "$HOME/.shell.aliases"
+[ -f "$HOME/.liquidprompt" ] && [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 
-source_if_there () {
-    [ -f "$1" ] && source "$1"
-}
-
-source_if_there $ALIASES_FILE
-[[ $- = *i* ]] && source_if_there $LIQUIDP_FILE
-
-if [ ! -f $LIQUIDP_FILE ]; then
-    echo "$LIQUIDP_FILE not found!"
-    function precmd () {
-        my_precmd
-    }
-fi

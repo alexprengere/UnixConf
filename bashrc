@@ -106,19 +106,6 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'	# begin underline
 shopt -s cdspell
 
 # Aliases and liquid prompt
-source_if_there () {
-    if [ -f "$1" ]; then
-        source "$1"
-    fi
-}
-
-LIQUIDP_FILE="$HOME/.liquidprompt"
-ALIASES_FILE="$HOME/.shell.aliases"
-
-source_if_there $LIQUIDP_FILE
-source_if_there $ALIASES_FILE
-
-if [ ! -f $LIQUIDP_FILE ]; then
-    echo "$LIQUIDP_FILE not found!"
-fi
+[ -f "$HOME/.shell.aliases" ] && source "$HOME/.shell.aliases"
+[ -f "$HOME/.liquidprompt" ] && [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 

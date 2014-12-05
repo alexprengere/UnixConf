@@ -572,7 +572,7 @@ _lp_shorten_path()
         if $_LP_SHELL_bash; then
             [[ -n "$PROMPT_DIRTRIM" ]] && _lp_set_dirtrim
         else # zsh
-            LP_PWD='%1~'
+             LP_PWD='%1~'
         fi
         return
     fi
@@ -1709,12 +1709,6 @@ prompt_tag()
     export LP_PS1_PREFIX="$(_lp_sr "$1")"
 }
 
-fn_exists()
-{
-    type $1 | grep -q 'shell function'
-    echo "$?"
-}
-
 # Activate the liquid prompt
 prompt_on()
 {
@@ -1733,13 +1727,17 @@ prompt_on()
         PROMPT_COMMAND=_lp_set_prompt
         [[ "$LP_DEBUG_TIME" == 1 ]] && PROMPT_COMMAND="time $PROMPT_COMMAND"
     else # zsh
-        function precmd {
-            _lp_set_prompt
-            # Imported from main configuration file
-            if [ "$(fn_exists my_precmd)" -eq 0 ]; then
-                my_precmd
-            fi
-        }
+        # That doesn't seem to work: no time output
+        #if [[ "$LP_DEBUG_TIME" == 1 ]]; then
+        #    function precmd {
+        #        local TIMEFMT='LiquidPrompt build time: %*E'
+        #        time _lp_set_prompt
+        #    }
+        #else
+            function precmd {
+                _lp_set_prompt
+            }
+        #fi
     fi
 }
 
