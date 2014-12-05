@@ -112,7 +112,7 @@ PS3="%{[1;36m%}?# %{[0m%}"
 PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
 
 # Prompt couleur droit
-RPS1='%{[30;1m%}%~ $COLOR_CONNECTIONS %{[0;36m%}%*%{[0m%}'
+RPS1='$CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
 RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
 
 # Console linux, dans un screen ou un rxvt
@@ -407,12 +407,12 @@ function preexec() {
 
 function precmd() {
     # Update this variables, which are displayed in the prompt
-    local connections=`who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l`
+    local nc=$(who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l)
 
-    if [ "$connections" -eq 0 ]; then
-        COLOR_CONNECTIONS="%{[0;37m%}$connections"
+    if [ "$nc" -eq 0 ]; then
+        CONNECTIONS=""
     else
-        COLOR_CONNECTIONS="%{[0;31m%}$connections"
+        CONNECTIONS="%{[0;31m%}[$nc]%{[0m%}"
     fi
 
     (($?)) && [ -n "$command" ] && [ -x /usr/lib/command-not-found ] && {
