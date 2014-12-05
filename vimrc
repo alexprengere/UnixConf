@@ -147,7 +147,7 @@ autocmd BufRead  *.sh set ft=sh
 autocmd BufRead  *.pl set ft=perl
 "autocmd BufRead *.tex set ft=tex               "Documents latex, surchargé par le plugin latex-suite
 augroup filetypedetect
-        autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
+    autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
 augroup END
 
 autocmd FileType c,cpp,slang set cindent
@@ -236,8 +236,8 @@ hi CSVColumnOdd       term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
 hi CSVColumnHeaderOdd term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
 
 "Change highlight line style
-highlight CursorLine   cterm=bold ctermbg=235 guibg=235
-highlight CursorColumn cterm=bold ctermbg=235 guibg=235
+highlight CursorLine   term=none cterm=none ctermbg=235 guibg=235
+highlight CursorColumn term=none cterm=none ctermbg=235 guibg=235
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations
@@ -266,6 +266,8 @@ highlight clear Error
 "Affiche en rouge les espaces et tabulations de fin de ligne
 "highlight WhitespaceEOL ctermbg=blue
 "match     WhitespaceEOL /\s\+$/
+
+highlight LineNr     term=none cterm=none ctermfg=cyan gui=none guifg=cyan
 
 "Gestion des folds -- fold replié + foldcolumn dans la marge de gauche
 highlight Folded        term=bold cterm=bold ctermfg=brown gui=bold guifg=brown
