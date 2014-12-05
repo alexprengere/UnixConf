@@ -277,7 +277,7 @@ highlight FoldColumn    term=bold cterm=bold ctermfg=white gui=bold guifg=white
 highlight Search        term=bold cterm=bold ctermfg=white ctermbg=darkgreen guifg=white guibg=darkgreen
 
 "Commentaires
-highlight Comment       term=bold cterm=bold ctermfg=darkgrey guifg=darkgrey
+highlight Comment       term=none cterm=none ctermfg=darkgrey guifg=darkgrey
 
 "Statusline courante et non-courante, highlight du wildmenu
 highlight StatusLine    term=bold cterm=bold ctermfg=white    ctermbg=darkgrey gui=bold guifg=white    guibg=darkgrey
