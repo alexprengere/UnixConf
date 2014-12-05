@@ -432,9 +432,8 @@ source_if_there () {
     [ -f "$1" ] && source "$1"
 }
 
-
-source_if_there $LIQUIDP_FILE
 source_if_there $ALIASES_FILE
+[[ $- = *i* ]] && source_if_there $LIQUIDP_FILE
 
 if [ ! -f $LIQUIDP_FILE ]; then
     echo "$LIQUIDP_FILE not found!"
