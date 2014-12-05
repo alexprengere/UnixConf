@@ -300,7 +300,7 @@ highlight TabLineFill   term=bold cterm=bold                  ctermbg=white gui=
 
 "Completion
 highlight Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
-highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=darkyellow guifg=black guibg=darkyellow
+highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=yellow     guifg=black guibg=yellow
 
 "Signs column
 highlight SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
