@@ -572,7 +572,7 @@ _lp_shorten_path()
         if $_LP_SHELL_bash; then
             [[ -n "$PROMPT_DIRTRIM" ]] && _lp_set_dirtrim
         else # zsh
-             LP_PWD='%1~'
+            LP_PWD='%1~'
         fi
         return
     fi
