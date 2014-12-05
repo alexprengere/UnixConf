@@ -571,9 +571,9 @@ _lp_shorten_path()
 
     if [[ "$LP_ENABLE_SHORTEN_PATH" != 1 ]] ; then
         if [[ "$LP_CURRENT_DIR_ONLY" != 1 ]] ; then
-            LP_PWD=$_LP_PWD_SYMBOL
+            LP_PWD="$_LP_PWD_SYMBOL"
         else
-            LP_PWD=$_LP_DIR_SYMBOL
+            LP_PWD="$_LP_DIR_SYMBOL"
         fi
         if $_LP_SHELL_bash; then
             [[ -n "$PROMPT_DIRTRIM" ]] && _lp_set_dirtrim
