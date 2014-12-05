@@ -147,7 +147,7 @@ autocmd BufRead  *.sh set ft=sh
 autocmd BufRead  *.pl set ft=perl
 "autocmd BufRead *.tex set ft=tex               "Documents latex, surchargé par le plugin latex-suite
 augroup filetypedetect
-        autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
+    autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
 augroup END
 
 autocmd FileType c,cpp,slang set cindent
@@ -236,8 +236,8 @@ hi CSVColumnOdd       term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
 hi CSVColumnHeaderOdd term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
 
 "Change highlight line style
-highlight CursorLine   cterm=bold ctermbg=235 guibg=235
-highlight CursorColumn cterm=bold ctermbg=235 guibg=235
+highlight CursorLine   term=none cterm=none ctermbg=235 guibg=235
+highlight CursorColumn term=none cterm=none ctermbg=235 guibg=235
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations
@@ -263,9 +263,7 @@ highlight clear SignColumn
 "highlight clear Todo
 highlight clear Error
 
-"Affiche en rouge les espaces et tabulations de fin de ligne
-"highlight WhitespaceEOL ctermbg=blue
-"match     WhitespaceEOL /\s\+$/
+highlight LineNr     term=none cterm=none ctermfg=cyan gui=none guifg=cyan
 
 "Gestion des folds -- fold replié + foldcolumn dans la marge de gauche
 highlight Folded        term=bold cterm=bold ctermfg=brown gui=bold guifg=brown
@@ -275,7 +273,7 @@ highlight FoldColumn    term=bold cterm=bold ctermfg=white gui=bold guifg=white
 highlight Search        term=bold cterm=bold ctermfg=white ctermbg=darkgreen guifg=white guibg=darkgreen
 
 "Commentaires
-highlight Comment       term=bold cterm=bold ctermfg=darkgrey guifg=darkgrey
+highlight Comment       term=none cterm=none ctermfg=darkgrey guifg=darkgrey
 
 "Statusline courante et non-courante, highlight du wildmenu
 highlight StatusLine    term=bold cterm=bold ctermfg=white    ctermbg=darkgrey gui=bold guifg=white    guibg=darkgrey
@@ -300,7 +298,7 @@ highlight TabLineFill   term=bold cterm=bold                  ctermbg=white gui=
 
 "Completion
 highlight Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
-highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=darkyellow guifg=black guibg=darkyellow
+highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=yellow     guifg=black guibg=yellow
 
 "Signs column
 highlight SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey

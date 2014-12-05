@@ -161,7 +161,7 @@ then
 fi
 
 # Enable 256 colors
-if [ -e /usr/share/terminfo/x/xterm-256color ]; then
+if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
     export TERM='xterm-256color'
 else
     export TERM='xterm-color'
@@ -405,16 +405,14 @@ function preexec() {
     command="${1%% *}"
 }
 
-# my_precmd will be overriden by liquidprompt
-function my_precmd() {
-
+function precmd() {
     # Update this variables, which are displayed in the prompt
-    CONNECTIONS=`who |grep -v $USER |awk {'print $1'} |sort |uniq| wc -l`
+    local connections=`who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l`
 
-    if [ "$CONNECTIONS" -eq 0 ]; then
-        COLOR_CONNECTIONS="%{[0;37m%}$CONNECTIONS"
+    if [ "$connections" -eq 0 ]; then
+        COLOR_CONNECTIONS="%{[0;37m%}$connections"
     else
-        COLOR_CONNECTIONS="%{[0;31m%}$CONNECTIONS"
+        COLOR_CONNECTIONS="%{[0;31m%}$connections"
     fi
 
     (($?)) && [ -n "$command" ] && [ -x /usr/lib/command-not-found ] && {
@@ -425,21 +423,6 @@ function my_precmd() {
 }
 
 # Aliases and liquid prompt
-source_if_there () {
-    if [ -f "$1" ]; then
-        source "$1"
-    fi
-}
+[ -f "$HOME/.shell.aliases" ] && source "$HOME/.shell.aliases"
+[ -f "$HOME/.liquidprompt" ] && [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 
-LIQUIDP_FILE="$HOME/.liquidprompt"
-ALIASES_FILE="$HOME/.shell.aliases"
-
-source_if_there $LIQUIDP_FILE
-source_if_there $ALIASES_FILE
-
-if [ ! -f $LIQUIDP_FILE ]; then
-    echo "$LIQUIDP_FILE not found!"
-    function precmd () {
-        my_precmd
-    }
-fi
