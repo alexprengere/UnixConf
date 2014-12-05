@@ -263,10 +263,6 @@ highlight clear SignColumn
 "highlight clear Todo
 highlight clear Error
 
-"Affiche en rouge les espaces et tabulations de fin de ligne
-"highlight WhitespaceEOL ctermbg=blue
-"match     WhitespaceEOL /\s\+$/
-
 highlight LineNr     term=none cterm=none ctermfg=cyan gui=none guifg=cyan
 
 "Gestion des folds -- fold replié + foldcolumn dans la marge de gauche
