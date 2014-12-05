@@ -425,14 +425,13 @@ function my_precmd() {
 }
 
 # Aliases and liquid prompt
+ALIASES_FILE="$HOME/.shell.aliases"
+LIQUIDP_FILE="$HOME/.liquidprompt"
+
 source_if_there () {
-    if [ -f "$1" ]; then
-        source "$1"
-    fi
+    [ -f "$1" ] && source "$1"
 }
 
-LIQUIDP_FILE="$HOME/.liquidprompt"
-ALIASES_FILE="$HOME/.shell.aliases"
 
 source_if_there $LIQUIDP_FILE
 source_if_there $ALIASES_FILE
