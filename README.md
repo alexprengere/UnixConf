@@ -42,7 +42,6 @@ cp bashrc ~/.bashrc
 cp zshrc ~/.zshrc
 chsh # change default shell to zsh
 ```
-If you want to add private aliases, edit a `~/.shell.aliases` file.
 
 ### SVN
 

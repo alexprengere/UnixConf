@@ -106,6 +106,5 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'	# begin underline
 shopt -s cdspell
 
 # Aliases and liquid prompt
-[ -f "$HOME/.shell.aliases" ] && source "$HOME/.shell.aliases"
-[ -f "$HOME/.liquidprompt" ] && [[ $- = *i* ]] && source "$HOME/.liquidprompt"
+[[ $- = *i* ]] && source "$HOME/.liquidprompt"
 
