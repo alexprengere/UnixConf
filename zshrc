@@ -72,6 +72,8 @@ alias -g W="| wc -l"
 # 2. Prompt et définition des touches #
 #######################################
 
+bindkey -v # vim
+
 bindkey '^A'    beginning-of-line       # Home
 bindkey '^E'    end-of-line             # End
 bindkey '^D'    delete-char             # Del
@@ -79,6 +81,21 @@ bindkey '[3~' delete-char             # Del
 bindkey '[2~' overwrite-mode          # Insert
 bindkey '[5~' history-search-backward # PgUp
 bindkey '[6~' history-search-forward  # PgDn
+
+# Use vim cli mode
+bindkey '^P' up-history
+bindkey '^N' down-history
+
+# backspace and ^h working even after
+# returning from command mode
+bindkey '^?' backward-delete-char
+bindkey '^h' backward-delete-char
+
+# ctrl-w removed word backwards
+bindkey '^w' backward-kill-word
+
+# ctrl-r starts searching history backward
+bindkey '^r' history-incremental-search-backward
 
 ## Memo couleur
 # 0/1 -- clair/foncé
@@ -106,6 +123,17 @@ PS3="%{[1;36m%}?# %{[0m%}"
 PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
 RPS1='$CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
 RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
+
+# Prompt couleur droit
+function zle-line-init zle-keymap-select {
+    VIM_PROMPT="%{[33m%}% [% NORMAL]% %{[0m%}"
+    RPS1='${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/}$EPS1 $CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
+    zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
 
 # Console linux, dans un screen ou un rxvt
 if [ "$TERM" = "linux" -o "$TERM" = "screen" -o "$TERM" = "rxvt" ]
