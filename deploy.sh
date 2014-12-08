@@ -12,7 +12,6 @@ SKIPPED=(
     "install_fedora.sh"
     "gitattributes"
     "gitignore"
-    "conkyrc"
     "fstab.ssd"
     "fstab"
 )
