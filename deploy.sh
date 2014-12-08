@@ -20,10 +20,11 @@ SKIPPED=(
 # Special targets, default is $HOME/.$SOURCE
 declare -A SPECIALS
 SPECIALS=(
+    [subversion_config]="$HOME/.subversion/config"
+    [ssh_config]="$HOME/.ssh/config"
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
-    [ssh_config]="$HOME/.ssh/config"
 )
 
 ####
