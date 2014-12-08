@@ -117,14 +117,14 @@ set foldcolumn=0                       "Barre à gauche de l'écran et gérer le
 " Make folding indent sensitive
 set foldmethod=indent
 
-" Highlight lines too long
+" highlight lines too long
 augroup aspect
-    autocmd BufRead * highlight RedundantSpaces ctermbg=darkblue guibg=darkblue
+    autocmd BufRead * hi RedundantSpaces ctermbg=darkblue guibg=darkblue
     autocmd BufRead * 2match RedundantSpaces /\s\+$\| \+\ze\t/
 augroup END
 
 augroup aspect
-    autocmd BufRead *.py highlight OverLength ctermbg=darkmagenta guibg=darkmagenta
+    autocmd BufRead *.py hi OverLength ctermbg=darkmagenta guibg=darkmagenta
     autocmd BufRead *.py match OverLength /\%80v.*/
 augroup END
 
@@ -236,72 +236,72 @@ hi CSVColumnOdd       term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
 hi CSVColumnHeaderOdd term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
 
 "Change highlight line style
-highlight CursorLine   term=none cterm=none ctermbg=235 guibg=235
-highlight CursorColumn term=none cterm=none ctermbg=235 guibg=235
+hi CursorLine   term=none cterm=none ctermbg=235 guibg=235
+hi CursorColumn term=none cterm=none ctermbg=235 guibg=235
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations
-highlight clear WhitespaceEOL
-highlight clear Folded
-highlight clear FoldColumn
-highlight clear Search
-highlight clear Comment
-highlight clear Statusline
-highlight clear StatusLineNC
-highlight clear VertSplit
-highlight clear wildmenu
-highlight clear spellbad
-highlight clear spelllocal
-highlight clear spellcap
-highlight clear spellrare
-highlight clear TabLineSel
-highlight clear TabLine
-highlight clear TabLineFill
-highlight clear Pmenu
-highlight clear PmenuSel
-highlight clear SignColumn
-"highlight clear Todo
-highlight clear Error
+hi clear WhitespaceEOL
+hi clear Folded
+hi clear FoldColumn
+hi clear Search
+hi clear Comment
+hi clear Statusline
+hi clear StatusLineNC
+hi clear VertSplit
+hi clear wildmenu
+hi clear spellbad
+hi clear spelllocal
+hi clear spellcap
+hi clear spellrare
+hi clear TabLineSel
+hi clear TabLine
+hi clear TabLineFill
+hi clear Pmenu
+hi clear PmenuSel
+hi clear SignColumn
+"hi clear Todo
+hi clear Error
 
-highlight LineNr     term=none cterm=none ctermfg=cyan gui=none guifg=cyan
+hi LineNr     term=none cterm=none ctermfg=cyan gui=none guifg=cyan
 
 "Gestion des folds -- fold replié + foldcolumn dans la marge de gauche
-highlight Folded        term=bold cterm=bold ctermfg=brown gui=bold guifg=brown
-highlight FoldColumn    term=bold cterm=bold ctermfg=white gui=bold guifg=white
+hi Folded        term=bold cterm=bold ctermfg=brown gui=bold guifg=brown
+hi FoldColumn    term=bold cterm=bold ctermfg=white gui=bold guifg=white
 
-"Highlight des recherches
-highlight Search        term=bold cterm=bold ctermfg=white ctermbg=darkgreen guifg=white guibg=darkgreen
+"highlight des recherches
+hi Search        term=bold cterm=bold ctermfg=white ctermbg=darkgreen guifg=white guibg=darkgreen
 
 "Commentaires
-highlight Comment       term=none cterm=none ctermfg=darkgrey guifg=darkgrey
+hi Comment       term=none cterm=none ctermfg=darkgrey guifg=darkgrey
 
 "Statusline courante et non-courante, highlight du wildmenu
-highlight StatusLine    term=bold cterm=bold ctermfg=white    ctermbg=darkgrey gui=bold guifg=white    guibg=darkgrey
-highlight StatusLineNC  term=bold cterm=bold ctermfg=grey     ctermbg=darkgrey gui=bold guifg=grey     guibg=darkgrey
-highlight Vertsplit     term=bold cterm=bold ctermfg=white                     gui=bold guifg=white
-highlight wildmenu      term=bold cterm=bold ctermfg=white    ctermbg=darkblue gui=bold guifg=white    guibg=darkblue
+hi StatusLine    term=bold cterm=bold ctermfg=white    ctermbg=darkgrey gui=bold guifg=white    guibg=darkgrey
+hi StatusLineNC  term=bold cterm=bold ctermfg=grey     ctermbg=darkgrey gui=bold guifg=grey     guibg=darkgrey
+hi Vertsplit     term=bold cterm=bold ctermfg=white                     gui=bold guifg=white
+hi wildmenu      term=bold cterm=bold ctermfg=white    ctermbg=darkblue gui=bold guifg=white    guibg=darkblue
 
 "Correction orthographique
 "spellbad word not recognized
 "spelllocal wrong spelling for selected region (en_au, en_ca, ...)
 "spellcap word not capitalised
 "spellrare rare words
-highlight spellbad      term=bold cterm=bold ctermfg=white ctermbg=darkred     gui=bold guifg=white guibg=darkred
-highlight spelllocal    term=bold cterm=bold ctermfg=white ctermbg=brown       gui=bold guifg=white guibg=brown
-highlight spellcap      term=bold cterm=bold ctermfg=white ctermbg=darkmagenta gui=bold guifg=white guibg=darkmagenta
-highlight spellrare     term=bold cterm=bold ctermfg=white ctermbg=darkblue    gui=bold guifg=white guibg=darkblue
+hi spellbad      term=bold cterm=bold ctermfg=white ctermbg=darkred     gui=bold guifg=white guibg=darkred
+hi spelllocal    term=bold cterm=bold ctermfg=white ctermbg=brown       gui=bold guifg=white guibg=brown
+hi spellcap      term=bold cterm=bold ctermfg=white ctermbg=darkmagenta gui=bold guifg=white guibg=darkmagenta
+hi spellrare     term=bold cterm=bold ctermfg=white ctermbg=darkblue    gui=bold guifg=white guibg=darkblue
 
 "Barre de tabulation -- sélectionné/autres onglets/barre de fond
-highlight TabLineSel    term=bold cterm=bold ctermfg=white                  gui=bold guifg=white
-highlight TabLine       term=bold cterm=bold ctermfg=darkblue ctermbg=white gui=bold guifg=darkblue guibg=white
-highlight TabLineFill   term=bold cterm=bold                  ctermbg=white gui=bold                guibg=white
+hi TabLineSel    term=bold cterm=bold ctermfg=white                  gui=bold guifg=white
+hi TabLine       term=bold cterm=bold ctermfg=darkblue ctermbg=white gui=bold guifg=darkblue guibg=white
+hi TabLineFill   term=bold cterm=bold                  ctermbg=white gui=bold                guibg=white
 
 "Completion
-highlight Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
-highlight PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=yellow     guifg=black guibg=yellow
+hi Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
+hi PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=yellow     guifg=black guibg=yellow
 
 "Signs column
-highlight SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
-"highlight Todo         term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
-highlight Error        term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
+hi SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
+"hi Todo         term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
+hi Error        term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
 
