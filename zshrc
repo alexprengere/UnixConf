@@ -166,11 +166,6 @@ esac
 # Gestion de la couleur pour 'ls' (exportation de LS_COLORS)
 if [ -x /usr/bin/dircolors ]
 then
-# Enable 256 colors
-if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
-    export TERM='xterm-256color'
-else
-    export TERM='xterm-color'
     if [ -r ~/.dir_colors ]
     then
         eval "`dircolors ~/.dir_colors`"
@@ -360,6 +355,16 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'    # begin underline
 
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
+
+# Vim-zsh binding
+export KEYTIMEOUT=1
+
+# Enable 256 colors
+if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
+    export TERM='xterm-256color'
+else
+    export TERM='xterm-color'
+fi
 
 
 
