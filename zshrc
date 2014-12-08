@@ -72,15 +72,6 @@ alias -g W="| wc -l"
 # 2. Prompt et définition des touches #
 #######################################
 
-# Exemple : ma touche HOME, cf  man termcap, est codifiee K1 (upper left
-# key  on keyboard)  dans le  /etc/termcap.  En me  referant a  l'entree
-# correspondant a mon terminal (par exemple 'linux') dans ce fichier, je
-# lis :  K1=\E[1~, c'est la sequence  de caracteres qui sera  envoyee au
-# shell. La commande bindkey dit simplement au shell : a chaque fois que
-# tu rencontres telle sequence de caractere, tu dois faire telle action.
-# La liste des actions est disponible dans "man zshzle".
-
-# Correspondance touches-fonction
 bindkey '^A'    beginning-of-line       # Home
 bindkey '^E'    end-of-line             # End
 bindkey '^D'    delete-char             # Del
@@ -113,38 +104,33 @@ fi
 PS2="%{[0;30m%}%n%{[0;35m%}@%{[0;30m%}%m %{[0;30m%}%1~ %{[1;31m%}> %{[0m%}"
 PS3="%{[1;36m%}?# %{[0m%}"
 PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
-
-# Prompt couleur droit
 RPS1='$CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
 RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
 
 # Console linux, dans un screen ou un rxvt
 if [ "$TERM" = "linux" -o "$TERM" = "screen" -o "$TERM" = "rxvt" ]
 then
-        # Correspondance touches-fonction spécifique
-        bindkey '[1~' beginning-of-line       # Home
-        bindkey '[4~' end-of-line             # End
+    bindkey '[1~' beginning-of-line       # Home
+    bindkey '[4~' end-of-line             # End
 fi
 
 # xterm
 if [ "$TERM" = "xterm" ]
 then
-        # Correspondance touches-fonction spécifique
-        bindkey '[H'  beginning-of-line       # Home
-        bindkey '[F'  end-of-line             # End
+    bindkey '[H'  beginning-of-line       # Home
+    bindkey '[F'  end-of-line             # End
 fi
 
 # gnome-terminal
 if [ "$COLORTERM" = "gnome-terminal" ]
 then
-        # Correspondance touches-fonction spécifique
-        bindkey '^[OH'  beginning-of-line       # Home
-        bindkey '^[OF'  end-of-line             # End
+    bindkey '^[OH'  beginning-of-line       # Home
+    bindkey '^[OF'  end-of-line             # End
 fi
 
 # Titre de la fenêtre d'un xterm
 case $TERM in
-        xterm*)
+    xterm*)
         precmd () {print -Pn "\e]0;%n@%m: %~\a"}
         ;;
 esac
@@ -152,22 +138,20 @@ esac
 # Gestion de la couleur pour 'ls' (exportation de LS_COLORS)
 if [ -x /usr/bin/dircolors ]
 then
-        if [ -r ~/.dir_colors ]
-        then
-                eval "`dircolors ~/.dir_colors`"
-        elif [ -r /etc/dir_colors ]
-        then
-                eval "`dircolors /etc/dir_colors`"
-        else
-                eval "`dircolors`"
-        fi
-fi
-
 # Enable 256 colors
 if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
     export TERM='xterm-256color'
 else
     export TERM='xterm-color'
+    if [ -r ~/.dir_colors ]
+    then
+        eval "`dircolors ~/.dir_colors`"
+    elif [ -r /etc/dir_colors ]
+    then
+        eval "`dircolors /etc/dir_colors`"
+    else
+        eval "`dircolors`"
+    fi
 fi
 
 
