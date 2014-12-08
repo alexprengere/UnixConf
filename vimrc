@@ -26,9 +26,7 @@ Bundle 'tomtom/tlib_vim'
 Bundle 'garbas/vim-snipmate'
 Bundle 'honza/vim-snippets'
 
-Bundle 'Valloric/YouCompleteMe'
-"Bundle 'ervandew/supertab'
-
+Bundle 'bling/vim-airline'
 Bundle 'jwhitley/vim-matchit'
 Bundle 'docunext/closetag.vim'
 Bundle 'Lokaltog/vim-easymotion'
@@ -39,8 +37,11 @@ Bundle 'tpope/vim-abolish'
 Bundle 'gabrielelana/vim-markdown'
 Bundle 'jnwhiteh/vim-golang'
 Bundle 'kchmck/vim-coffee-script'
+Bundle 'smancill/conky-syntax.vim'
 Bundle 'chrisbra/csv.vim'
-Bundle 'bling/vim-airline'
+
+Bundle 'Valloric/YouCompleteMe'
+"Bundle 'ervandew/supertab'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype indent plugin on       "Active les plugins de vim
