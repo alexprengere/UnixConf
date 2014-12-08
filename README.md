@@ -20,14 +20,13 @@ sudo make install
 
 Deploy config
 -------------
-You may copy automatically the configuration:
 ```bash
 ./deploy.sh
 ```
 
 Vim directory
 -------------
-After the `vimrc` deployment, generate vim directory with:
+After the `vimrc` deployment, generate the `vim` directory with:
 ```bash
 rm -rf ~/.vim
 git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
@@ -37,8 +36,7 @@ Syntastic plugin uses `pylint` and `jsl` as syntax checkers. Make sure these are
 installed and configuration files are there. Check the `.vimrc` to see
 where syntastic is looking for, usually `~/.pylintrc` and `~/.jsl.conf`.
 
-A plugin also use `ag`, make sure this is installed (either from install script,
-or install it manually from sources, see below).
+`Ag` is also used by a plugin, make sure this is installed.
 
 Wrap things up
 --------------
