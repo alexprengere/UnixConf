@@ -20,15 +20,14 @@ alias l='ll -S'
 
 # Quelques alias pratiques
 alias c='clear'
-alias less='less --quiet'
 alias s='cd ..'
 alias df='df --human-readable'
 alias du='du --human-readable'
 alias tree='tree -haC'
-#alias md='mkdir'
-#alias rd='rmdir'
+alias less='less --quiet'
 
 # Alias pour des couleurs dans le man
+# Commented because less is configured to display colors
 #alias manc='man -P most '
 
 # Alias de programmes
@@ -37,6 +36,13 @@ alias nh='nautilus .'
 alias python='/usr/bin/python'
 alias vi='vim '
 alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
+
+# Examples
+# alias somealias='ssh user@host'
+# alias somealias='smbclient //host/dir -U user'
+# alias somealias='sudo mount -t smbfs -o user=USER //host/dir /mount/point'
+# alias somealias='VBoxManage startvm a_vm &'
+# alias somealias='conky -c ~/.conkyrc  > /dev/null 2>&1 &'
 
 ## Alias basés sur les suffixes des fichiers
 alias -s png=eog
@@ -422,7 +428,6 @@ function precmd() {
     }
 }
 
-# Aliases and liquid prompt
-[ -f "$HOME/.shell.aliases" ] && source "$HOME/.shell.aliases"
-[ -f "$HOME/.liquidprompt" ] && [[ $- = *i* ]] && source "$HOME/.liquidprompt"
+# liquidprompt
+[[ $- = *i* ]] && source "$HOME/.liquidprompt"
 

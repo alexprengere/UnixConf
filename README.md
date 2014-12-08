@@ -1,18 +1,33 @@
-Configuration
-=============
+Environment setup
+=================
 
 Installation
 ------------
-
 Install basic packages:
 ```bash
 ./install_ubuntu.sh # or ./install_fedora.sh
 ```
+`Ag` may not be in the repositories. If not, try installing from source.
+```bash
+# Prerequisistes
+# apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
+# yum -y install pkgconfig automake gcc zlib-devel pcre-devel xz-devel
+git clone https://github.com/ggreer/the_silver_searcher.git
+cd the_silver_searcher
+./build.sh
+sudo make install
+```
+
+Deploy config
+-------------
 You may copy automatically the configuration:
 ```bash
 ./deploy.sh
 ```
-Generate vim directory with:
+
+Vim directory
+-------------
+After the `vimrc` deployment, generate vim directory with:
 ```bash
 rm -rf ~/.vim
 git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
@@ -25,46 +40,11 @@ where syntastic is looking for, usually `~/.pylintrc` and `~/.jsl.conf`.
 A plugin also use `ag`, make sure this is installed (either from install script,
 or install it manually from sources, see below).
 
-Details
--------
+Wrap things up
+--------------
 
-### Prompt (zsh + liquidprompt)
-
-Liquidprompt is an elaborate prompt, highly configurable, bash / zsh
-compliant, supporting VCS, jobs, battery, etc...
 ```bash
-cp liquidprompt ~/.liquidprompt
-cp liquidpromptrc-dist ~/.liquidpromptrc # configuration, edit if needed
-cp bashrc ~/.bashrc
-cp zshrc ~/.zshrc
-chsh # change default shell to zsh
+chsh                # change default shell to zsh
+ssh-keygen -t rsa   # generate your ssh keys
 ```
-If you want to add private aliases, edit a `~/.shell.aliases` file.
-
-### SVN
-
-For SVN colorization, edit the `~/.subversion/config` to set the `diff-cmd`
-to `colordiff`. Make sure `colordiff` is installed.
-```bash
-cp colordiffrc ~/.colordiffrc
-```
-
-### Ag
-
-This may be installed automatically with the install script if packages are available.
-If not, try installing from source.
-```bash
-# Prerequisistes
-# apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
-# yum -y install pkgconfig automake gcc zlib-devel pcre-devel xz-devel
-git clone https://github.com/ggreer/the_silver_searcher.git
-cd the_silver_searcher
-./build.sh
-sudo make install
-```
-
-### fstab
-
-Editing `/etc/fstab` is required to mount stuff. Edit this file
-as root and *carefully* copy the needed lines from the local fstab file.
 

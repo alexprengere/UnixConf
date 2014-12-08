@@ -10,9 +10,6 @@ SKIPPED=(
     "README.md"
     "install_ubuntu.sh"
     "install_fedora.sh"
-    "generate_vim_dir.sh"
-    "shell.aliases"
-    "aprengere.zsh-theme"
     "gitattributes"
     "gitignore"
     "conkyrc"
@@ -23,10 +20,11 @@ SKIPPED=(
 # Special targets, default is $HOME/.$SOURCE
 declare -A SPECIALS
 SPECIALS=(
+    [subversion_config]="$HOME/.subversion/config"
+    [ssh_config]="$HOME/.ssh/config"
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
-    [ssh_config]="$HOME/.ssh/config"
 )
 
 ####
