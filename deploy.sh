@@ -7,7 +7,7 @@ usage () {
     echo "Usage: $0 [-h] [-f] [-v]"
     echo "    -h display help and quit"
     echo "    -f override even if target is already there"
-    echo "    -v verbose mode, show diffs between sources and targets"
+    echo "    -v verbose mode: show skipped files and diffs"
 }
 
 SKIPPED=(
@@ -56,14 +56,27 @@ shift $(($OPTIND - 1))
 is_in_array () {
     local e
     for e in "${@:2}"; do
-        [[ "$e" == "$1" ]] && echo "Y" && return
+        if [ "$e" == "$1" ]; then
+            echo "Y"
+            return
+        fi
     done
     echo "N"
 }
 
 msg () {
-    printf "%s %-20s\t%-40s %s\n" "$1" "$2" "$3" "$4"
+    printf "%-1s %-20s\t%-30s %s\n" "$1" "$2" "$3" "$4"
 }
+
+unexpand () {
+    if [[ "$1" =~ ^"$HOME"(/|$) ]]; then
+        echo "~${1#$HOME}"
+    else
+        echo $1
+    fi
+}
+
+msg '' "SOURCE" "TARGET"
 
 for SOURCE in `ls`; do
     if [ `is_in_array "$SOURCE" "${SKIPPED[@]}"` == "Y" ]; then
@@ -75,20 +88,21 @@ for SOURCE in `ls`; do
     else
         TARGET="${SPECIALS[${SOURCE}]}"
     fi
+    TARGET_S=`unexpand $TARGET`
 
     if [ ! -f "$TARGET" ]; then
-        msg '✓' "$SOURCE" "$TARGET" "moved"
+        msg '✓' "$SOURCE" "$TARGET_S" "copied"
         cp $SOURCE $TARGET
 
     elif [ "$(diff -u $SOURCE $TARGET)" = "" ]; then
-        msg '✓' "$SOURCE" "$TARGET" "exists (same)"
+        msg '✓' "$SOURCE" "$TARGET_S" "exists (same)"
 
     # Target exists and files are different here
     elif [ "$FORCE" = "false" ]; then
-        msg '✗' "$SOURCE" "$TARGET" "exists (with diffs): not copying (-f to force)"
+        msg '✗' "$SOURCE" "$TARGET_S" "exists (with diffs): not copying (-f to force)"
         [ "$VERBOSE" = "true" ] && colordiff -u $SOURCE $TARGET
     else
-        msg '✓' "$SOURCE" "$TARGET" "moved (overriding)"
+        msg '✓' "$SOURCE" "$TARGET_S" "copied (overriding)"
         cp $SOURCE $TARGET
     fi
 done
