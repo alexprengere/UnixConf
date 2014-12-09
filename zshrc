@@ -1,39 +1,9 @@
-# /etc/zsh/zshrc ou ~/.zshrc
-# Fichier de configuration principal de zsh
+# /etc/zsh/zshrc or ~/.zshrc
 
-################
-# 1. Les alias #
-################
 
-# Gestion du 'ls' : couleur & ne touche pas aux accents
-alias ls='ls --classify --tabsize=0 --literal --color=auto --show-control-chars --human-readable'
-
-# Gestion du 'grep' : couleur
-alias grep='grep --color=auto'
-
-# Raccourcis pour 'ls'
-alias sl='ls'
-alias ll='ls -lhX'
-alias la='ls -AhX'
-alias lla='ls -lAhX'
-alias l='ll -S'
-
-# Quelques alias pratiques
-alias c='clear'
-alias s='cd ..'
-alias df='df --human-readable'
-alias du='du --human-readable'
-alias tree='tree -haC'
-alias less='less --quiet'
-
-# For work
-alias python='/usr/bin/python'
-
-# Alias de programmes
-alias vi='vim '
-alias nh='nautilus .'
-alias conky='conky -c ~/.conkyrc'
-alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
+# ALIASES
+#
+#
 
 # Examples
 # alias somealias='ssh user@host'
@@ -41,7 +11,28 @@ alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
 # alias somealias='sudo mount -t smbfs -o user=USER //host/dir /mount/point'
 # alias somealias='VBoxManage startvm a_vm &'
 
-## Alias basés sur les suffixes des fichiers
+alias ls='ls --classify --tabsize=0 --literal --color=auto --show-control-chars --human-readable'
+alias sl='ls'
+alias ll='ls -lhX'
+alias la='ls -AhX'
+alias lla='ls -lAhX'
+alias l='ll -S'
+
+alias grep='grep --color=auto'
+alias c='clear'
+alias s='cd ..'
+alias df='df --human-readable'
+alias du='du --human-readable'
+alias tree='tree -haC'
+alias less='less --quiet'
+
+alias python='/usr/bin/python'
+alias vi='vim '
+alias nh='nautilus .'
+alias conky='conky -c ~/.conkyrc'
+alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
+
+# Suffix based
 alias -s png=eog
 alias -s jpeg=eog
 alias -s jpg=eog
@@ -56,7 +47,7 @@ alias -s mpg=vlc
 alias -s wmv=vlc
 alias -s mpeg=vlc
 
-## Alias globaux
+# Global aliases
 alias -g L="| less"
 alias -g M="| more"
 alias -g H="| head"
@@ -68,115 +59,23 @@ alias -g W="| wc -l"
 
 
 
-#######################################
-# 2. Prompt et définition des touches #
-#######################################
+# PATH ENHANCEMENT
+#
+#
+export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.cabal/bin
+export PATH=$PATH:/opt/vagrant/bin
+export PATH=$PATH:/usr/local/heroku/bin
 
-# Exemple : ma touche HOME, cf  man termcap, est codifiee K1 (upper left
-# key  on keyboard)  dans le  /etc/termcap.  En me  referant a  l'entree
-# correspondant a mon terminal (par exemple 'linux') dans ce fichier, je
-# lis :  K1=\E[1~, c'est la sequence  de caracteres qui sera  envoyee au
-# shell. La commande bindkey dit simplement au shell : a chaque fois que
-# tu rencontres telle sequence de caractere, tu dois faire telle action.
-# La liste des actions est disponible dans "man zshzle".
-
-# Correspondance touches-fonction
-bindkey '^A'    beginning-of-line       # Home
-bindkey '^E'    end-of-line             # End
-bindkey '^D'    delete-char             # Del
-bindkey '[3~' delete-char             # Del
-bindkey '[2~' overwrite-mode          # Insert
-bindkey '[5~' history-search-backward # PgUp
-bindkey '[6~' history-search-forward  # PgDn
-
-## Memo couleur
-# 0/1 -- clair/foncé
-# Balise ouvrante %{[0;35m%}
-# Balise fermante %{[0m%}
-# 30 noir
-# 31 rouge
-# 32 vert
-# 33 jaune
-# 34 bleu
-# 35 violet
-# 36 cyan
-# 37 blanc
-
-# Prompt couleur gauche (la couleur n'est pas la même pour le root et
-# pour les simples utilisateurs)
-if [ "`id -u`" -eq 0 ]; then
-    PS1="%{[31m%}%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
-else
-    PS1="%{[33m%}%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
-fi
-
-PS2="%{[0;30m%}%n%{[0;35m%}@%{[0;30m%}%m %{[0;30m%}%1~ %{[1;31m%}> %{[0m%}"
-PS3="%{[1;36m%}?# %{[0m%}"
-PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
-
-# Prompt couleur droit
-RPS1='$CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
-RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
-
-# Console linux, dans un screen ou un rxvt
-if [ "$TERM" = "linux" -o "$TERM" = "screen" -o "$TERM" = "rxvt" ]
-then
-        # Correspondance touches-fonction spécifique
-        bindkey '[1~' beginning-of-line       # Home
-        bindkey '[4~' end-of-line             # End
-fi
-
-# xterm
-if [ "$TERM" = "xterm" ]
-then
-        # Correspondance touches-fonction spécifique
-        bindkey '[H'  beginning-of-line       # Home
-        bindkey '[F'  end-of-line             # End
-fi
-
-# gnome-terminal
-if [ "$COLORTERM" = "gnome-terminal" ]
-then
-        # Correspondance touches-fonction spécifique
-        bindkey '^[OH'  beginning-of-line       # Home
-        bindkey '^[OF'  end-of-line             # End
-fi
-
-# Titre de la fenêtre d'un xterm
-case $TERM in
-        xterm*)
-        precmd () {print -Pn "\e]0;%n@%m: %~\a"}
-        ;;
-esac
-
-# Gestion de la couleur pour 'ls' (exportation de LS_COLORS)
-if [ -x /usr/bin/dircolors ]
-then
-        if [ -r ~/.dir_colors ]
-        then
-                eval "`dircolors ~/.dir_colors`"
-        elif [ -r /etc/dir_colors ]
-        then
-                eval "`dircolors /etc/dir_colors`"
-        else
-                eval "`dircolors`"
-        fi
-fi
-
-# Enable 256 colors
-if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
-    export TERM='xterm-256color'
-else
-    export TERM='xterm-color'
-fi
+export GOROOT=/opt/go
+export PATH=$PATH:$GOROOT/bin
 
 
 
-###########################################
-# 3. Options de zsh (cf 'man zshoptions') #
-###########################################
-
-# Je ne veux JAMAIS de beeps
+# ZSH OPTIONS
+#
+#
+# Never beeps
 unsetopt beep
 unsetopt hist_beep
 unsetopt list_beep
@@ -275,10 +174,9 @@ setopt prompt_subst
 
 
 
-###############################################
-# 4. Paramètres de l'historique des commandes #
-###############################################
-
+# ZSH HISTORY
+#
+#
 # Nombre d'entrées dans l'historique
 export HISTORY=1000
 export SAVEHIST=1000
@@ -315,29 +213,199 @@ setopt hist_find_no_dups
 
 
 
-########################################################
-# 5. Définitions persos pour variables d'environnement #
-########################################################
+# ZSH AUTOCOMPLETE
+#
+#
+# Add custom completion scripts
+fpath=(~/.zsh/completion $fpath)
 
-# Modification du PATH pour scripts
-export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$HOME/.cabal/bin
-export PATH=$PATH:/opt/vagrant/bin
-export PATH=$PATH:/usr/local/heroku/bin
+# Active la complétion
+autoload -U compinit
+compinit
 
-# Go variables
-export GOROOT=/opt/go
-export PATH=$PATH:$GOROOT/bin
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}'
+zstyle ':completion:*' max-errors 3 numeric
+zstyle ':completion:*' use-compctl false
+
+# Crée un cache des complétion possibles
+# très utile pour les complétion qui demandent beaucoup de temps
+# comme la recherche d'un paquet aptitude install moz<tab>
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zsh_cache
+
+# Ameliore l'affichage
+zstyle ':completion:*:descriptions' format '%B%d%b'
+zstyle ':completion:*:warnings' format '%BNothing in %d%b'
+zstyle ':completion:*' menu select=2
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+
+# Completion pour kill avec couleurs
+zstyle ':completion:*:processes' command 'ps -au$USER'
+zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#)*=36=31"
+
+# Completion pour killall
+zstyle ':completion:*:killall:*' command 'ps -u $USER -o cmd'
+zstyle ':completion:*:killall:*' list-colors "=(#b) #([0-9]#)*=36=31"
+
+# Completion sudo -- rajout $PATH pour bien prendre les modifs internes du PATH
+zstyle ':completion:*:sudo:*' command-path \
+    /usr/local/sbin /usr/local/bin \
+    /usr/sbin /usr/bin /usr/X11R6/bin \
+    /sbin /bin \
+    `echo $PATH |tr : " "`
+
+
+
+# KEY BINDINGS, COLORS
+#
+#
+# Vim-zsh binding
+bindkey -v
+export KEYTIMEOUT=1
+
+bindkey '^A'    beginning-of-line       # Home
+bindkey '^E'    end-of-line             # End
+bindkey '^D'    delete-char             # Del
+bindkey '[3~' delete-char             # Del
+bindkey '[2~' overwrite-mode          # Insert
+bindkey '[5~' history-search-backward # PgUp
+bindkey '[6~' history-search-forward  # PgDn
+
+# Use vim cli mode
+bindkey '^P' up-history
+bindkey '^N' down-history
+
+# backspace and ^h working even after
+# returning from command mode
+bindkey '^?' backward-delete-char
+bindkey '^h' backward-delete-char
+
+# ctrl-w removed word backwards
+bindkey '^w' backward-kill-word
+
+# ctrl-r starts searching history backward
+bindkey '^r' history-incremental-search-backward
+
+# Console linux, dans un screen ou un rxvt
+if [ "$TERM" = "linux" -o "$TERM" = "screen" -o "$TERM" = "rxvt" ]; then
+    bindkey '[1~' beginning-of-line       # Home
+    bindkey '[4~' end-of-line             # End
+fi
+
+# xterm
+if [ "$TERM" = "xterm" ]; then
+    bindkey '[H'  beginning-of-line       # Home
+    bindkey '[F'  end-of-line             # End
+fi
+
+# gnome-terminal
+if [ "$COLORTERM" = "gnome-terminal" ]; then
+    bindkey '^[OH'  beginning-of-line       # Home
+    bindkey '^[OF'  end-of-line             # End
+fi
+
+# Titre de la fenêtre d'un xterm
+case $TERM in
+    xterm*)
+        precmd () {
+            print -Pn "\e]0;%n@%m: %~\a"
+        }
+        ;;
+esac
+
+# Enable 256 colors
+if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
+    export TERM='xterm-256color'
+else
+    export TERM='xterm-color'
+fi
+
+# Gestion de la couleur pour 'ls' (exportation de LS_COLORS)
+if [ -x /usr/bin/dircolors ]; then
+    if [ -r ~/.dir_colors ]; then
+        eval "`dircolors ~/.dir_colors`"
+    elif [ -r /etc/dir_colors ]; then
+        eval "`dircolors /etc/dir_colors`"
+    else
+        eval "`dircolors`"
+    fi
+fi
+
+## Memo couleur
+# 0/1 -- clair/foncé
+# Balise ouvrante %{[0;35m%}
+# Balise fermante %{[0m%}
+# 30 noir
+# 31 rouge
+# 32 vert
+# 33 jaune
+# 34 bleu
+# 35 violet
+# 36 cyan
+# 37 blanc
 
 # Less Colors for Man Pages
 export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
-export LESS_TERMCAP_md=$'\E[01;38;5;74m'    # begin bold
+export LESS_TERMCAP_md=$'\E[01;38;5;74m'   # begin bold
 export LESS_TERMCAP_me=$'\E[0m'            # end mode
 export LESS_TERMCAP_se=$'\E[0m'            # end standout-mode
-export LESS_TERMCAP_so=$'\E[1;31;5;246m'    # begin standout-mode - info box
+export LESS_TERMCAP_so=$'\E[1;31;5;246m'   # begin standout-mode - info box
 export LESS_TERMCAP_ue=$'\E[0m'            # end underline
-export LESS_TERMCAP_us=$'\E[04;33;5;146m'    # begin underline
+export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
 
+
+
+# PROMPTS
+#
+#
+# Suggestion de commandes dans le cas de programmes non trouvés
+# cat /etc/zsh_command_not_found
+function preexec() {
+    command="${1%% *}"
+}
+
+function precmd() {
+    (($?)) && [ -n "$command" ] && [ -x /usr/lib/command-not-found ] && {
+        whence -- "$command" >& /dev/null ||
+        /usr/bin/python /usr/lib/command-not-found -- "$command"
+        unset command
+    }
+    # Update this variable, displayed in the right prompt
+    local nc=$(who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l)
+    [[ "$nc" -ne 0 ]] && RPS1_CONNECTIONS="%{[0;31m%}($nc)%{[0m%}"
+}
+
+if [ "`id -u`" -eq 0 ]; then
+    COL="%{[31m%}"
+else
+    COL="%{[33m%}"
+fi
+PS1="$COL%n%{[37m%}@%{[34m%}%m %{[37;1m%}%1~ %{[30;1m%}%# %{[0m%}"
+PS2="%{[0;30m%}%n%{[0;35m%}@%{[0;30m%}%m %{[0;30m%}%1~ %{[1;31m%}> %{[0m%}"
+PS3="%{[1;36m%}?# %{[0m%}"
+PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
+
+RPS1='$RPS1_CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
+RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
+
+function zle-line-init zle-keymap-select {
+    local vimode="%{[1;32m%}% [% NORMAL]% %{[0m%}"
+    RPS1='${${KEYMAP/vicmd/$vimode}/(main|viins)/}$EPS1 $RPS1_CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
+    zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+# Load les prompts par défauts {prompt -l,p}
+autoload -U promptinit
+promptinit
+
+
+
+# MISC
+#
+#
 # visudo :)
 #export EDITOR=`which vi`
 #export VISUAL=`which vi`
@@ -349,82 +417,6 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'    # begin underline
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
 
-
-
-###########################################
-# 6. Complétion des options des commandes #
-###########################################
-
-zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}'
-zstyle ':completion:*' max-errors 3 numeric
-zstyle ':completion:*' use-compctl false
-
-# Add custom completion scripts
-fpath=(~/.zsh/completion $fpath)
-
-# Active la complétion
-autoload -U compinit
-compinit
-
-# Ameliore l'affichage
-zstyle ':completion:*:descriptions' format '%B%d%b'
-zstyle ':completion:*:warnings' format '%BNothing in %d%b'
-zstyle ':completion:*' menu select=2
-zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
-
-# Crée un cache des complétion possibles
-# très utile pour les complétion qui demandent beaucoup de temps
-# comme la recherche d'un paquet aptitude install moz<tab>
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zsh_cache
-
-# Completion pour kill avec couleurs
-zstyle ':completion:*:processes' command 'ps -au$USER'
-zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#)*=36=31"
-
-# Completion pour killall
-zstyle ':completion:*:killall:*' command 'ps -u $USER -o cmd'
-zstyle ':completion:*:killall:*' list-colors "=(#b) #([0-9]#)*=36=31"
-
-# Completion sudo -- rajout $PATH pour bien prendre les modifs internes du PATH
-PATH_ESPACE=`echo $PATH |tr : " "`
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
-/usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin \
-`echo $PATH_ESPACE`
-
-
-
-#############
-# 7. Divers #
-#############
-
-# Load les prompts par défauts {prompt -l,p}
-autoload -U promptinit
-promptinit
-
-# Suggestion de commandes dans le cas de programmes non trouvés
-# cat /etc/zsh_command_not_found
-function preexec() {
-    command="${1%% *}"
-}
-
-function precmd() {
-    # Update this variables, which are displayed in the prompt
-    local nc=$(who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l)
-
-    if [ "$nc" -eq 0 ]; then
-        CONNECTIONS=""
-    else
-        CONNECTIONS="%{[0;31m%}[$nc]%{[0m%}"
-    fi
-
-    (($?)) && [ -n "$command" ] && [ -x /usr/lib/command-not-found ] && {
-        whence -- "$command" >& /dev/null ||
-        /usr/bin/python /usr/lib/command-not-found -- "$command"
-        unset command
-    }
-}
-
-# liquidprompt
+# LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 

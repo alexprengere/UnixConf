@@ -1,6 +1,4 @@
-"~/.vimrc ou /etc/vim/vimrc
-"Fichier de configuration principal de vim 7
-"Révision -- 4 septembre 2009
+"~/.vimrc or /etc/vim/vimrc
 
 set nocompatible                  " Must come first because it changes other options.
 filetype off                      " Necessary on some Linux distros for pathogen to properly load bundles
