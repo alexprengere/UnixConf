@@ -105,11 +105,10 @@ rm -rf ~/.vim
 git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
 vim +BundleInstall +qall
 ```
-Syntastic plugin uses `pylint` and `jsl` as syntax checkers. Make sure these are
-installed and configuration files are there. Check the `.vimrc` to see
-where syntastic is looking for, usually `~/.pylintrc` and `~/.jsl.conf`.
-
-`Ag` is also used by a plugin, make sure this is installed.
+Some vim plugins (*Syntastic*, *vim-ag*) use external tools. These tools need to be installed and have their configuration files in place (check the `.vimrc` for file locations):
+* `pylint` with `~/.pylintrc`
+* `jsl` with `~/.jsl.conf`
+* `Ag` with `~/.agignore`
 
 Miscellaneous
 -------------
