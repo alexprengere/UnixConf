@@ -73,21 +73,28 @@ Deploy the configuration files
 ------------------------------
 ```bash
 $ ./deploy.sh
-✓ agignore              /home/localoriuser/.agignore             exists (same)
-✓ bashrc                /home/localoriuser/.bashrc               exists (same)
-✓ colordiffrc           /home/localoriuser/.colordiffrc          moved
-✓ conkyrc               /home/localoriuser/.conkyrc              exists (same)
-✓ gitconfig             /home/localoriuser/.gitconfig            exists (same)
-✓ jsl.conf              /home/localoriuser/.jsl.conf             exists (same)
-✓ liquidprompt          /home/localoriuser/.liquidprompt         exists (same)
-✓ liquidpromptrc-dist   /home/localoriuser/.liquidpromptrc       moved
-✓ liquid.ps1            /home/localoriuser/.liquid.ps1           exists (same)
-✓ liquid.theme          /home/localoriuser/.liquid.theme         exists (same)
-✓ pylintrc              /home/localoriuser/.pylintrc             exists (same)
-✗ ssh_config            /home/localoriuser/.ssh/config           exists (with diffs): not copying (-f to force)
-✓ subversion_config     /home/localoriuser/.subversion/config    moved
-✓ vimrc                 /home/localoriuser/.vimrc                exists (same)
-✗ zshrc                 /home/localoriuser/.zshrc                exists (with diffs): not copying (-f to force)
+  SOURCE                TARGET
+✓ agignore              ~/.agignore                    exists (same)
+✗ bashrc                ~/.bashrc                      exists (with diffs): not copying (-f to force)
+✓ colordiffrc           ~/.colordiffrc                 copied
+✓ conkyrc               ~/.conkyrc                     exists (same)
+✓ gitconfig             ~/.gitconfig                   exists (same)
+✓ jsl.conf              ~/.jsl.conf                    exists (same)
+✓ liquidprompt          ~/.liquidprompt                exists (same)
+✓ liquidpromptrc-dist   ~/.liquidpromptrc              copied
+✓ liquid.ps1            ~/.liquid.ps1                  exists (same)
+✓ liquid.theme          ~/.liquid.theme                exists (same)
+✗ pylintrc              ~/.pylintrc                    exists (with diffs): not copying (-f to force)
+✗ ssh_config            ~/.ssh/config                  exists (with diffs): not copying (-f to force)
+✓ subversion_config     ~/.subversion/config           copied
+✓ vimrc                 ~/.vimrc                       exists (same)
+✓ zshrc                 ~/.zshrc                       exists (same)
+
+$ ./deploy.sh -h
+Usage: ./deploy.sh [-h] [-f] [-v]
+    -h display help and quit
+    -f override even if target is already there
+    -v verbose mode: show skipped files and diffs
 ```
 
 Generate vim directory
