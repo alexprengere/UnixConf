@@ -8,8 +8,6 @@
 SKIPPED=(
     `basename $0`
     "README.md"
-    "install_ubuntu.sh"
-    "install_fedora.sh"
     "gitattributes"
     "gitignore"
     "fstab.ssd"
