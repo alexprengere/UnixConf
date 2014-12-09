@@ -1,15 +1,18 @@
 #!/bin/bash
 
-###
-### DATA
-###
+DIRNAME=$(dirname $0)
+cd $DIRNAME
 
-# Skipped files
+usage () {
+    echo "Usage: $0 [-h] [-f] [-v]"
+    echo "    -h display help and quit"
+    echo "    -f override even if target is already there"
+    echo "    -v verbose mode, show diffs between sources and targets"
+}
+
 SKIPPED=(
     `basename $0`
     "README.md"
-    "install_ubuntu.sh"
-    "install_fedora.sh"
     "gitattributes"
     "gitignore"
     "fstab.ssd"
@@ -26,38 +29,20 @@ SPECIALS=(
     [fstab]="/etc/fstab"
 )
 
-####
-####
-
-DIRNAME=$(dirname $0)
-cd $DIRNAME
-
-usage () {
-    echo "Usage: $0 [-h] [-t] [-f] [-d]"
-    echo "    -h display help and quit"
-    echo "    -t test mode, do not actually perform command"
-    echo "    -f override even if configuration file is already there"
-    echo "    -d show differences when files are already there"
-}
-
-TEST=false
 FORCE=false
-DIFFS=false
+VERBOSE=false
 
-while getopts ":tfdh" opt; do
+while getopts ":hfv" opt; do
     case $opt in
-        t)
-            TEST=true
+        h)
+            usage
+            exit 1
             ;;
         f)
             FORCE=true
             ;;
-        d)
-            DIFFS=true
-            ;;
-        h)
-            usage
-            exit 1
+        v)
+            VERBOSE=true
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -68,103 +53,42 @@ done
 
 shift $(($OPTIND - 1))
 
-msg () {
-    local source="$1"
-    local symbol="$2"
-    local target="$3"
-    local message="$4"
-    printf "%-20s\t%2s %-50s %s\n" "$source" "$symbol" "$target" "$message"
+is_in_array () {
+    local e
+    for e in "${@:2}"; do
+        [[ "$e" == "$1" ]] && echo "Y" && return
+    done
+    echo "N"
 }
 
+msg () {
+    printf "%s %-20s\t%-40s %s\n" "$1" "$2" "$3" "$4"
+}
 
-# We start with every single file and dir of the current directory
-ALL_SOURCES=`ls`
-SOURCES=()
-
-msg SOURCE '??' TARGET MESSAGE
-
-# We remove the elements of SKIPPED array
-for SOURCE in $ALL_SOURCES; do
-
-    if [ "${SPECIALS[${SOURCE}]}" != "" ]; then
-        TARGET="${SPECIALS[${SOURCE}]}"
-        SYMBOL="!"
-    else
+for SOURCE in `ls`; do
+    if [ `is_in_array "$SOURCE" "${SKIPPED[@]}"` == "Y" ]; then
+        [ "$VERBOSE" = "true" ] && msg '.' "$SOURCE" '' "skipped"
+        continue
+    fi
+    if [ "${SPECIALS[${SOURCE}]}" == "" ]; then
         TARGET="$HOME/.$SOURCE"
-        SYMBOL="."
-    fi
-
-    SKIP=false
-    for s in "${SKIPPED[@]}"; do
-        if [ "$s" = "$SOURCE" ]; then
-            SKIP=true
-        fi
-    done
-    if [ "$SKIP" = "false" ]; then
-        SOURCES+=($SOURCE)
     else
-        msg $SOURCE "S${SYMBOL}" $TARGET "skipped (conf.)"
-    fi
-done
-
-for SOURCE in ${SOURCES[@]}; do
-
-    if [ "${SPECIALS[${SOURCE}]}" != "" ]; then
         TARGET="${SPECIALS[${SOURCE}]}"
-        SYMBOL="!"
-    else
-        TARGET="$HOME/.$SOURCE"
-        SYMBOL="."
     fi
 
-    if [ ! -f "$TARGET" ] && [ ! -d "$TARGET" ]; then
-        msg $SOURCE $SYMBOL $TARGET "moved to target"
+    if [ ! -f "$TARGET" ]; then
+        msg '✓' "$SOURCE" "$TARGET" "moved"
+        cp $SOURCE $TARGET
 
-        if [ "$TEST" = "false" ]; then
-            if [ -f "$SOURCE" ]; then
-                cp $SOURCE $TARGET
-            elif [ -d "$SOURCE" ]; then
-                cp -r $SOURCE $TARGET
-            else
-                msg $SOURCE $SYMBOL $TARGET "something weird happened!"
-            fi
-        fi
+    elif [ "$(diff -u $SOURCE $TARGET)" = "" ]; then
+        msg '✓' "$SOURCE" "$TARGET" "exists (same)"
 
-    elif [ -f "$SOURCE" ]; then
-        DIFF=$(diff -u $SOURCE $TARGET)
-
-        if [ "$DIFF" = "" ]; then
-            msg $SOURCE $SYMBOL $TARGET "skipped, exists with no differences"
-        else
-            if [ "$FORCE" = "true" ]; then
-                msg $SOURCE $SYMBOL $TARGET "moved to target, *overriding*"
-                if [ "$DIFFS" = "true" ]; then
-                    diff -u $SOURCE $TARGET
-                fi
-                if [ "$TEST" = "false" ]; then
-                    mv $TARGET $TARGET.back
-                    cp $SOURCE $TARGET
-                fi
-            else
-                msg $SOURCE $SYMBOL $TARGET "skipped, exists *with* differences"
-                if [ "$DIFFS" = "true" ]; then
-                    diff -u $SOURCE $TARGET
-                fi
-            fi
-        fi
-
-    elif [ -d "$SOURCE" ]; then
-        if [ "$FORCE" = "true" ]; then
-            msg $SOURCE $SYMBOL $TARGET "moved to target, *overriding*"
-            if [ "$TEST" = "false" ]; then
-                rm -rf $TARGET.back
-                mv $TARGET $TARGET.back
-                cp -r $SOURCE $TARGET
-            fi
-        else
-            msg $SOURCE $SYMBOL $TARGET "skipped, target *directory* exists"
-        fi
+    # Target exists and files are different here
+    elif [ "$FORCE" = "false" ]; then
+        msg '✗' "$SOURCE" "$TARGET" "exists (with diffs): not copying (-f to force)"
+        [ "$VERBOSE" = "true" ] && colordiff -u $SOURCE $TARGET
     else
-        msg $SOURCE $SYMBOL $TARGET "something weird happened!"
+        msg '✓' "$SOURCE" "$TARGET" "moved (overriding)"
+        cp $SOURCE $TARGET
     fi
 done

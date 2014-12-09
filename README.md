@@ -1,13 +1,64 @@
 Environment setup
 =================
 
-Installation
-------------
-Install basic packages:
+Basic packages installation
+---------------------------
+* Install basic packages on Debian/Ubuntu:
 ```bash
-./install_ubuntu.sh # or ./install_fedora.sh
+sudo apt-get update
+sudo apt-get install              \
+    nfs-common                    \
+    openssh-server                \
+    vim screen zsh htop colordiff \
+    cmake automake                \
+    g++ build-essential           \
+    linux-headers-generic         \
+    dkms                          \
+    git subversion cvs            \
+    python-dev                    \
+    python-setuptools python-pip  \
+    ipython                       \
+    python-numpy python-scipy     \
+    python-matplotlib             \
+    ruby                          \
+    r-base                        \
+    mongodb                       \
+    memcached redis-server        \
+    tokyocabinet-bin              \
+    libtokyocabinet-dev           \
+    exuberant-ctags               \
+    pylint                        \
+    silversearcher-ag
 ```
-`Ag` may not be in the repositories. If not, try installing from source.
+* Install basic packages on Fedora:
+```bash
+sudo yum check-update
+sudo yum install                  \
+    nfs-utils nfs-utils-lib       \
+    openssh-server                \
+    vim screen zsh htop colordiff \
+    cmake automake                \
+    gcc-c++                       \
+    kernel-devel kernel-headers   \
+    dkms                          \
+    git subversion cvs            \
+    python-devel                  \
+    python-setuptools python-pip  \
+    ipython                       \
+    numpy scipy                   \
+    python-matplotlib             \
+    ruby-irb                      \
+    R                             \
+    mongodb                       \
+    memcached redis               \
+    tokyocabinet                  \
+    tokyocabinet-devel            \
+    ctags                         \
+    pylint                        \
+    jsl                           \
+    the_silver_searcher
+```
+* `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
 ```bash
 # Prerequisistes
 # apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
@@ -18,14 +69,29 @@ cd the_silver_searcher
 sudo make install
 ```
 
-Deploy config
--------------
+Deploy the configuration files
+------------------------------
 ```bash
-./deploy.sh
+$ ./deploy.sh
+✓ agignore              /home/localoriuser/.agignore             exists (same)
+✓ bashrc                /home/localoriuser/.bashrc               exists (same)
+✓ colordiffrc           /home/localoriuser/.colordiffrc          moved
+✓ conkyrc               /home/localoriuser/.conkyrc              exists (same)
+✓ gitconfig             /home/localoriuser/.gitconfig            exists (same)
+✓ jsl.conf              /home/localoriuser/.jsl.conf             exists (same)
+✓ liquidprompt          /home/localoriuser/.liquidprompt         exists (same)
+✓ liquidpromptrc-dist   /home/localoriuser/.liquidpromptrc       moved
+✓ liquid.ps1            /home/localoriuser/.liquid.ps1           exists (same)
+✓ liquid.theme          /home/localoriuser/.liquid.theme         exists (same)
+✓ pylintrc              /home/localoriuser/.pylintrc             exists (same)
+✗ ssh_config            /home/localoriuser/.ssh/config           exists (with diffs): not copying (-f to force)
+✓ subversion_config     /home/localoriuser/.subversion/config    moved
+✓ vimrc                 /home/localoriuser/.vimrc                exists (same)
+✗ zshrc                 /home/localoriuser/.zshrc                exists (with diffs): not copying (-f to force)
 ```
 
-Vim directory
--------------
+Generate vim directory
+----------------------
 After the `vimrc` deployment, generate the `vim` directory with:
 ```bash
 rm -rf ~/.vim
@@ -38,11 +104,13 @@ where syntastic is looking for, usually `~/.pylintrc` and `~/.jsl.conf`.
 
 `Ag` is also used by a plugin, make sure this is installed.
 
-Wrap things up
---------------
-
+Miscellaneous
+-------------
 ```bash
-chsh                # change default shell to zsh
-ssh-keygen -t rsa   # generate your ssh keys
+# Change default shell to zsh
+chsh -s /bin/zsh
+
+# Generate your ssh keys
+ssh-keygen -t rsa -b 2048
 ```
 
