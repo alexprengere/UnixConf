@@ -74,21 +74,21 @@ Deploy the configuration files
 ```bash
 $ ./deploy.sh
   SOURCE                TARGET
-✓ agignore              ~/.agignore                    exists (same)
-✗ bashrc                ~/.bashrc                      exists (with diffs): not copying (-f to force)
-✓ colordiffrc           ~/.colordiffrc                 copied
-✓ conkyrc               ~/.conkyrc                     exists (same)
-✓ gitconfig             ~/.gitconfig                   exists (same)
-✓ jsl.conf              ~/.jsl.conf                    exists (same)
-✓ liquidprompt          ~/.liquidprompt                exists (same)
-✓ liquidpromptrc-dist   ~/.liquidpromptrc              copied
-✓ liquid.ps1            ~/.liquid.ps1                  exists (same)
-✓ liquid.theme          ~/.liquid.theme                exists (same)
-✗ pylintrc              ~/.pylintrc                    exists (with diffs): not copying (-f to force)
-✗ ssh_config            ~/.ssh/config                  exists (with diffs): not copying (-f to force)
-✓ subversion_config     ~/.subversion/config           copied
-✓ vimrc                 ~/.vimrc                       exists (same)
-✓ zshrc                 ~/.zshrc                       exists (same)
+✓ agignore              ~/.agignore            exists (same)
+✗ bashrc                ~/.bashrc              exists (with diffs): not copying (-f to force)
+✓ colordiffrc           ~/.colordiffrc         copied
+✓ conkyrc               ~/.conkyrc             exists (same)
+✓ gitconfig             ~/.gitconfig           exists (same)
+✓ jsl.conf              ~/.jsl.conf            exists (same)
+✓ liquidprompt          ~/.liquidprompt        exists (same)
+✓ liquidpromptrc-dist   ~/.liquidpromptrc      copied
+✓ liquid.ps1            ~/.liquid.ps1          exists (same)
+✓ liquid.theme          ~/.liquid.theme        exists (same)
+✗ pylintrc              ~/.pylintrc            exists (with diffs): not copying (-f to force)
+✗ ssh_config            ~/.ssh/config          exists (with diffs): not copying (-f to force)
+✓ subversion_config     ~/.subversion/config   copied
+✓ vimrc                 ~/.vimrc               exists (same)
+✓ zshrc                 ~/.zshrc               exists (same)
 
 $ ./deploy.sh -h
 Usage: ./deploy.sh [-h] [-f] [-v]

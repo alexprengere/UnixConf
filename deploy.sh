@@ -65,7 +65,7 @@ is_in_array () {
 }
 
 msg () {
-    printf "%-1s %-20s\t%-30s %s\n" "$1" "$2" "$3" "$4"
+    printf "%-1s %-20s\t%-22s %s\n" "$1" "$2" "$3" "$4"
 }
 
 unexpand () {
