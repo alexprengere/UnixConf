@@ -7,7 +7,7 @@ usage () {
     echo "Usage: $0 [-h] [-f] [-v]"
     echo "    -h display help and quit"
     echo "    -f override even if target is already there"
-    echo "    -v verbose mode"
+    echo "    -v verbose mode, show diffs between sources and targets"
 }
 
 SKIPPED=(
@@ -62,7 +62,7 @@ is_in_array () {
 }
 
 msg () {
-    printf "%s %-20s\t%-50s %s\n" "$1" "$2" "$3" "$4"
+    printf "%s %-20s\t%-40s %s\n" "$1" "$2" "$3" "$4"
 }
 
 for SOURCE in `ls`; do
@@ -85,7 +85,7 @@ for SOURCE in `ls`; do
 
     # Target exists and files are different here
     elif [ "$FORCE" = "false" ]; then
-        msg '✗' "$SOURCE" "$TARGET" "exists (with diffs), not copying (use -f or -v)"
+        msg '✗' "$SOURCE" "$TARGET" "exists (with diffs): not copying (-f to force)"
         [ "$VERBOSE" = "true" ] && colordiff -u $SOURCE $TARGET
     else
         msg '✓' "$SOURCE" "$TARGET" "moved (overriding)"

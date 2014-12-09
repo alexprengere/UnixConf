@@ -72,7 +72,22 @@ sudo make install
 Deploy the configuration files
 ------------------------------
 ```bash
-./deploy.sh
+$ ./deploy.sh
+✓ agignore              /home/localoriuser/.agignore             exists (same)
+✓ bashrc                /home/localoriuser/.bashrc               exists (same)
+✓ colordiffrc           /home/localoriuser/.colordiffrc          moved
+✓ conkyrc               /home/localoriuser/.conkyrc              exists (same)
+✓ gitconfig             /home/localoriuser/.gitconfig            exists (same)
+✓ jsl.conf              /home/localoriuser/.jsl.conf             exists (same)
+✓ liquidprompt          /home/localoriuser/.liquidprompt         exists (same)
+✓ liquidpromptrc-dist   /home/localoriuser/.liquidpromptrc       moved
+✓ liquid.ps1            /home/localoriuser/.liquid.ps1           exists (same)
+✓ liquid.theme          /home/localoriuser/.liquid.theme         exists (same)
+✓ pylintrc              /home/localoriuser/.pylintrc             exists (same)
+✗ ssh_config            /home/localoriuser/.ssh/config           exists (with diffs): not copying (-f to force)
+✓ subversion_config     /home/localoriuser/.subversion/config    moved
+✓ vimrc                 /home/localoriuser/.vimrc                exists (same)
+✗ zshrc                 /home/localoriuser/.zshrc                exists (with diffs): not copying (-f to force)
 ```
 
 Generate vim directory
