@@ -28,7 +28,7 @@ alias less='less --quiet'
 
 alias python='/usr/bin/python'
 alias vi='vim '
-alias nh='nautilus .'
+alias nh='nautilus . &'
 alias conky='conky -c ~/.conkyrc'
 alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
 
