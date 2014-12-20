@@ -72,7 +72,7 @@ LP_COLOR_ERR="$RED"
 
 # Prompt mark
 LP_COLOR_MARK="$BOLD_GRAY"     # as user
-LP_COLOR_MARK_ROOT="$BOLD_RED"  # as root
+LP_COLOR_MARK_ROOT="$BOLD_GRAY"  # as root
 LP_COLOR_MARK_SUDO="$BOLD_RED"  # when sudo credentials are cached
 
 # Current user
