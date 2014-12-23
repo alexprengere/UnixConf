@@ -103,7 +103,7 @@ After the `vimrc` deployment, generate the `vim` directory with:
 ```bash
 rm -rf ~/.vim
 git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-vim +BundleInstall +qall
+vim +PluginInstall +qall
 ```
 Finish YCM plugin installation:
 ```bash
