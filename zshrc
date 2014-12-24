@@ -23,7 +23,7 @@ alias c='clear'
 alias s='cd ..'
 alias df='df --human-readable'
 alias du='du --human-readable'
-alias tree='tree -haC'
+alias tree='tree -hC'
 alias less='less --quiet'
 
 alias python='/usr/bin/python'
