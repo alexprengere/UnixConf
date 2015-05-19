@@ -308,7 +308,7 @@ _lp_source_config()
     LP_ENABLE_SCREEN_TITLE=${LP_ENABLE_SCREEN_TITLE:-0}
     LP_ENABLE_SSH_COLORS=${LP_ENABLE_SSH_COLORS:-0}
     # LP_DISABLED_VCS_PATH="${LP_DISABLED_VCS_PATH}"
-    LP_ENABLE_SUDO=${LP_ENABLE_SUDO:-1}
+    LP_ENABLE_SUDO=${LP_ENABLE_SUDO:-0}
 
     LP_MARK_DEFAULT="${LP_MARK_DEFAULT:-$_LP_MARK_SYMBOL}"
     LP_MARK_BATTERY="${LP_MARK_BATTERY:-"⌁"}"
@@ -456,6 +456,10 @@ fi
 # Default value for LP_PERM when LP_ENABLE_PERM is 0
 LP_PERM=:   # without color
 
+# Same as bash '\l', but inlined as a constant as the value will not change
+# during the shell's life
+LP_TTYN="$(basename $(tty))"
+
 
 # Escape the given strings
 # Must be used for all strings that may comes from remote sources,
@@ -599,7 +603,7 @@ _lp_shorten_path()
 {
 
     if [[ "$LP_ENABLE_SHORTEN_PATH" != 1 ]]; then
-        if [[ "$LP_CURRENT_DIR_ONLY" != 1 ]] ; then
+        if [[ "$LP_CURRENT_DIR_ONLY" != 1 ]]; then
             LP_PWD="$_LP_PWD_SYMBOL"
         else
             LP_PWD="$_LP_DIR_SYMBOL"
@@ -1465,15 +1469,20 @@ _lp_temperature() {
 ##########
 
 
-# Sed expression using extended regexp to remove shell codes around terminal
-# escape sequences
-_LP_CLEAN_ESC="$(printf "s,%q|%q,,g" "$_LP_OPEN_ESC" "$_LP_CLOSE_ESC")"
+# Sed expression using extended regexp to match terminal
+# escape sequences with their wrappers
+if $_LP_SHELL_bash; then
+    _LP_CLEAN_ESC='\\\[([^\]+|\\[^]])*\\\]'
+else
+    _LP_CLEAN_ESC='%\{([^%]+|%[^}])*%\}'
+fi
 
 # Remove all colors and escape characters of the given string and return a pure text
 _lp_as_text()
 {
-    # Remove colors from the computed prompt
-    echo -n "$1" | sed -$_LP_SED_EXTENDED "s/\x1B\[[0-9;]*[mK]//g;$_LP_CLEAN_ESC"
+    # Remove all terminal sequences that we wrapped with $_LP_OPEN_ESC and
+    # $_LP_CLOSE_ESC.
+    echo -n "$1" | sed -$_LP_SED_EXTENDED "s,$_LP_CLEAN_ESC,,g"
 }
 
 _lp_title()
@@ -1481,7 +1490,9 @@ _lp_title()
     [[ "$LP_ENABLE_TITLE" != "1" ]] && return
 
     # Get the current computed prompt as pure text
-    echo -n "${_LP_OPEN_ESC}${LP_TITLE_OPEN}$(_lp_as_text "$1")${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
+    echo -n "${_LP_OPEN_ESC}${LP_TITLE_OPEN}"
+    _lp_as_text "$1"
+    echo -n "${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}"
 }
 
 # Set the prompt mark to ± if git, to ☿ if mercurial, to ‡ if subversion
@@ -1772,7 +1783,7 @@ prompt_on()
     if $_LP_SHELL_bash; then
         shopt -s promptvars
         PROMPT_COMMAND=_lp_set_prompt
-        [[ "$LP_DEBUG_TIME" == 1 ]] && PROMPT_COMMAND="time $PROMPT_COMMAND"
+        [[ "$LP_DEBUG_TIME" == 1 ]] && PROMPT_COMMAND="time $PROMPT_COMMAND" || true
     else # zsh
         # That doesn't seem to work: no time output
         #if [[ "$LP_DEBUG_TIME" == 1 ]]; then
