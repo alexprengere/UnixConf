@@ -26,7 +26,8 @@ alias du='du --human-readable'
 alias tree='tree -hC'
 alias less='less --quiet'
 
-alias python='/usr/bin/python'
+# Commented because this messes with virtualenv
+#alias python='/usr/bin/python'
 alias vi='vim '
 alias nh='nautilus . &'
 alias conky='conky -c ~/.conkyrc'
