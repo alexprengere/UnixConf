@@ -9,6 +9,7 @@ sudo apt-get update
 sudo apt-get install              \
     nfs-common                    \
     openssh-server                \
+    wget curl                     \
     vim screen zsh htop colordiff \
     cmake automake                \
     g++ build-essential           \
@@ -36,6 +37,7 @@ sudo yum check-update
 sudo yum install                  \
     nfs-utils nfs-utils-lib       \
     openssh-server                \
+    wget curl                     \
     vim screen zsh htop colordiff \
     cmake automake                \
     gcc-c++                       \
