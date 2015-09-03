@@ -29,7 +29,8 @@ sudo apt-get install              \
     libtokyocabinet-dev           \
     exuberant-ctags               \
     pylint                        \
-    silversearcher-ag
+    silversearcher-ag             \
+    gparted
 ```
 * Install basic packages on Fedora:
 ```bash
@@ -58,7 +59,8 @@ sudo yum install                  \
     ctags                         \
     pylint                        \
     jsl                           \
-    the_silver_searcher
+    the_silver_searcher           \
+    gparted
 ```
 * `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
 ```bash
@@ -74,6 +76,8 @@ sudo make install
 Deploy the configuration files
 ------------------------------
 ```bash
+$ git clone https://github.com/alexprengere/UnixConf.git
+$ cd UnixConf
 $ ./deploy.sh
   SOURCE                TARGET
 ✓ agignore              ~/.agignore            exists (same)
