@@ -76,9 +76,9 @@ sudo make install
 Deploy the configuration files
 ------------------------------
 ```bash
-$ git clone https://github.com/alexprengere/UnixConf.git
-$ cd UnixConf
-$ ./deploy.sh
+git clone https://github.com/alexprengere/UnixConf.git
+cd UnixConf
+./deploy.sh -f
   SOURCE                TARGET
 ✓ agignore              ~/.agignore            exists (same)
 ✗ bashrc                ~/.bashrc              exists (with diffs): not copying (-f to force)
@@ -95,12 +95,6 @@ $ ./deploy.sh
 ✓ subversion_config     ~/.subversion/config   copied
 ✓ vimrc                 ~/.vimrc               exists (same)
 ✓ zshrc                 ~/.zshrc               exists (same)
-
-$ ./deploy.sh -h
-Usage: ./deploy.sh [-h] [-f] [-v]
-    -h display help and quit
-    -f override even if target is already there
-    -v verbose mode: show skipped files and diffs
 ```
 
 Generate vim directory
@@ -114,7 +108,7 @@ vim +PluginInstall +qall
 Finish YCM plugin installation:
 ```bash
 cd ~/.vim/bundle/YouCompleteMe
-./install.sh # --clang-completer for LLVM based autocomplete
+./install.py # --clang-completer for LLVM based autocomplete
 ```
 Some vim plugins (*Syntastic*, *vim-ag*) use external tools. These tools need to be installed and have their configuration files in place (check the `.vimrc` for file locations):
 * `pylint` with `~/.pylintrc`
