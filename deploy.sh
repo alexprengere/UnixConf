@@ -88,11 +88,13 @@ for SOURCE in `ls`; do
     else
         TARGET="${SPECIALS[${SOURCE}]}"
     fi
-    TARGET_S=`unexpand $TARGET`
+    TARGET_D=`dirname "$TARGET"`
+    TARGET_S=`unexpand "$TARGET"`
 
     if [ ! -f "$TARGET" ]; then
         msg '✓' "$SOURCE" "$TARGET_S" "copied"
-        cp $SOURCE $TARGET
+        mkdir -p "$TARGET_D"
+        cp "$SOURCE" "$TARGET"
 
     elif [ "$(diff -u $SOURCE $TARGET)" = "" ]; then
         msg '✓' "$SOURCE" "$TARGET_S" "exists (same)"
@@ -100,9 +102,10 @@ for SOURCE in `ls`; do
     # Target exists and files are different here
     elif [ "$FORCE" = "false" ]; then
         msg '✗' "$SOURCE" "$TARGET_S" "exists (with diffs): not copying (-f to force)"
-        [ "$VERBOSE" = "true" ] && colordiff -u $SOURCE $TARGET
+        [ "$VERBOSE" = "true" ] && colordiff -u "$SOURCE" "$TARGET"
     else
         msg '✓' "$SOURCE" "$TARGET_S" "copied (overriding)"
-        cp $SOURCE $TARGET
+        mkdir -p "$TARGET_D"
+        cp "$SOURCE" "$TARGET"
     fi
 done
