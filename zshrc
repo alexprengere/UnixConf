@@ -1,10 +1,7 @@
 # /etc/zsh/zshrc or ~/.zshrc
 
-
 # ALIASES
 #
-#
-
 # Examples
 # alias somealias='ssh user@host'
 # alias somealias='smbclient //host/dir -U user'
@@ -20,17 +17,9 @@ alias l='ll -S'
 
 alias grep='grep --color=auto'
 alias c='clear'
-alias s='cd ..'
-alias df='df --human-readable'
-alias du='du --human-readable'
 alias tree='tree -hC'
 alias less='less --quiet'
-
-# Commented because this messes with virtualenv
-#alias python='/usr/bin/python'
 alias vi='vim '
-alias nh='nautilus . &'
-alias conky='conky -c ~/.conkyrc'
 alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
 
 # Suffix based
@@ -48,20 +37,8 @@ alias -s mpg=vlc
 alias -s wmv=vlc
 alias -s mpeg=vlc
 
-# Global aliases
-alias -g L="| less"
-alias -g M="| more"
-alias -g H="| head"
-alias -g T="| tail"
-alias -g G="| grep"
-alias -g S="| sort"
-alias -g U="| uniq -c"
-alias -g W="| wc -l"
-
-
 
 # PATH ENHANCEMENT
-#
 #
 export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:$HOME/.cabal/bin
@@ -72,9 +49,7 @@ export GOROOT=/opt/go
 export PATH=$PATH:$GOROOT/bin
 
 
-
 # ZSH OPTIONS
-#
 #
 # Never beeps
 unsetopt beep
@@ -174,9 +149,7 @@ setopt extendedglob
 setopt prompt_subst
 
 
-
 # ZSH HISTORY
-#
 #
 # Nombre d'entrées dans l'historique
 export HISTORY=1000
@@ -213,9 +186,7 @@ setopt hist_expire_dups_first
 setopt hist_find_no_dups
 
 
-
 # ZSH AUTOCOMPLETE
-#
 #
 # Add custom completion scripts
 fpath=(~/.zsh/completion $fpath)
@@ -256,9 +227,7 @@ zstyle ':completion:*:sudo:*' command-path \
     `echo $PATH |tr : " "`
 
 
-
 # KEY BINDINGS, COLORS
-#
 #
 # Vim-zsh binding
 bindkey -v
@@ -355,9 +324,7 @@ export LESS_TERMCAP_ue=$'\E[0m'            # end underline
 export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
 
 
-
 # PROMPTS
-#
 #
 # Suggestion de commandes dans le cas de programmes non trouvés
 # cat /etc/zsh_command_not_found
@@ -403,9 +370,7 @@ autoload -U promptinit
 promptinit
 
 
-
 # MISC
-#
 #
 # visudo :)
 #export EDITOR=`which vi`
