@@ -79,22 +79,22 @@ Deploy the configuration files
 git clone https://github.com/alexprengere/UnixConf.git
 cd UnixConf
 ./deploy.sh -f
-  SOURCE                TARGET
+  SOURCE                TARGET                 
 ✓ agignore              ~/.agignore            exists (same)
-✗ bashrc                ~/.bashrc              exists (with diffs): not copying (-f to force)
-✓ colordiffrc           ~/.colordiffrc         copied
+✓ bashrc                ~/.bashrc              exists (same)
+✓ colordiffrc           ~/.colordiffrc         exists (same)
 ✓ conkyrc               ~/.conkyrc             exists (same)
 ✓ gitconfig             ~/.gitconfig           exists (same)
 ✓ jsl.conf              ~/.jsl.conf            exists (same)
-✓ liquidprompt          ~/.liquidprompt        exists (same)
-✓ liquidpromptrc-dist   ~/.liquidpromptrc      copied
-✓ liquid.ps1            ~/.liquid.ps1          exists (same)
+✓ liquidprompt          ~/.liquidprompt        copied (overriding)
+✓ liquidpromptrc-dist   ~/.liquidpromptrc      copied (overriding)
+✓ liquid.ps1            ~/.liquid.ps1          copied (overriding)
 ✓ liquid.theme          ~/.liquid.theme        exists (same)
-✗ pylintrc              ~/.pylintrc            exists (with diffs): not copying (-f to force)
-✗ ssh_config            ~/.ssh/config          exists (with diffs): not copying (-f to force)
-✓ subversion_config     ~/.subversion/config   copied
+✓ pylintrc              ~/.pylintrc            exists (same)
+✓ ssh_config            ~/.ssh/config          exists (same)
+✓ subversion_config     ~/.subversion/config   exists (same)
 ✓ vimrc                 ~/.vimrc               exists (same)
-✓ zshrc                 ~/.zshrc               exists (same)
+✓ zshrc                 ~/.zshrc               copied (overriding)
 ```
 
 Generate vim directory
