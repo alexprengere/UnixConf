@@ -27,6 +27,7 @@ SPECIALS=(
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
+    [flake8]="$HOME/.config/flake8"
 )
 
 FORCE=false

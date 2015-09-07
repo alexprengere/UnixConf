@@ -62,6 +62,10 @@ sudo yum install                  \
     the_silver_searcher           \
     gparted
 ```
+* Install Python packages:
+```bash
+pip install --user flake8
+```
 * `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
 ```bash
 # Prerequisistes
