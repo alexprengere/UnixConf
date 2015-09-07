@@ -101,7 +101,7 @@ for SOURCE in `ls`; do
 
     # Target exists and files are different here
     elif [ "$FORCE" = "false" ]; then
-        msg '✗' "$SOURCE" "$TARGET_S" "exists (with diffs): not copying (-f to force)"
+        msg '✗' "$SOURCE" "$TARGET_S" "exists (with diffs): not copying. Try -f to force, -v to view diffs"
         [ "$VERBOSE" = "true" ] && colordiff -u "$SOURCE" "$TARGET"
     else
         msg '✓' "$SOURCE" "$TARGET_S" "copied (overriding)"
