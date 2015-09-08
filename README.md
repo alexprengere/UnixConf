@@ -64,7 +64,7 @@ sudo yum install                  \
 ```
 * Install Python packages:
 ```bash
-pip install --user flake8
+pip install --user flake8 tox
 ```
 * `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
 ```bash
