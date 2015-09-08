@@ -72,7 +72,6 @@ disable=
     global-statement,
     redefined-outer-name,
     too-many-lines,
-    deprecated-module,
     logging-format-interpolation,
     wildcard-import
 
@@ -352,7 +351,7 @@ max-public-methods=50
 [IMPORTS]
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
 
 # Create a graph of every (i.e. internal and external) dependencies in the
 # given file (report RP0402 must not be disabled)
