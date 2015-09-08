@@ -1,6 +1,7 @@
-# Python / vim
-*py[co]
-*.sw[po]
+# vim
+*.sw[pon]
+# python
+*.py[co]
 # Eclipse / Pydev
 .settings
 .project
@@ -9,16 +10,11 @@
 /build
 /dist
 /*.egg-info/
-# Ignoring virtualenv
-/bin/
-/lib/
-/lib64
-/include/
-/local
-# Ignoring api doc
-/doc/_build
+# Coverage reports
 /.coverage
-/coverage/htmlcov
 # Ignoring profiling reports
 /*.prof
 /*.lprof
+# Tox and pytest
+/.tox
+/.cache
