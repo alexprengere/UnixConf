@@ -375,9 +375,6 @@ promptinit
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
 
-# No graphical prompt
-unset SSH_ASKPASS
-
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 

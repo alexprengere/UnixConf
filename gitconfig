@@ -16,6 +16,7 @@
     logg = log --graph --decorate --pretty=format:'%C(yellow)%h %C(bold green)(%cr)%Creset %s %C(bold blue)<%an>%C(red)%d' --abbrev-commit --all
 [core]
     editor = vim
+    askpass =
 [diff "zip"]
     textconv = unzip -c -a
 [diff "word"]

@@ -93,9 +93,6 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
 # Correction automatique des fautes de frappe sur la commande cd
 shopt -s cdspell
 
-# No graphical prompt
-unset SSH_ASKPASS
-
 # Aliases and liquid prompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 
