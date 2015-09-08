@@ -73,7 +73,8 @@ disable=
     redefined-outer-name,
     too-many-lines,
     logging-format-interpolation,
-    wildcard-import
+    wildcard-import,
+    maybe-no-member
 
 
 [REPORTS]
