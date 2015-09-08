@@ -22,12 +22,13 @@ SKIPPED=(
 # Special targets, default is $HOME/.$SOURCE
 declare -A SPECIALS
 SPECIALS=(
+    [flake8]="$HOME/.config/flake8"
+    [pylintrc]="$HOME/.config/pylintrc"
     [subversion_config]="$HOME/.subversion/config"
     [ssh_config]="$HOME/.ssh/config"
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
     [fstab.ssd]="/etc/fstab"
     [fstab]="/etc/fstab"
-    [flake8]="$HOME/.config/flake8"
 )
 
 FORCE=false
