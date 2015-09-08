@@ -372,16 +372,11 @@ promptinit
 
 # MISC
 #
-# visudo :)
-#export EDITOR=`which vi`
-#export VISUAL=`which vi`
-
-# Just in case
-#setxkbmap fr
-#loadkeys fr
-
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
+
+# No graphical prompt
+unset SSH_ASKPASS
 
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"

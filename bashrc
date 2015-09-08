@@ -81,9 +81,6 @@ if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
-# Modification du PATH pour scripts
-#export PATH=$PATH:$HOME/.local/bin
-
 # Less Colors for Man Pages
 export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
 export LESS_TERMCAP_md=$'\E[01;38;5;74m'   # begin bold
@@ -95,6 +92,9 @@ export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
 
 # Correction automatique des fautes de frappe sur la commande cd
 shopt -s cdspell
+
+# No graphical prompt
+unset SSH_ASKPASS
 
 # Aliases and liquid prompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
