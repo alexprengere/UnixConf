@@ -18,3 +18,5 @@
 # Tox and pytest
 /.tox
 /.cache
+# Virtualenv
+/.env
