@@ -17,7 +17,7 @@ sudo apt-get install              \
     dkms                          \
     git subversion cvs            \
     python-dev                    \
-    python-setuptools python-pip  \
+    python-setuptools             \
     ipython                       \
     python-numpy python-scipy     \
     python-matplotlib             \
@@ -45,7 +45,7 @@ sudo yum install                  \
     dkms                          \
     git subversion cvs            \
     python-devel                  \
-    python-setuptools python-pip  \
+    python-setuptools             \
     ipython                       \
     numpy scipy                   \
     python-matplotlib             \
@@ -62,6 +62,7 @@ sudo yum install                  \
 ```
 * Install Python packages:
 ```bash
+easy_install --user pip
 pip install --user pylint flake8 tox
 ```
 * `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
