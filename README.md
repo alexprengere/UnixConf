@@ -22,6 +22,7 @@ sudo apt-get install              \
     python-numpy python-scipy     \
     python-matplotlib             \
     ruby                          \
+    npm                           \
     r-base                        \
     mongodb                       \
     memcached redis-server        \
@@ -31,7 +32,7 @@ sudo apt-get install              \
     silversearcher-ag             \
     gparted
 ```
-* Install basic packages on Fedora:
+* Install basic packages on Fedora (use ``dnf`` for recent versions):
 ```bash
 sudo yum check-update
 sudo yum install                  \
@@ -50,6 +51,7 @@ sudo yum install                  \
     numpy scipy                   \
     python-matplotlib             \
     ruby-irb                      \
+    npm                           \
     R                             \
     mongodb                       \
     memcached redis               \
@@ -63,6 +65,10 @@ sudo yum install                  \
 * Install Python packages:
 ```bash
 pip install --user pylint flake8 tox
+```
+* Install node packages:
+```bash
+sudo npm install -g coffeelint grunt-cli
 ```
 * `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
 ```bash
