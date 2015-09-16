@@ -151,6 +151,7 @@ augroup END
 
 autocmd FileType c,cpp,slang set cindent
 autocmd FileType make set noexpandtab shiftwidth=8
+autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 
 "Vim jump to the last position when reopening a file
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
