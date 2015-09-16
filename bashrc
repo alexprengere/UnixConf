@@ -90,6 +90,17 @@ export LESS_TERMCAP_so=$'\E[1;31;5;246m'   # begin standout-mode - info box
 export LESS_TERMCAP_ue=$'\E[0m'            # end underline
 export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
 
+
+# PATH ENHANCEMENT
+#
+export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.cabal/bin
+export PATH=$PATH:/opt/vagrant/bin
+export PATH=$PATH:/usr/local/heroku/bin
+
+export GOROOT=/opt/go
+export PATH=$PATH:$GOROOT/bin
+
 # Correction automatique des fautes de frappe sur la commande cd
 shopt -s cdspell
 
