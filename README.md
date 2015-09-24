@@ -11,6 +11,7 @@ sudo apt-get install              \
     openssh-server                \
     wget curl                     \
     vim screen zsh htop colordiff \
+    tree                          \
     cmake automake                \
     g++ build-essential           \
     linux-headers-generic         \
@@ -40,6 +41,7 @@ sudo yum install                  \
     openssh-server                \
     wget curl                     \
     vim screen zsh htop colordiff \
+    tree                          \
     cmake automake                \
     gcc-c++                       \
     kernel-devel kernel-headers   \
@@ -65,7 +67,8 @@ sudo yum install                  \
 * Install Python packages:
 ```bash
 easy_install --user pip
-~/.local/bin/pip install --user pylint flake8 virtualenv tox
+export PATH="$HOME/.local/bin:$PATH"
+pip install --user pylint flake8 virtualenv tox
 ```
 * Install node packages:
 ```bash
