@@ -375,6 +375,11 @@ promptinit
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
 
+# Fish like syntax highlighting
+source "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bold,bg=red')
+
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 

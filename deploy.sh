@@ -22,13 +22,13 @@ SKIPPED=(
 # Special targets, default is $HOME/.$SOURCE
 declare -A SPECIALS
 SPECIALS=(
-    [flake8]="$HOME/.config/flake8"
-    [pylintrc]="$HOME/.config/pylintrc"
-    [subversion_config]="$HOME/.subversion/config"
-    [ssh_config]="$HOME/.ssh/config"
+                 [flake8]="$HOME/.config/flake8"
+               [pylintrc]="$HOME/.config/pylintrc"
+      [subversion_config]="$HOME/.subversion/config"
+             [ssh_config]="$HOME/.ssh/config"
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
-    [fstab.ssd]="/etc/fstab"
-    [fstab]="/etc/fstab"
+              [fstab.ssd]="/etc/fstab"
+                  [fstab]="/etc/fstab"
 )
 
 FORCE=false
@@ -78,6 +78,14 @@ unexpand () {
     fi
 }
 
+mv_p () {
+    local SOURCE="$1"
+    local TARGET="$2"
+    mkdir -p `dirname "$TARGET"`
+    rm -rf "$TARGET"
+    cp -r "$SOURCE" "$TARGET"
+}
+
 msg '' "SOURCE" "TARGET"
 
 for SOURCE in `ls`; do
@@ -86,17 +94,15 @@ for SOURCE in `ls`; do
         continue
     fi
     if [ "${SPECIALS[${SOURCE}]}" == "" ]; then
-        TARGET="$HOME/.$SOURCE"
+        TARGET="${HOME}/.${SOURCE}"
     else
         TARGET="${SPECIALS[${SOURCE}]}"
     fi
-    TARGET_D=`dirname "$TARGET"`
     TARGET_S=`unexpand "$TARGET"`
 
     if [ ! -f "$TARGET" ]; then
         msg '✓' "$SOURCE" "$TARGET_S" "copied"
-        mkdir -p "$TARGET_D"
-        cp "$SOURCE" "$TARGET"
+        mv_p "$SOURCE" "$TARGET"
 
     elif [ "$(diff -u $SOURCE $TARGET)" = "" ]; then
         msg '✓' "$SOURCE" "$TARGET_S" "exists (same)"
@@ -107,7 +113,6 @@ for SOURCE in `ls`; do
         [ "$VERBOSE" = "true" ] && colordiff -u "$SOURCE" "$TARGET"
     else
         msg '✓' "$SOURCE" "$TARGET_S" "copied (overriding)"
-        mkdir -p "$TARGET_D"
-        cp "$SOURCE" "$TARGET"
+        mv_p "$SOURCE" "$TARGET"
     fi
 done
