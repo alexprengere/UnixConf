@@ -10,8 +10,7 @@ let g:vundle_default_git_proto='git'
 
 Plugin 'gmarik/vundle'
 
-Plugin 'kien/ctrlp.vim'
-Plugin 'rking/ag.vim'
+Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'majutsushi/tagbar'
 Plugin 'techlivezheng/tagbar-phpctags'
 Plugin 'sjl/gundo.vim'
@@ -27,10 +26,10 @@ Plugin 'honza/vim-snippets'
 Plugin 'bling/vim-airline'
 Plugin 'jwhitley/vim-matchit'
 Plugin 'docunext/closetag.vim'
-Plugin 'Lokaltog/vim-easymotion'
-Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-repeat'
-Plugin 'tpope/vim-abolish'
+"Plugin 'tpope/vim-fugitive'
+"Plugin 'tpope/vim-abolish'
+"Plugin 'Lokaltog/vim-easymotion'
 
 Plugin 'gabrielelana/vim-markdown'
 Plugin 'jnwhiteh/vim-golang'
@@ -39,7 +38,6 @@ Plugin 'smancill/conky-syntax.vim'
 Plugin 'chrisbra/csv.vim'
 
 Plugin 'Valloric/YouCompleteMe'
-"Plugin 'ervandew/supertab'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype indent plugin on       "Active les plugins de vim
@@ -101,20 +99,11 @@ func! PreviewHeightWorkAround()
     endif
 endfunc
 
-"Code folding za-zR-zM
-"function! MyFoldFunction()                      "Definition personnelle d'une fonction de fold
-"        let line = getline(v:foldstart)
-"        let sub = substitute(line,'/\*\|\*/\|^\s+', '', 'g')
-"        let lines = v:foldend - v:foldstart + 1
-"        return v:folddashes.sub.'...'.lines.' lines...'.getline(v:foldend)
-"endfunction
-"set foldmethod=syntax                   "Fold par syntaxe
-"set foldtext=MyFoldFunction()           "Fold avec MyFoldFunction
-set foldlevel=100                       "Ouvrir tous les folds à l'ouverture du fichier
-                                        "Surchargé par le plugin latex-suite pour les .tex
-set foldcolumn=0                       "Barre à gauche de l'écran et gérer les folds avec
 " Make folding indent sensitive
 set foldmethod=indent
+set foldcolumn=0                "Barre à gauche de l'écran et gérer les folds avec
+set foldlevel=100               "Ouvrir tous les folds à l'ouverture du fichier
+                                "Surchargé par le plugin latex-suite pour les .tex
 
 " highlight lines too long
 augroup aspect
