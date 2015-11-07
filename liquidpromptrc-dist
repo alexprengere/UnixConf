@@ -39,7 +39,7 @@ LP_PATH_KEEP=2
 LP_HOSTNAME_ALWAYS=1
 
 # Use the FQDN instead of the short hostname if the hostname is displayed
-LP_ENABLE_FQDN=0
+LP_ENABLE_FQDN=1
 
 # Do you want to display the user, even if the user is the same as the one logged in?
 # Defaults to 1 (always display the user)
@@ -114,7 +114,7 @@ LP_ENABLE_TIME=0
 
 # Show runtime of the last command if over LP_RUNTIME_THRESHOLD
 # Recommended value is 0
-LP_ENABLE_RUNTIME=0
+LP_ENABLE_RUNTIME=1
 
 # Minimal runtime to be displayed
 # Recommended value is 2
