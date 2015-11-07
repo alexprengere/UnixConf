@@ -46,6 +46,7 @@
 # Rolf Morel        <rolfmorel@gmail.com>         # "Shorten path" refactoring and fixes
 # Thomas Debesse    <thomas.debesse@gmail.com>    # Fix columns use.
 # Yann 'Ze' Richard <ze@nbox.org>                 # Do not fail on missing commands.
+# Austen Adler      <stonewareslord@gmail.com>    # ZSH runtime
 
 # See the README.md file for a summary of features.
 
@@ -68,6 +69,7 @@ if test -n "$BASH_VERSION" -a -n "$PS1" ; then
     _LP_CLOSE_ESC="\]"
     _LP_USER_SYMBOL="\u"
     _LP_HOST_SYMBOL="\h"
+    _LP_FQDN_SYMBOL="\H"
     _LP_TIME_SYMBOL="\t"
     _LP_MARK_SYMBOL='\$'
     _LP_FIRST_INDEX=0
@@ -86,6 +88,7 @@ elif test -n "$ZSH_VERSION" ; then
     _LP_CLOSE_ESC="%}"
     _LP_USER_SYMBOL="%n"
     _LP_HOST_SYMBOL="%m"
+    _LP_FQDN_SYMBOL="%M"
     _LP_TIME_SYMBOL="%*"
     _LP_MARK_SYMBOL='%(!.#.%%)'
     _LP_FIRST_INDEX=1
@@ -95,6 +98,11 @@ elif test -n "$ZSH_VERSION" ; then
 else
     echo "liquidprompt: shell not supported" >&2
     return
+fi
+
+# For ZSH, autoload required functions
+if $_LP_SHELL_zsh; then
+    autoload -Uz add-zsh-hook
 fi
 
 # Store $2 (or $?) as a true/false value in variable named $1
@@ -292,17 +300,14 @@ _lp_source_config()
     LP_ENABLE_HG=${LP_ENABLE_HG:-1}
     LP_ENABLE_BZR=${LP_ENABLE_BZR:-1}
     LP_ENABLE_TIME=${LP_ENABLE_TIME:-0}
-    if $_LP_SHELL_bash; then
-        LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-1}
-    else
-        LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-0}
-    fi
+    LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-1}
     LP_ENABLE_VIRTUALENV=${LP_ENABLE_VIRTUALENV:-1}
     LP_ENABLE_SCLS=${LP_ENABLE_SCLS:-1}
     LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
     LP_ENABLE_TITLE=${LP_ENABLE_TITLE:-0}
     LP_ENABLE_SCREEN_TITLE=${LP_ENABLE_SCREEN_TITLE:-0}
     LP_ENABLE_SSH_COLORS=${LP_ENABLE_SSH_COLORS:-0}
+    LP_ENABLE_FQDN=${LP_ENABLE_FQDN:-0}
     # LP_DISABLED_VCS_PATH="${LP_DISABLED_VCS_PATH}"
     LP_ENABLE_SUDO=${LP_ENABLE_SUDO:-0}
 
@@ -417,11 +422,6 @@ $_LP_ENABLE_SCREEN || $_LP_ENABLE_TMUX ; _lp_bool _LP_ENABLE_DETACHED_SESSIONS $
 # Use standard path symbols inside Midnight Commander
 [[ -n "$MC_SID" ]] && LP_ENABLE_SHORTEN_PATH=0
 
-if [[ "$LP_ENABLE_RUNTIME" == 1 ]] && ! $_LP_SHELL_bash; then
-    echo Unfortunately, runtime printing for zsh is not yet supported. Turn LP_ENABLE_RUNTIME off in your config to hide this message.
-    LP_ENABLE_RUNTIME=0
-fi
-
 # If we are running in a terminal multiplexer, brackets are colored
 if [[ "$TERM" == screen* ]]; then
     LP_BRACKET_OPEN="${LP_COLOR_IN_MULTIPLEXER}${LP_MARK_BRACKET_OPEN}${NO_COL}"
@@ -456,7 +456,7 @@ LP_PERM=:   # without color
 
 # Same as bash '\l', but inlined as a constant as the value will not change
 # during the shell's life
-LP_TTYN="$(basename $(tty))"
+LP_TTYN="$(basename -- "$(tty)" 2>/dev/null)"
 
 
 # Escape the given strings
@@ -478,12 +478,10 @@ if [[ "$EUID" -ne "0" ]]; then  # if user is not root
     # if user is not login user
     if [[ ${USER} != "$(logname 2>/dev/null || echo "$LOGNAME")" ]]; then
         LP_USER="${LP_COLOR_USER_ALT}${_LP_USER_SYMBOL}${NO_COL}"
+    elif [[ "${LP_USER_ALWAYS}" -ne "0" ]]; then
+        LP_USER="${LP_COLOR_USER_LOGGED}${_LP_USER_SYMBOL}${NO_COL}"
     else
-        if [[ "${LP_USER_ALWAYS}" -ne "0" ]]; then
-            LP_USER="${LP_COLOR_USER_LOGGED}${_LP_USER_SYMBOL}${NO_COL}"
-        else
-            LP_USER=""
-        fi
+        LP_USER=""
     fi
     # "sudo -n" is only supported from sudo 1.7.0
     if [[ "$LP_ENABLE_SUDO" = 1 ]] \
@@ -529,10 +527,11 @@ _lp_connection()
     if [[ -n "$SSH_CLIENT$SSH2_CLIENT$SSH_TTY" ]]; then
         echo ssh
     else
+        # tmux: see GH #304
         # TODO check on *BSD
-        local sess_src="$(who am i | sed -n 's/.*(\(.*\))/\1/p')"
+        local whoami="$(LANG=C who am i)"
         local sess_parent="$(ps -o comm= -p $PPID 2> /dev/null)"
-        if [[ -z "$sess_src" || "$sess_src" = ":"* ]]; then
+        if [[ -z "$whoami" || x"$whoami" = x*'(:'* || x"$whoami" = x*'(tmux'* ]]; then
             echo lcl  # Local
         elif [[ "$sess_parent" = "su" || "$sess_parent" = "sudo" ]]; then
             echo su   # Remote su/sudo
@@ -548,39 +547,52 @@ _lp_connection()
 # The connection is not expected to change from inside the shell, so we
 # build this just once
 LP_HOST=""
-[[ -r /etc/debian_chroot ]] && LP_HOST="($(< /etc/debian_chroot))"
 
-# If we are connected with a X11 support
-if [[ -n "$DISPLAY" ]]; then
-    LP_HOST="${LP_COLOR_X11_ON}${LP_HOST}@${NO_COL}"
-else
-    LP_HOST="${LP_COLOR_X11_OFF}${LP_HOST}@${NO_COL}"
-fi
+# Only process hostname elements if we haven't turned them off
+if [[ "${LP_HOSTNAME_ALWAYS}" -ne "-1" ]]; then
 
-case "$(_lp_connection)" in
-lcl)
-    if [[ "${LP_HOSTNAME_ALWAYS}" -eq "0" ]]; then
-        # FIXME do we want to display the chroot if local?
-        LP_HOST="" # no hostname if local
+    [[ -r /etc/debian_chroot ]] && LP_HOST="($(< /etc/debian_chroot))"
+
+    # Which host symbol should we use?
+    if [[ "${LP_ENABLE_FQDN}" -eq "1" ]] ; then
+        LP_HOST_SYMBOL="${_LP_FQDN_SYMBOL}"
     else
-        LP_HOST="${LP_HOST}${LP_COLOR_HOST}${_LP_HOST_SYMBOL}${NO_COL}"
+        LP_HOST_SYMBOL="${_LP_HOST_SYMBOL}"
     fi
-    ;;
-ssh)
-    # If we want a different color for each host
-    [[ "$LP_ENABLE_SSH_COLORS" -eq 1 ]] && LP_COLOR_SSH="$LP_COLOR_HOST_HASH"
-    LP_HOST="${LP_HOST}${LP_COLOR_SSH}${_LP_HOST_SYMBOL}${NO_COL}"
-    ;;
-su)
-    LP_HOST="${LP_HOST}${LP_COLOR_SU}${_LP_HOST_SYMBOL}${NO_COL}"
-    ;;
-tel)
-    LP_HOST="${LP_HOST}${LP_COLOR_TELNET}${_LP_HOST_SYMBOL}${NO_COL}"
-    ;;
-*)
-    LP_HOST="${LP_HOST}${_LP_HOST_SYMBOL}" # defaults to no color
-    ;;
-esac
+
+    # If we are connected with a X11 support
+    if [[ -n "$DISPLAY" ]]; then
+        LP_HOST="${LP_COLOR_X11_ON}${LP_HOST}@${NO_COL}"
+    else
+        LP_HOST="${LP_COLOR_X11_OFF}${LP_HOST}@${NO_COL}"
+    fi
+
+    case "$(_lp_connection)" in
+    lcl)
+        if [[ "${LP_HOSTNAME_ALWAYS}" -eq "0" ]]; then
+            # FIXME do we want to display the chroot if local?
+            LP_HOST="" # no hostname if local
+        else
+            LP_HOST="${LP_HOST}${LP_COLOR_HOST}${_LP_HOST_SYMBOL}${NO_COL}"
+        fi
+        ;;
+    ssh)
+        # If we want a different color for each host
+        [[ "$LP_ENABLE_SSH_COLORS" -eq 1 ]] && LP_COLOR_SSH="$LP_COLOR_HOST_HASH"
+        LP_HOST="${LP_HOST}${LP_COLOR_SSH}${_LP_HOST_SYMBOL}${NO_COL}"
+        ;;
+    su)
+        LP_HOST="${LP_HOST}${LP_COLOR_SU}${_LP_HOST_SYMBOL}${NO_COL}"
+        ;;
+    tel)
+        LP_HOST="${LP_HOST}${LP_COLOR_TELNET}${_LP_HOST_SYMBOL}${NO_COL}"
+        ;;
+    *)
+        LP_HOST="${LP_HOST}${_LP_HOST_SYMBOL}" # defaults to no color
+        ;;
+    esac
+
+fi
 
 # Useless now, so undefine
 unset _lp_connection
@@ -851,17 +863,15 @@ _lp_git_branch_color()
             else
                 ret="${LP_COLOR_CHANGES}${branch}${NO_COL}(${LP_COLOR_DIFF}$has_lines${NO_COL})" # changes to commit
             fi
-        else
-            if [[ -n "$has_commit" ]]; then
-                # some commit(s) to push
-                if [[ "$commit_behind" -gt "0" ]]; then
-                    ret="${LP_COLOR_COMMITS_BEHIND}${branch}${NO_COL}($has_commit)"
-                else
-                    ret="${LP_COLOR_COMMITS}${branch}${NO_COL}($has_commit)"
-                fi
+        elif [[ -n "$has_commit" ]]; then
+            # some commit(s) to push
+            if [[ "$commit_behind" -gt "0" ]]; then
+                ret="${LP_COLOR_COMMITS_BEHIND}${branch}${NO_COL}($has_commit)"
             else
-                ret="${LP_COLOR_UP}${branch}" # nothing to commit or push
+                ret="${LP_COLOR_COMMITS}${branch}${NO_COL}($has_commit)"
             fi
+        else
+            ret="${LP_COLOR_UP}${branch}" # nothing to commit or push
         fi
         echo -ne "$ret$end"
     fi
@@ -1011,13 +1021,11 @@ _lp_fossil_branch()
 {
     [[ "$LP_ENABLE_FOSSIL" != 1 ]] && return
     local branch
-    branch=$(fossil status 2>/dev/null | sed -n "s/tags:[ ]*\(\w*\)$/\1/Ip")
+    branch=$(fossil status 2>/dev/null | sed -n $_LP_SED_EXTENDED 's/tags:[ ]*\(\w*\)$/\1/p')
     if [ -n "$branch" ]; then
         echo "$branch"
-    else
-        if fossil info &>/dev/null ; then
-            echo "no-tag"
-        fi
+    elif fossil info &>/dev/null ; then
+        echo "no-tag"
     fi
 }
 
@@ -1058,14 +1066,12 @@ _lp_fossil_branch_color()
         if [[ "$branch" = "no-tag" ]]; then
             # Warning, your branch has no tag name !
             branch="${LP_COLOR_COMMITS}$branch${NO_COL}$ret${LP_COLOR_COMMITS}$C2A${NO_COL}"
+        elif (( C2E == 0 )); then
+            # All is up-to-date
+            branch="${LP_COLOR_UP}$branch$C2A${NO_COL}"
         else
-            if (( C2E == 0 )); then
-                # All is up-to-date
-                branch="${LP_COLOR_UP}$branch$C2A${NO_COL}"
-            else
-                # There're some changes to commit
-                branch="${LP_COLOR_CHANGES}$branch${NO_COL}$ret${LP_COLOR_CHANGES}$C2A${NO_COL}"
-            fi
+            # There're some changes to commit
+            branch="${LP_COLOR_CHANGES}$branch${NO_COL}$ret${LP_COLOR_CHANGES}$C2A${NO_COL}"
         fi
         echo "$branch"
     fi
@@ -1182,16 +1188,14 @@ case "$LP_OS" in
             fi
 
         # charging
+        elif [[ ${bat} -le $LP_BATTERY_THRESHOLD ]]; then
+            # under threshold
+            echo -n "${bat}"
+            return 2
         else
-            if [[ ${bat} -le $LP_BATTERY_THRESHOLD ]]; then
-                # under threshold
-                echo -n "${bat}"
-                return 2
-            else
-                # above threshold
-                echo -n "${bat}"
-                return 3
-            fi
+            # above threshold
+            echo -n "${bat}"
+            return 3
         fi
     }
     ;;
@@ -1377,8 +1381,23 @@ _lp_reset_runtime()
 
 if [ "$LP_ENABLE_RUNTIME" = 1 ]
 then
-    # _lp_reset_runtime gets called whenever bash executes a command
-    trap '_lp_reset_runtime' DEBUG
+    if "$_LP_SHELL_zsh"; then
+        _lp_runtime_precmd() {
+          if [ $timer ]; then
+            export _LP_RUNTIME_SECONDS=$(($SECONDS - $timer))
+            unset timer
+          fi
+        }
+
+        _lp_runtime_preexec() {
+          export timer=${timer:-$SECONDS}
+        }
+        add-zsh-hook precmd _lp_runtime_precmd
+        add-zsh-hook preexec _lp_runtime_preexec
+    else
+        # _lp_reset_runtime gets called whenever bash executes a command
+        trap '_lp_reset_runtime' DEBUG
+    fi
 fi
 
 ###############
@@ -1404,7 +1423,7 @@ _lp_load_color()
     local -i load=${tmp:-0}/$_lp_CPUNUM
 
     if (( load > LP_LOAD_THRESHOLD )); then
-        local ret="$(_lp_color_map $load 200)${LP_MARK_LOAD}"
+        local ret="$(_lp_color_map $load)${LP_MARK_LOAD}"
 
         if [[ "$LP_PERCENTS_ALWAYS" == 1 ]]; then
             ret="${ret}${load}${_LP_PERCENT}"
@@ -1556,7 +1575,7 @@ _lp_time_analog()
     half=(🕜 🕝 🕞 🕟 🕠 🕡 🕢 🕣 🕤 🕥 🕦 🕧 )
 
     # "date %I" returns a number between 1 and 12 and we want 12 to be 0.
-    local -i hi=$(( hour % 12))
+    local -i hi=$(( hour % 12 + _LP_FIRST_INDEX))
 
     # add a space for correct alignment
     if (( min < 15 )) ; then
@@ -1787,14 +1806,12 @@ prompt_on()
     else # zsh
         # That doesn't seem to work: no time output
         #if [[ "$LP_DEBUG_TIME" == 1 ]]; then
-        #    precmd() {
+        #    _lp_main_precmd() {
         #        local TIMEFMT='Liquid Prompt build time: %*E'
         #        time _lp_set_prompt
         #    }
         #else
-            precmd() {
-                _lp_set_prompt
-            }
+            add-zsh-hook precmd _lp_set_prompt
         #fi
     fi
 }
@@ -1807,7 +1824,7 @@ prompt_off()
         eval "$LP_OLD_SHOPT"
         PROMPT_COMMAND="$LP_OLD_PROMPT_COMMAND"
     else # zsh
-        precmd() { : ; }
+        add-zsh-hook -d precmd _lp_set_prompt
         eval "$LP_OLD_PROMPT_COMMAND"
     fi
 }
@@ -1820,7 +1837,7 @@ prompt_OFF()
         shopt -u promptvars
         PROMPT_COMMAND="$LP_OLD_PROMPT_COMMAND"
     else # zsh
-        precmd() { : ; }
+        add-zsh-hook -d precmd _lp_set_prompt
         eval "$LP_OLD_PROMPT_COMMAND"
     fi
 }
