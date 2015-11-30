@@ -104,13 +104,13 @@ for SOURCE in `ls`; do
         msg '✓' "$SOURCE" "$TARGET_S" "copied"
         mv_p "$SOURCE" "$TARGET"
 
-    elif [ "$(diff -u $SOURCE $TARGET)" = "" ]; then
+    elif [ "$(diff -u $TARGET $SOURCE)" = "" ]; then
         msg '✓' "$SOURCE" "$TARGET_S" "exists (same)"
 
     # Target exists and files are different here
     elif [ "$FORCE" = "false" ]; then
         msg '✗' "$SOURCE" "$TARGET_S" "exists (with diffs): not copying. Try -f to force, -v to view diffs"
-        [ "$VERBOSE" = "true" ] && colordiff -u "$SOURCE" "$TARGET"
+        [ "$VERBOSE" = "true" ] && colordiff -u "$TARGET" "$SOURCE"
     else
         msg '✓' "$SOURCE" "$TARGET_S" "copied (overriding)"
         mv_p "$SOURCE" "$TARGET"

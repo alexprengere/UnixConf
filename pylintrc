@@ -60,17 +60,23 @@ confidence=HIGH, INFERENCE, UNDEFINED
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 disable=
+    duplicate-code,
     invalid-name,
     missing-docstring,
     line-too-long,
+    too-many-lines,
+    too-many-boolean-expressions,
+    too-many-nested-blocks,
     bad-continuation,
     protected-access,
-    import-error,
     global-statement,
     redefined-outer-name,
-    too-many-lines,
     logging-format-interpolation,
-    wildcard-import
+    import-error,
+    wildcard-import,
+    wrong-import-position,
+    ungrouped-imports,
+    redefined-variable-type
 
 
 [REPORTS]
