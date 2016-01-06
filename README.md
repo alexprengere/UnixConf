@@ -84,6 +84,11 @@ cd the_silver_searcher
 ./build.sh
 sudo make install
 ```
+* `fzf`, the fuzzy search finder
+```bash
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+```
 
 Deploy the configuration files
 ------------------------------
