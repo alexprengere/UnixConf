@@ -1,43 +1,37 @@
 "~/.vimrc or /etc/vim/vimrc
 
 set nocompatible                  " Must come first because it changes other options.
-filetype off                      " Necessary on some Linux distros for pathogen to properly load bundles
 
-set rtp+=~/.vim/bundle/vundle/
+call plug#begin('~/.vim/plugged')
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'majutsushi/tagbar'
+Plug 'techlivezheng/tagbar-phpctags'
+Plug 'sjl/gundo.vim'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'scrooloose/syntastic'
+Plug 'scrooloose/nerdcommenter'
 
-call vundle#rc()
-let g:vundle_default_git_proto='git'
+Plug 'MarcWeber/vim-addon-mw-utils'
+Plug 'tomtom/tlib_vim'
+Plug 'garbas/vim-snipmate'
+Plug 'honza/vim-snippets'
 
-Plugin 'gmarik/vundle'
+Plug 'bling/vim-airline'
+Plug 'jwhitley/vim-matchit'
+Plug 'docunext/closetag.vim'
+Plug 'tpope/vim-repeat'
+"Plug 'tpope/vim-fugitive'
+"Plug 'tpope/vim-abolish'
+"Plug 'Lokaltog/vim-easymotion'
 
-Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'majutsushi/tagbar'
-Plugin 'techlivezheng/tagbar-phpctags'
-Plugin 'sjl/gundo.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic'
-Plugin 'scrooloose/nerdcommenter'
+Plug 'gabrielelana/vim-markdown'
+Plug 'jnwhiteh/vim-golang'
+Plug 'kchmck/vim-coffee-script'
+Plug 'smancill/conky-syntax.vim'
+Plug 'chrisbra/csv.vim'
 
-Plugin 'MarcWeber/vim-addon-mw-utils'
-Plugin 'tomtom/tlib_vim'
-Plugin 'garbas/vim-snipmate'
-Plugin 'honza/vim-snippets'
-
-Plugin 'bling/vim-airline'
-Plugin 'jwhitley/vim-matchit'
-Plugin 'docunext/closetag.vim'
-Plugin 'tpope/vim-repeat'
-"Plugin 'tpope/vim-fugitive'
-"Plugin 'tpope/vim-abolish'
-"Plugin 'Lokaltog/vim-easymotion'
-
-Plugin 'gabrielelana/vim-markdown'
-Plugin 'jnwhiteh/vim-golang'
-Plugin 'kchmck/vim-coffee-script'
-Plugin 'smancill/conky-syntax.vim'
-Plugin 'chrisbra/csv.vim'
-
-Plugin 'Valloric/YouCompleteMe'
+Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
+call plug#end()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype indent plugin on       "Active les plugins de vim
@@ -195,7 +189,7 @@ let g:syntastic_python_checkers=['pylint']
 let g:syntastic_python_checker_args=''
 
 "Ctrlp
-set runtimepath^=~/.vim/bundle/ctrlp.vim
+set runtimepath^=~/.vim/plugged/ctrlp.vim
 let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|(\.(swp|swo|pyc|so|dll|exe|ico|git|svn))$'
 
 "Custom snipMate trigger key

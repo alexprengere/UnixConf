@@ -104,6 +104,8 @@ export PATH=$PATH:$GOROOT/bin
 # Correction automatique des fautes de frappe sur la commande cd
 shopt -s cdspell
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 # Aliases and liquid prompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 

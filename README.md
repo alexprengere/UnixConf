@@ -119,13 +119,8 @@ Generate vim directory
 After the `vimrc` deployment, generate the `vim` directory with:
 ```bash
 rm -rf ~/.vim
-git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-vim +PluginInstall +qall
-```
-Finish YCM plugin installation:
-```bash
-cd ~/.vim/bundle/YouCompleteMe
-./install.py # --clang-completer for LLVM based autocomplete
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+vim +PlugInstall
 ```
 Some vim plugins (*Syntastic*, *vim-ag*) use external tools. These tools need to be installed and have their configuration files in place (check the `.vimrc` for file locations):
 * `pylint` with `~/.pylintrc`
