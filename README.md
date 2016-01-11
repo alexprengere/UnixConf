@@ -17,6 +17,9 @@ sudo apt-get install              \
     linux-headers-generic         \
     dkms                          \
     git subversion cvs            \
+    libffi-dev                    \
+    libyaml libyaml-dev           \
+    imagemagick                   \
     python-dev                    \
     python-setuptools             \
     ipython                       \
@@ -47,6 +50,9 @@ sudo yum install                  \
     kernel-devel kernel-headers   \
     dkms                          \
     git subversion cvs            \
+    libffi-devel                  \
+    libyaml libyaml-devel         \
+    ImageMagick                   \
     python-devel                  \
     python-setuptools             \
     ipython                       \
