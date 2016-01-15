@@ -101,6 +101,12 @@ export PATH=$PATH:/usr/local/heroku/bin
 export GOROOT=/opt/go
 export PATH=$PATH:$GOROOT/bin
 
+
+# MISC
+#
+# Git pushes
+unset SSH_ASKPASS
+
 # Correction automatique des fautes de frappe sur la commande cd
 shopt -s cdspell
 

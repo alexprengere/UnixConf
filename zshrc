@@ -38,17 +38,6 @@ alias -s wmv=vlc
 alias -s mpeg=vlc
 
 
-# PATH ENHANCEMENT
-#
-export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$HOME/.cabal/bin
-export PATH=$PATH:/opt/vagrant/bin
-export PATH=$PATH:/usr/local/heroku/bin
-
-export GOROOT=/opt/go
-export PATH=$PATH:$GOROOT/bin
-
-
 # ZSH OPTIONS
 #
 # Never beeps
@@ -370,8 +359,22 @@ autoload -U promptinit
 promptinit
 
 
+# PATH ENHANCEMENT
+#
+export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/.cabal/bin
+export PATH=$PATH:/opt/vagrant/bin
+export PATH=$PATH:/usr/local/heroku/bin
+
+export GOROOT=/opt/go
+export PATH=$PATH:$GOROOT/bin
+
+
 # MISC
 #
+# Git pushes
+unset SSH_ASKPASS
+
 # For GeoBase CLI
 export BACKGROUND_COLOR=black
 
