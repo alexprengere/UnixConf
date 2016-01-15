@@ -150,12 +150,8 @@ nnoremap <F2> :set invpaste paste?<CR>
 nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 imap <F3> <esc> :set hlsearch!<cr> :set hlsearch?<cr>
-nmap <F5> :lprevious       <cr>
-map  <F5> :lprevious       <cr>
-imap <F5> <esc> :lprevious <cr>
-nmap <F6> :lnext       <cr>
-map  <F6> :lnext       <cr>
-imap <F6> <esc> :lnext <cr>
+noremap <F5> :SyntasticCheck<cr>
+noremap <F6> :SyntasticToggle<cr>
 nmap <F7> :set spell!   <cr> :set spell?   <cr>
 map  <F7> :set spell!   <cr> :set spell?   <cr>
 imap <F7> <esc> :set spell!   <cr> :set spell?   <cr>
@@ -182,11 +178,12 @@ let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglis
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
 "Syntastic options
-let g:syntastic_check_on_open=1
+let g:syntastic_check_on_open=0
 let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
-let g:syntastic_javascript_jsl_conf='-conf ~/.jsl.conf'
 let g:syntastic_python_checkers=['pylint']
 let g:syntastic_python_checker_args=''
+let g:syntastic_javascript_checkers = ['jsl']
+let g:syntastic_javascript_jsl_args='-conf ~/.jsl.conf'
 
 "Ctrlp
 set runtimepath^=~/.vim/plugged/ctrlp.vim
