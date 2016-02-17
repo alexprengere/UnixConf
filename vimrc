@@ -27,6 +27,7 @@ Plug 'tpope/vim-repeat'
 Plug 'gabrielelana/vim-markdown'
 Plug 'jnwhiteh/vim-golang'
 Plug 'kchmck/vim-coffee-script'
+Plug 'derekwyatt/vim-scala'
 Plug 'smancill/conky-syntax.vim'
 Plug 'chrisbra/csv.vim'
 
