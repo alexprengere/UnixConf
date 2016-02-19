@@ -30,6 +30,7 @@ Plug 'kchmck/vim-coffee-script'
 Plug 'derekwyatt/vim-scala'
 Plug 'smancill/conky-syntax.vim'
 Plug 'chrisbra/csv.vim'
+Plug 'alexprengere/edifact.vim'
 
 Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
 call plug#end()
@@ -83,8 +84,8 @@ set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when complet
 
 set t_kb=    "fix weird backspace behaviour
 
-set splitbelow                  "split horizontally at the bottom
-set splitright                  "split vertically on the right
+"set splitbelow                  "split horizontally at the bottom
+"set splitright                  "split vertically on the right
 
 set previewheight=20            "increase default height for preview window (used by autocomplete)
 au BufEnter ?* call PreviewHeightWorkAround()
@@ -128,6 +129,7 @@ autocmd BufRead  *.c,*.h set ft=c
 autocmd BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
 autocmd BufRead  *.sh set ft=sh
 autocmd BufRead  *.pl set ft=perl
+autocmd BufNewFile,BufRead *.edifact,*.edi,*.EDIFACT,*.EDI set filetype=edifact
 "autocmd BufRead *.tex set ft=tex               "Documents latex, surchargé par le plugin latex-suite
 augroup filetypedetect
     autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
