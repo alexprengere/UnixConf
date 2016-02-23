@@ -24,7 +24,8 @@ Plug 'tpope/vim-repeat'
 "Plug 'tpope/vim-abolish'
 "Plug 'Lokaltog/vim-easymotion'
 
-Plug 'gabrielelana/vim-markdown'
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
 Plug 'jnwhiteh/vim-golang'
 Plug 'kchmck/vim-coffee-script'
 Plug 'derekwyatt/vim-scala'
@@ -202,14 +203,6 @@ smap <c-e> <Plug>snipMateNextOrTrigger
 "let g:ycm_key_list_previous_completion = ['<C-S-TAB>', '<Up>']
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
-
-"Supertab options
-"let g:SuperTabDefaultCompletionType = "context"
-"set completeopt=menuone,longest,preview
-
-" Markdown options
-let g:vim_markdown_folding_disabled=1
-let g:vim_markdown_initial_foldlevel=1
 
 "vim-airline options
 set laststatus=2
