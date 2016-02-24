@@ -71,7 +71,6 @@ disable=
     protected-access,
     global-statement,
     redefined-outer-name,
-    logging-format-interpolation,
     import-error,
     wildcard-import,
     wrong-import-position,
