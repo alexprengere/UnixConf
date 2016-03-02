@@ -6,12 +6,17 @@
     status = auto
     branch = auto
     blame = auto
+[color "diff"]
+  meta = yellow
+[color "status"]
+  untracked = cyan
 [alias]
     ci = commit
     co = checkout
     st = status
     br = branch
-    ds = diff --stat
+    d = diff
+    ds = diff --staged
     ls = ls-files
     logg = log --graph --decorate --pretty=format:'%C(yellow)%h %C(bold green)(%cr)%Creset %s %C(bold blue)<%an>%C(red)%d' --abbrev-commit --all
 [core]
