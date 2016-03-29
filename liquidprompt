@@ -105,7 +105,7 @@ elif test -n "${ZSH_VERSION-}" ; then
     _LP_TIME_SYMBOL="%*"
     _LP_MARK_SYMBOL='%(!.#.%%)'
     _LP_PWD_SYMBOL="%~"
-    _LP_DIR_SYMBOL="%~1"
+    _LP_DIR_SYMBOL="%1~"
 
     _LP_FIRST_INDEX=1
     _LP_PERCENT='%%'
@@ -718,6 +718,11 @@ _lp_shorten_path()
 
 if (( LP_ENABLE_SHORTEN_PATH )); then
     if (( LP_PATH_KEEP == -1 )); then
+        # _lp_shorten_path becomes a noop
+        _lp_shorten_path()
+        {
+            :
+        }
         # Will never change
         LP_PWD="${LP_COLOR_PATH}${_LP_DIR_SYMBOL}$NO_COL"
     fi
