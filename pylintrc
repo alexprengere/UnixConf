@@ -67,15 +67,13 @@ disable=
     too-many-lines,
     too-many-boolean-expressions,
     too-many-nested-blocks,
-    bad-continuation,
-    protected-access,
     global-statement,
     redefined-outer-name,
     import-error,
     wildcard-import,
     wrong-import-position,
     ungrouped-imports,
-    redefined-variable-type
+    redefined-variable-type,
 
 
 [REPORTS]
@@ -327,7 +325,7 @@ max-branches=150
 max-statements=400
 
 # Maximum number of parents for a class (see R0901).
-max-parents=7
+max-parents=8
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=25
