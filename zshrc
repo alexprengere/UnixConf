@@ -388,3 +388,4 @@ ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bold,bg=red')
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 
+set -o promptsubst
