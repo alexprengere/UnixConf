@@ -812,6 +812,7 @@ _lp_jobcount_color()
 _lp_are_vcs_enabled()
 {
     [[ -z "$LP_DISABLED_VCS_PATH" ]] && return 0
+    $_LP_SHELL_zsh && setopt local_options && setopt sh_word_split
     local path
     local IFS=:
     for path in $LP_DISABLED_VCS_PATH; do
@@ -1096,7 +1097,7 @@ _lp_fossil_branch()
 {
     (( LP_ENABLE_FOSSIL )) || return
     local branch
-    branch=$(fossil status 2>/dev/null | sed -n $_LP_SED_EXTENDED 's/tags:[ ]*\(\w*\)$/\1/p')
+    branch=$(fossil status 2>/dev/null | sed -n -$_LP_SED_EXTENDED 's/^tags:\s+(\w*)$/\1/p')
     if [[ -n "$branch" ]]; then
         echo -nE "$branch"
     elif fossil info &>/dev/null ; then
@@ -1414,7 +1415,7 @@ if (( LP_ENABLE_RUNTIME )); then
             fi
 
             # If the command to run is the prompt, we'll have to ignore it
-            [[ "$BASH_COMMAND" = "$PROMPT_COMMAND" ]]
+            [[ "$BASH_COMMAND" != "$PROMPT_COMMAND" ]]
             _LP_RUNTIME_SKIP=$?
         }
 
