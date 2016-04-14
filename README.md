@@ -17,10 +17,7 @@ sudo apt-get install              \
     linux-headers-generic         \
     dkms                          \
     git subversion cvs            \
-    libffi-dev                    \
-    libyaml libyaml-dev           \
     imagemagick                   \
-    python-dev                    \
     python-setuptools             \
     ipython                       \
     python-numpy python-scipy     \
@@ -31,10 +28,22 @@ sudo apt-get install              \
     mongodb                       \
     memcached redis-server        \
     tokyocabinet-bin              \
-    libtokyocabinet-dev           \
     exuberant-ctags               \
     silversearcher-ag             \
-    gparted
+    gparted                       \
+    python-dev                    \
+    libffi-dev                    \
+    libyaml libyaml-dev           \
+    libtokyocabinet-dev           \
+    cairo-dev                     \
+    openssl-dev                   \
+    libcurl-dev                   \
+    libXt-dev                     \
+    readline-dev                  \
+    gtk2-dev                      \
+    ggobi-dev                     \
+    bzip2-dev                     \
+    tk-dev
 ```
 * Install basic packages on Fedora (use ``dnf`` for recent versions):
 ```bash
@@ -47,13 +56,10 @@ sudo yum install                  \
     tree                          \
     cmake automake                \
     gcc-c++                       \
-    kernel-devel kernel-headers   \
+    kernel-headers kernel-devel   \
     dkms                          \
     git subversion cvs            \
-    libffi-devel                  \
-    libyaml libyaml-devel         \
     ImageMagick                   \
-    python-devel                  \
     python-setuptools             \
     ipython                       \
     numpy scipy                   \
@@ -64,11 +70,23 @@ sudo yum install                  \
     mongodb                       \
     memcached redis               \
     tokyocabinet                  \
-    tokyocabinet-devel            \
     ctags                         \
     jsl                           \
     the_silver_searcher           \
-    gparted
+    gparted                       \
+    python-devel                  \
+    libffi-devel                  \
+    libyaml libyaml-devel         \
+    tokyocabinet-devel            \
+    cairo-devel                   \
+    openssl-devel                 \
+    libcurl-devel                 \
+    libXt-devel                   \
+    readline-devel                \
+    gtk2-devel                    \
+    ggobi-devel                   \
+    bzip2-devel                   \
+    tk-devel
 ```
 * Install Python packages:
 ```bash
