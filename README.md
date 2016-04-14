@@ -33,6 +33,7 @@ sudo apt-get install              \
     gparted                       \
     python-dev                    \
     libffi-dev                    \
+    libxml2-dev                   \
     libyaml libyaml-dev           \
     libtokyocabinet-dev           \
     cairo-dev                     \
@@ -76,6 +77,7 @@ sudo yum install                  \
     gparted                       \
     python-devel                  \
     libffi-devel                  \
+    libxml2-devel                 \
     libyaml libyaml-devel         \
     tokyocabinet-devel            \
     cairo-devel                   \
