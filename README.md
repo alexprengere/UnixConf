@@ -34,6 +34,7 @@ sudo apt-get install              \
     python-dev                    \
     libffi-dev                    \
     libxml2-dev                   \
+    libxslt1-dev                  \
     libyaml libyaml-dev           \
     libtokyocabinet-dev           \
     cairo-dev                     \
@@ -78,6 +79,7 @@ sudo yum install                  \
     python-devel                  \
     libffi-devel                  \
     libxml2-devel                 \
+    libxslt-devel                 \
     libyaml libyaml-devel         \
     tokyocabinet-devel            \
     cairo-devel                   \
