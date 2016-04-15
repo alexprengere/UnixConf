@@ -182,10 +182,9 @@ let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglis
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
 "Syntastic options
-"let g:syntastic_check_on_open=0
-let g:syntastic_mode_map = { 'mode': 'passive' }
+let g:syntastic_check_on_open=1
 let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
-let g:syntastic_python_checkers=['pylint']
+let g:syntastic_python_checkers=['flake8']
 let g:syntastic_python_checker_args=''
 let g:syntastic_javascript_checkers = ['jsl']
 let g:syntastic_javascript_jsl_args='-conf ~/.jsl.conf'
