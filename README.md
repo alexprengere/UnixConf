@@ -90,7 +90,8 @@ sudo yum install                  \
     gtk2-devel                    \
     ggobi-devel                   \
     bzip2-devel                   \
-    tk-devel
+    tk-devel                      \
+    lapack-devel
 ```
 * Install Python packages:
 ```bash
