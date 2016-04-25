@@ -410,16 +410,32 @@ _lp_source_config()
     LP_DEBUG_TIME=${LP_DEBUG_TIME:-0}
 
 
-    # System config
-    [[ -f "/etc/liquidpromptrc" ]] && source "/etc/liquidpromptrc"
+    local configfile
 
     # Default config file may be the XDG standard ~/.config/liquidpromptrc,
     # but heirloom dotfile has priority.
+
     if [[ -f "$HOME/.liquidpromptrc" ]]; then
-        source "$HOME/.liquidpromptrc"
+        configfile="$HOME/.liquidpromptrc"
     else
-        local configfile="${XDG_CONFIG_HOME:-$HOME/.config}/liquidpromptrc"
-        [[ -f "$configfile" ]] && source "$configfile"
+        local first
+        local search
+        # trailing ":" is so that ${search#*:} always removes something
+        search="${XDG_CONFIG_HOME:-"$HOME/.config"}:${XDG_CONFIG_DIRS:-/etc/xdg}:"
+        while [[ -n "$search" ]]; do
+            first="${search%%:*}"
+            search="${search#*:}"
+            if [[ -f "$first/liquidpromptrc" ]]; then
+                configfile="$first/liquidpromptrc"
+                break
+            fi
+        done
+    fi
+
+    if [[ -n "$configfile" ]]; then
+        source "$configfile"
+    elif [[ -f "/etc/liquidpromptrc" ]]; then
+        source "/etc/liquidpromptrc"
     fi
 
     # Delete this code in version 1.11
@@ -1696,8 +1712,12 @@ _lp_set_prompt()
     fi
 
     # Display the current Python virtual environment, if available
-    if [[ "$LP_ENABLE_VIRTUALENV,${VIRTUAL_ENV-}" = 1,?* ]]; then
-        LP_VENV=" [${LP_COLOR_VIRTUALENV}${VIRTUAL_ENV##*/}${NO_COL}]"
+    if [[ "$LP_ENABLE_VIRTUALENV,${VIRTUAL_ENV-}${CONDA_DEFAULT_ENV-}" = 1,?* ]]; then
+        if [[ -n "${VIRTUAL_ENV-}" ]]; then
+            LP_VENV=" [${LP_COLOR_VIRTUALENV}${VIRTUAL_ENV##*/}${NO_COL}]"
+        else
+            LP_VENV=" [${LP_COLOR_VIRTUALENV}${CONDA_DEFAULT_ENV##*/}${NO_COL}]"
+        fi
     else
         LP_VENV=
     fi
