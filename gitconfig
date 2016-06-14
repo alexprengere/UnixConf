@@ -1,15 +1,19 @@
 [user]
     name = Alex
     email = alexprengere@gmail.com
+[push]
+    default = current
+[credential]
+    helper = cache --timeout=36000
 [color]
     diff = auto
     status = auto
     branch = auto
     blame = auto
 [color "diff"]
-  meta = yellow
+    meta = yellow
 [color "status"]
-  untracked = cyan
+    untracked = cyan
 [alias]
     ci = commit
     co = checkout
@@ -34,7 +38,3 @@
     textconv = zcat
 [diff "tbz"]
     textconv = bzcat
-[push]
-    default = current
-[credential]
-    helper = cache --timeout=36000
