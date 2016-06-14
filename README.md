@@ -101,7 +101,7 @@ pip install --user pylint flake8 virtualenv tox
 ```
 * Install node packages:
 ```bash
-sudo npm install -g coffeelint grunt-cli
+sudo npm install -g coffeelint grunt-cli diff-so-fancy
 ```
 * `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
 ```bash
