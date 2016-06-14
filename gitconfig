@@ -22,14 +22,14 @@
 [core]
     editor = vim
     pager = diff-so-fancy | less --tabs=4 -RFX
+[interactive]
+    diffFilter = diff-so-fancy | less --tabs=4 -RFX
+[diff]
+    compactionHeuristic = true
 [diff "zip"]
     textconv = unzip -c -a
 [diff "word"]
     textconv = strings
-#[diff "tgz"]
-#    textconv = tar -tvf
-#[diff "tbz"]
-#    textconv = tar -jtvf
 [diff "tgz"]
     textconv = zcat
 [diff "tbz"]
