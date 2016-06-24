@@ -110,7 +110,7 @@ augroup END
 
 augroup aspect
     autocmd BufRead *.py hi OverLength ctermbg=darkmagenta guibg=darkmagenta
-    autocmd BufRead *.py match OverLength /\%80v.*/
+    autocmd BufRead *.py match OverLength /\%100v.*/
 augroup END
 
 "Modification de l'autocompletion automatique pour faire apparaitre les sha-bangs
