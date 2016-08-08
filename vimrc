@@ -207,14 +207,14 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 set laststatus=2
 
 "Change csv colors
-hi CSVColumnEven      term=bold ctermbg=52 guibg=52 ctermfg=231 guifg=231
-hi CSVColumnHeader    term=bold ctermbg=52 guibg=52 ctermfg=231 guifg=231
-hi CSVColumnOdd       term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
-hi CSVColumnHeaderOdd term=bold ctermbg=17 guibg=17 ctermfg=226 guifg=226
+hi CSVColumnEven      term=bold ctermbg=darkred guibg=darkred ctermfg=grey guifg=grey
+hi CSVColumnHeader    term=bold ctermbg=darkred guibg=darkred ctermfg=grey guifg=grey
+hi CSVColumnOdd       term=bold ctermbg=blue guibg=blue ctermfg=yellow guifg=yellow
+hi CSVColumnHeaderOdd term=bold ctermbg=blue guibg=blue ctermfg=yellow guifg=yellow
 
 "Change highlight line style
-hi CursorLine   term=none cterm=none ctermbg=235 guibg=235
-hi CursorColumn term=none cterm=none ctermbg=235 guibg=235
+hi CursorLine   term=none cterm=none ctermbg=black guibg=black
+hi CursorColumn term=none cterm=none ctermbg=black guibg=black
 
 "Modification des couleurs du theme
 "Effacement des anciennes configurations
