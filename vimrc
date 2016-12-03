@@ -6,7 +6,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'majutsushi/tagbar'
 Plug 'techlivezheng/tagbar-phpctags'
-Plug 'sjl/gundo.vim'
+Plug 'mbbill/undotree'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'scrooloose/syntastic'
 Plug 'scrooloose/nerdcommenter'
@@ -175,7 +175,7 @@ let mapleader = ","
 noremap <leader>b :CtrlPBuffer          <cr>
 noremap <leader>l :TagbarToggle         <cr>
 noremap <leader>t :NERDTreeToggle       <cr>
-noremap <leader>g :GundoToggle          <cr>
+noremap <leader>g :UndotreeToggle       <cr>
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
