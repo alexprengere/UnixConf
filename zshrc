@@ -141,8 +141,8 @@ setopt prompt_subst
 # ZSH HISTORY
 #
 # Nombre d'entrées dans l'historique
-export HISTORY=1000
-export SAVEHIST=1000
+export HISTORY=100000
+export SAVEHIST=100000
 
 # Fichier où est stocké l'historique
 export HISTFILE=$HOME/.history
@@ -304,13 +304,17 @@ fi
 # 37 blanc
 
 # Less Colors for Man Pages
-export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
-export LESS_TERMCAP_md=$'\E[01;38;5;74m'   # begin bold
-export LESS_TERMCAP_me=$'\E[0m'            # end mode
-export LESS_TERMCAP_se=$'\E[0m'            # end standout-mode
-export LESS_TERMCAP_so=$'\E[1;31;5;246m'   # begin standout-mode - info box
-export LESS_TERMCAP_ue=$'\E[0m'            # end underline
-export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
+man() {
+    env \
+        LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+        LESS_TERMCAP_md=$(printf "\e[1;31m") \
+        LESS_TERMCAP_me=$(printf "\e[0m") \
+        LESS_TERMCAP_se=$(printf "\e[0m") \
+        LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+        LESS_TERMCAP_ue=$(printf "\e[0m") \
+        LESS_TERMCAP_us=$(printf "\e[1;32m") \
+            man "$@"
+}
 
 
 # PROMPTS
@@ -387,5 +391,4 @@ ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bold,bg=red')
 
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
-
 set -o promptsubst

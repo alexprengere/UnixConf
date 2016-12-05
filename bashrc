@@ -82,14 +82,16 @@ if [ -f /etc/bash_completion ]; then
 fi
 
 # Less Colors for Man Pages
-export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
-export LESS_TERMCAP_md=$'\E[01;38;5;74m'   # begin bold
-export LESS_TERMCAP_me=$'\E[0m'            # end mode
-export LESS_TERMCAP_se=$'\E[0m'            # end standout-mode
-export LESS_TERMCAP_so=$'\E[1;31;5;246m'   # begin standout-mode - info box
-export LESS_TERMCAP_ue=$'\E[0m'            # end underline
-export LESS_TERMCAP_us=$'\E[04;33;5;146m'  # begin underline
-
+man() {
+    LESS_TERMCAP_mb=$'\e'"[1;31m" \
+    LESS_TERMCAP_md=$'\e'"[1;31m" \
+    LESS_TERMCAP_me=$'\e'"[0m" \
+    LESS_TERMCAP_se=$'\e'"[0m" \
+    LESS_TERMCAP_so=$'\e'"[1;44;33m" \
+    LESS_TERMCAP_ue=$'\e'"[0m" \
+    LESS_TERMCAP_us=$'\e'"[1;32m" \
+    command man "$@"
+}
 
 # PATH ENHANCEMENT
 #
@@ -114,4 +116,3 @@ shopt -s cdspell
 
 # Aliases and liquid prompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
-
