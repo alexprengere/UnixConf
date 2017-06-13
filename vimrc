@@ -53,8 +53,6 @@ set showcmd                     "Affiche les commandes dans le buffer en mode no
 set showmode                    "Affiche le mode dans le buffer
 set showmatch                   "Affiche les délimiteurs fermants correspondants
 set showfulltag                 "Get function usage help automatically
-set list                        "Affiche les marques invisibles
-set listchars=tab:▶-            "Convert tabs in nice symbols
 set cursorline                 "Active une barre horizontale pour indiquer le curseur
 "set cursorcolumn               "Active une barre verticale
 "set visualbell                 "Use visual bell instead of beeping
@@ -111,6 +109,8 @@ augroup END
 augroup aspect
     autocmd BufRead *.py hi OverLength ctermbg=darkmagenta guibg=darkmagenta
     autocmd BufRead *.py match OverLength /\%100v.*/
+    autocmd BufRead *.py set list             "Affiche les marques invisibles
+    autocmd BufRead *.py set listchars=tab:▶- "Convert tabs in nice symbols
 augroup END
 
 "Modification de l'autocompletion automatique pour faire apparaitre les sha-bangs
@@ -202,6 +202,7 @@ smap <c-e> <Plug>snipMateNextOrTrigger
 "let g:ycm_key_list_previous_completion = ['<C-S-TAB>', '<Up>']
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
+"let g:ycm_register_as_syntastic_checker = 0
 
 "vim-airline options
 set laststatus=2
