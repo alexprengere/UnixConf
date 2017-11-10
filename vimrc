@@ -28,8 +28,8 @@ Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'jnwhiteh/vim-golang'
 Plug 'kchmck/vim-coffee-script'
-Plug 'derekwyatt/vim-scala'
 Plug 'smancill/conky-syntax.vim'
+Plug 'derekwyatt/vim-scala'
 Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
 
@@ -188,6 +188,9 @@ let g:syntastic_python_checkers=['flake8']
 let g:syntastic_python_checker_args=''
 let g:syntastic_javascript_checkers = ['jsl']
 let g:syntastic_javascript_jsl_args='-conf ~/.jsl.conf'
+let g:syntastic_mode_map = { 'mode': 'active',
+                           \ 'active_filetypes': [],
+                           \ 'passive_filetypes': ['scala'] }
 
 "Ctrlp
 set runtimepath^=~/.vim/plugged/ctrlp.vim
