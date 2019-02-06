@@ -365,13 +365,14 @@ promptinit
 
 # PATH ENHANCEMENT
 #
-export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$HOME/.cabal/bin
-export PATH=$PATH:/opt/vagrant/bin
-export PATH=$PATH:/usr/local/heroku/bin
-
 export GOROOT=/opt/go
-export PATH=$PATH:$GOROOT/bin
+export PATH=$GOROOT/bin:$PATH
+
+export PATH=$HOME/.local/bin:$PATH
+export PATH=$HOME/.cabal/bin:$PATH
+export PATH=/opt/vagrant/bin:$PATH
+export PATH=/usr/local/heroku/bin:$PATH
+
 
 
 # MISC
