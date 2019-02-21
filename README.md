@@ -51,7 +51,6 @@ sudo apt-get install              \
 ```bash
 sudo yum check-update
 sudo yum install                  \
-    nfs-utils nfs-utils-lib       \
     openssh-server                \
     wget curl                     \
     vim screen zsh htop colordiff \
@@ -95,28 +94,11 @@ sudo yum install                  \
 ```
 * Install Python packages:
 ```bash
-easy_install --user pip
-export PATH="$HOME/.local/bin:$PATH"
 pip install --user pylint flake8 virtualenv tox
 ```
 * Install node packages:
 ```bash
 sudo npm install -g coffeelint grunt-cli diff-so-fancy
-```
-* `Ag` may not be in the repositories and fail to install with `yum` or `apt-get`. If it the case, try installing from source.
-```bash
-# Prerequisistes
-# apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
-# yum -y install pkgconfig automake gcc zlib-devel pcre-devel xz-devel
-git clone https://github.com/ggreer/the_silver_searcher.git
-cd the_silver_searcher
-./build.sh
-sudo make install
-```
-* `fzf`, the fuzzy search finder
-```bash
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
 ```
 
 Deploy the configuration files
