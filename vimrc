@@ -30,6 +30,7 @@ Plug 'jnwhiteh/vim-golang'
 Plug 'kchmck/vim-coffee-script'
 Plug 'smancill/conky-syntax.vim'
 Plug 'derekwyatt/vim-scala'
+Plug 'rust-lang/rust.vim'
 Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
 
