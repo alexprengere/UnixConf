@@ -8,8 +8,8 @@ Plug 'majutsushi/tagbar'
 Plug 'techlivezheng/tagbar-phpctags'
 Plug 'mbbill/undotree'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'scrooloose/syntastic'
 Plug 'scrooloose/nerdcommenter'
+Plug 'dense-analysis/ale'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
@@ -155,8 +155,7 @@ nnoremap <F2> :set invpaste paste?<CR>
 nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 imap <F3> <esc> :set hlsearch!<cr> :set hlsearch?<cr>
-noremap <F5> :SyntasticCheck<cr>
-noremap <F6> :SyntasticToggle<cr>
+nmap <F6> :ALEToggle<CR>
 nmap <F7> :set spell!   <cr> :set spell?   <cr>
 map  <F7> :set spell!   <cr> :set spell?   <cr>
 imap <F7> <esc> :set spell!   <cr> :set spell?   <cr>
@@ -182,17 +181,6 @@ noremap <leader>g :UndotreeToggle       <cr>
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
 
-"Syntastic options
-let g:syntastic_check_on_open=1
-let g:syntastic_auto_loc_list=2 "Set to 1 to automatically open :Errors
-let g:syntastic_python_checkers=['flake8']
-let g:syntastic_python_checker_args=''
-let g:syntastic_javascript_checkers = ['jsl']
-let g:syntastic_javascript_jsl_args='-conf ~/.jsl.conf'
-let g:syntastic_mode_map = { 'mode': 'active',
-                           \ 'active_filetypes': [],
-                           \ 'passive_filetypes': ['scala'] }
-
 "Ctrlp
 set runtimepath^=~/.vim/plugged/ctrlp.vim
 let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|(\.(swp|swo|pyc|so|dll|exe|ico|git|svn))$'
@@ -206,7 +194,6 @@ smap <c-e> <Plug>snipMateNextOrTrigger
 "let g:ycm_key_list_previous_completion = ['<C-S-TAB>', '<Up>']
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
-"let g:ycm_register_as_syntastic_checker = 0
 
 "vim-airline options
 set laststatus=2
