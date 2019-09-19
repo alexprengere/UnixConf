@@ -10,6 +10,7 @@ Plug 'mbbill/undotree'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'dense-analysis/ale'
+Plug 'ambv/black'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
