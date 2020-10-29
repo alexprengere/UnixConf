@@ -94,7 +94,7 @@ sudo yum install                  \
 ```
 * Install Python packages:
 ```bash
-pip install --user pylint flake8 virtualenv tox
+python3 -m pip install --user pylint flake8 virtualenv tox black
 ```
 * Install node packages:
 ```bash
