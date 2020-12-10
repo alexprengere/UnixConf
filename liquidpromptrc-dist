@@ -100,7 +100,7 @@ LP_ENABLE_BATT=0
 # Enable the 'sudo credentials' feature.
 # Be warned that this may pollute the syslog if you don't have sudo
 # credentials, and the sysadmin might hate you.
-LP_ENABLE_SUDO=0
+LP_ENABLE_SUDO=1
 
 # Enable the VCS features with the root account.
 # Recommended value is 0
@@ -152,7 +152,7 @@ LP_ENABLE_VIRTUALENV=1
 
 # Display the enabled software collections, if any
 # Recommended value is 1
-LP_ENABLE_SCLS=1
+LP_ENABLE_SCLS=0
 
 # Show highest system temperature
 LP_ENABLE_TEMP=0
