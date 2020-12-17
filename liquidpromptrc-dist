@@ -102,6 +102,9 @@ LP_ENABLE_BATT=0
 # credentials, and the sysadmin might hate you.
 LP_ENABLE_SUDO=1
 
+# Enable the directory stack support.
+LP_ENABLE_DIRSTACK=1
+
 # Enable the VCS features with the root account.
 # Recommended value is 0
 LP_ENABLE_VCS_ROOT=0
