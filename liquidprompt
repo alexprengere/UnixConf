@@ -41,8 +41,6 @@ if test -n "${BASH_VERSION-}"; then
     _LP_FQDN_SYMBOL="\H"
     _LP_TIME_SYMBOL="\t"
     _LP_MARK_SYMBOL='\$'
-    _LP_PWD_SYMBOL="\\w"
-    _LP_DIR_SYMBOL="\\W"
 
     _LP_FIRST_INDEX=0
     _LP_PERCENT='%'    # must be escaped on zsh
@@ -59,6 +57,12 @@ if test -n "${BASH_VERSION-}"; then
         ret="${1//\\/\\\\}"
     }
 elif test -n "${ZSH_VERSION-}" ; then
+    # Check for recent enough version of zsh.
+    if (( ${ZSH_VERSION:0:1} < 5 )); then
+        echo "liquidprompt: Zsh version $ZSH_VERSION not supported" 2>&1
+        return
+    fi
+
     _LP_SHELL_bash=0
     _LP_SHELL_zsh=1
     _LP_OPEN_ESC="%{"
@@ -69,8 +73,6 @@ elif test -n "${ZSH_VERSION-}" ; then
     _LP_FQDN_SYMBOL="%M"
     _LP_TIME_SYMBOL="%*"
     _LP_MARK_SYMBOL='%(!.#.%%)'
-    _LP_PWD_SYMBOL="%~"
-    _LP_DIR_SYMBOL="%1~"
 
     _LP_FIRST_INDEX=1
     _LP_PERCENT='%%'
@@ -113,7 +115,7 @@ _LP_SED_EXTENDED=r
 # Load the user configuration and setup defaults.
 __lp_source_config() {
 
-    local af_color= ab_color=
+    local lp_terminal_format af_color= ab_color=
 
     # Colors: variables are local so they will have a value only
     # during config loading and will not conflict with other values
@@ -166,12 +168,11 @@ __lp_source_config() {
     # NO_COL is special: it will be used at runtime, not just during config loading
     NO_COL="${_LP_OPEN_ESC}${_LP_TI_RESET-}${_LP_CLOSE_ESC}"
 
-    # compute the hash of the hostname
-    # and get the corresponding number in [1-6] (red,green,yellow,blue,purple or cyan)
-    # FIXME Add more formats (bold? 256 colors?)
-    # cksum is separated with tab on SunOS, space on others
-    local cksum="$(hostname | cksum)"
-    __lp_foreground_color "$(( 1 + ${cksum%%[$' \t']*} % 6 ))"
+    # compute the hash of the hostname and get the corresponding number in
+    # [1-6] (red,green,yellow,blue,purple or cyan)
+    local lp_hostname_hash
+    __lp_hostname_hash
+    __lp_foreground_color "$(( 1 + lp_hostname_hash % 6 ))"
     LP_COLOR_HOST_HASH="${_LP_OPEN_ESC}${af_color}${_LP_CLOSE_ESC}"
 
 
@@ -183,7 +184,9 @@ __lp_source_config() {
     LP_RUNTIME_BELL_THRESHOLD=${LP_RUNTIME_BELL_THRESHOLD:-10}
     LP_PATH_LENGTH=${LP_PATH_LENGTH:-35}
     LP_PATH_KEEP=${LP_PATH_KEEP:-2}
-    LP_PATH_DEFAULT="${LP_PATH_DEFAULT:-$_LP_PWD_SYMBOL}"
+    LP_PATH_CHARACTER_KEEP=${LP_PATH_CHARACTER_KEEP:-3}
+    LP_PATH_METHOD=${LP_PATH_METHOD:-truncate_chars_from_path_left}
+    LP_PATH_VCS_ROOT=${LP_PATH_VCS_ROOT:-1}
     LP_HOSTNAME_ALWAYS=${LP_HOSTNAME_ALWAYS:-0}
     LP_USER_ALWAYS=${LP_USER_ALWAYS:-1}
     LP_PERCENTS_ALWAYS=${LP_PERCENTS_ALWAYS:-1}
@@ -243,7 +246,14 @@ __lp_source_config() {
     LP_MARK_PERM="${LP_MARK_PERM:-":"}"
     LP_MARK_DIRSTACK="${LP_MARK_DIRSTACK:-"⚞"}"
 
-    LP_COLOR_PATH=${LP_COLOR_PATH:-$BOLD}
+    lp_terminal_format 255 0 0 0 7
+    LP_COLOR_PATH=${LP_COLOR_PATH:-$lp_terminal_format}
+    lp_terminal_format 245 0 0 0 7
+    LP_COLOR_PATH_SEPARATOR=${LP_COLOR_PATH_SEPARATOR:-$lp_terminal_format}
+    LP_COLOR_PATH_SHORTENED=${LP_COLOR_PATH_SHORTENED:-$lp_terminal_format}
+    lp_terminal_format 255 0 1 0 7
+    LP_COLOR_PATH_VCS_ROOT=${LP_COLOR_PATH_VCS_ROOT:-$lp_terminal_format}
+    LP_COLOR_PATH_LAST_DIR=${LP_COLOR_PATH_LAST_DIR:-$lp_terminal_format}
     LP_COLOR_PATH_ROOT=${LP_COLOR_PATH_ROOT:-$BOLD_YELLOW}
     LP_COLOR_PROXY=${LP_COLOR_PROXY:-$BOLD_BLUE}
     LP_COLOR_JOB_D=${LP_COLOR_JOB_D:-$YELLOW}
@@ -303,7 +313,8 @@ __lp_source_config() {
 
     # Default config file may be the XDG standard ~/.config/liquidpromptrc,
     # but heirloom dotfile has priority.
-    local -a configfiles=("$HOME/.liquidpromptrc" "${XDG_CONFIG_HOME:-"$HOME/.config"}/liquidpromptrc")
+    local -a configfiles
+    configfiles=("$HOME/.liquidpromptrc" "${XDG_CONFIG_HOME:-"$HOME/.config"}/liquidpromptrc")
 
     # trailing ":" is so that ${search#*:} always removes something
     local configfile search="${XDG_CONFIG_DIRS:-/etc/xdg}:"
@@ -320,6 +331,8 @@ __lp_source_config() {
             break
         fi
     done
+
+    # Deprecations and compatability shims
 
     if [[ -n "${LP_DISABLED_VCS_PATH-}" ]]; then
         echo "liquidprompt: LP_DISABLED_VCS_PATH is deprecated. Update your config to use LP_DISABLED_VCS_PATHS array." >&2
@@ -349,6 +362,32 @@ __lp_source_config() {
         unset LP_COLORMAP_0 LP_COLORMAP_1 LP_COLORMAP_2 LP_COLORMAP_3 LP_COLORMAP_4 \
               LP_COLORMAP_5 LP_COLORMAP_6 LP_COLORMAP_7 LP_COLORMAP_8 LP_COLORMAP_9
     fi
+
+    if [[ -n ${LP_PATH_DEFAULT-} ]]; then
+        echo "liquidprompt: LP_PATH_DEFAULT is deprecated. Update your config to set LP_PATH_METHOD." >&2
+        if (( ! LP_ENABLE_SHORTEN_PATH )); then
+            # There is just no elegant way to handle this. Fallback to the old way with basic formatting support.
+            _lp_path_format() {
+                lp_path=$LP_PATH_DEFAULT
+                lp_path_format="${LP_COLOR_PATH}${lp_path}${NO_COL}"
+            }
+        fi
+    fi
+
+    if [[ -n ${PROMPT_DIRTRIM-} ]] && (( ! LP_ENABLE_SHORTEN_PATH )); then
+        echo "liquidprompt: PROMPT_DIRTRIM support is deprecated. Update your config to set
+            LP_PATH_METHOD='truncate_chars_from_path_left' instead." >&2
+        # This does mostly the same thing, but with our formatting.
+        LP_ENABLE_SHORTEN_PATH=1
+        LP_PATH_METHOD="truncate_chars_from_path_left"
+        LP_PATH_KEEP=1
+    fi
+
+    if [[ $LP_PATH_KEEP == "-1" ]]; then
+        echo "liquidprompt: LP_PATH_KEEP set to '-1' is deprecated. Update your config to set
+              LP_PATH_METHOD='truncate_to_last_dir' instead." >&2
+        LP_PATH_METHOD="truncate_to_last_dir"
+    fi
 }
 
 # Initialize features based on the user config.
@@ -372,7 +411,8 @@ lp_activate() {
             add-zsh-hook -d precmd  __lp_runtime_after
         } >/dev/null
 
-        autoload -Uz compinit && compinit && compdef __lp_theme_zsh_complete lp_theme
+        # Enable the autocomplete if the autocomplete system is initialized.
+        __lp_is_function compdef && compdef __lp_theme_zsh_complete lp_theme
     fi
 
     # TermInfo feature detection
@@ -488,7 +528,7 @@ lp_activate() {
     ###############
 
     _lp_user
-    local -i user=$?
+    local -i user="$?"
 
     if (( user < 2 )); then  # if user is not root
         # "sudo -n" is only supported from sudo 1.7.0
@@ -517,31 +557,6 @@ lp_activate() {
     #################
     # Where are we? #
     #################
-
-
-    if (( LP_ENABLE_SHORTEN_PATH )); then
-        if (( LP_PATH_KEEP == -1 )); then
-            lp_path=$_LP_DIR_SYMBOL
-            __lp_path() { : ; }
-        else
-            __lp_path() {
-                local lp_shorten_path
-                __lp_shorten_path
-                lp_path=$lp_shorten_path
-            }
-        fi
-    else
-        # Will never change
-        lp_path=$LP_PATH_DEFAULT
-
-        if (( _LP_SHELL_bash )) && [[ -n ${PROMPT_DIRTRIM-} ]]; then
-            __lp_path() {
-                __lp_set_dirtrim
-            }
-        else
-            __lp_path() { : ; }
-        fi
-    fi
 
     _LP_RUNTIME_LAST_SECONDS=$SECONDS
 
@@ -593,7 +608,7 @@ _lp_as_text() {
 # Store $2 (or $?) as a true/false value in variable named $1
 # Deprecated since v2.0.
 _lp_bool() {
-    local res=${2:-$?}
+    local res="${2:-$?}"
     if (( res )); then
         eval "$1=false"
     else
@@ -633,12 +648,18 @@ __lp_line_count() {
   count=${#var}
 }
 
+__lp_hostname_hash() {
+    # cksum is separated with tab on SunOS, space on others
+    local cksum="$(hostname | cksum)"
+    lp_hostname_hash=${cksum%%[$' \t']*}
+}
+
 # Return $PWD with $HOME at the start replaced by "~".
-__lp_pwd_tilde() {
+__lp_pwd_tilde() {  # [path]
     # Needs to be in a variable, as different versions of Bash treat '~' in a
     # substitution differently
-    local tilde="~"
-    lp_pwd_tilde="${PWD/#$HOME/$tilde}"
+    local _path=${1:-$PWD} tilde="~"
+    lp_pwd_tilde="${_path/#$HOME/$tilde}"
 }
 
 # insert a space on the right
@@ -664,7 +685,10 @@ lp_terminal_format() {  # fg, bg, bold, underline, fallback_fg, fallback_bg
     lp_terminal_format=
     (( LP_ENABLE_COLOR )) || return 2
 
-    local af_color ab_color fg=$1 bg=${2:-"-1"} previous_af_color=${_lp_last_af_color-}
+    local af_color ab_color fg bg previous_af_color
+    fg=$1
+    bg=${2:-"-1"}
+    previous_af_color=${_lp_last_af_color-}
 
     lp_terminal_format=${_LP_OPEN_ESC}${_LP_TI_RESET}
 
@@ -740,7 +764,8 @@ __lp_theme_list() {
 __lp_theme_bash_complete() {
     COMPREPLY=()
     local -a lp_theme_list
-    local theme partial_theme=${2-}
+    local theme partial_theme
+    partial_theme=${2-}
 
     __lp_theme_list
 
@@ -760,82 +785,202 @@ __lp_theme_zsh_complete() {
 # Working Directory Path #
 ##########################
 
-# Shorten the path of the current working directory
-__lp_shorten_path() {
-    local ret= lp_pwd_tilde p
-    __lp_pwd_tilde
-    p="$lp_pwd_tilde"
-
-    local mask="${LP_MARK_SHORTEN_PATH}"
-    local -i max_len=$(( ${COLUMNS:-80} * LP_PATH_LENGTH / 100 ))
-
-    if (( ${#p} <= max_len )); then
-        ret="${p}"
-    elif (( LP_PATH_KEEP == 0 )); then
-        # len is over max len, show as much of the tail as is allowed
-        ret="${p##*/}" # show at least complete current directory
-        p="${p:0:${#p} - ${#ret}}"
-        ret="${mask}${p:${#p} - (${max_len} - ${#ret} - ${#mask})}${ret}"
-    else
-        # len is over max len, show at least LP_PATH_KEEP leading dirs and
-        # current directory
-        local tmp="${p//\//}"
-        local -i delims=$(( ${#p} - ${#tmp} ))
-
-        for (( dir=0; dir < LP_PATH_KEEP; dir++ )); do
-            (( dir == delims )) && break
-
-            local left="${p#*/}"
-            local name="${p:0:${#p} - ${#left}}"
-            p="${left}"
-            ret+="${name%/}/"
-        done
-
-        if (( delims <= LP_PATH_KEEP )); then
-            # no dirs between LP_PATH_KEEP leading dirs and current dir
-            ret+="${p##*/}"
-        else
-            local base="${p##*/}"
-
-            p="${p:0:${#p} - ${#base}}"
-
-            [[ ${ret} != "/" ]] && ret="${ret%/}" # strip trailing slash
-
-            local -i len_left=$(( max_len - ${#ret} - ${#base} - ${#mask} ))
-
-            ret+="${mask}${p:${#p} - ${len_left}}${base}"
+__lp_get_unique_directory() {
+    local directory=${1##*/} root=${1%/*}
+    local -a matching
+    local -i i
+    for (( i=1; i < ${#directory}; i++ )); do
+        lp_unique_directory=${directory:0:$i}
+        matching=("${root}/${lp_unique_directory}"*/)
+        if (( ${#matching[@]} == 1 )); then
+            return 0
         fi
-    fi
-    # Escape special chars
-    __lp_escape "$ret"
-    lp_shorten_path="$ret"
+    done
+
+    return 1
 }
 
-# Calculate PROMPT_DIRTRIM; the number of directories to keep at the end
-# of the displayed path (if "\w" is present in the PS1 var).
-__lp_set_dirtrim() {
-    local lp_pwd_tilde p
-    __lp_pwd_tilde
-    p="$lp_pwd_tilde"
-
-    local -i max_len="${COLUMNS:-80}*$LP_PATH_LENGTH/100"
-    local -i dt=0
-
-    if (( ${#p} > max_len )); then
-        local q="/${p##*/}"
-        local show="$q"
-        # +3 because of the ellipsis: "..."
-        while (( ${#show}+3 < max_len )); do
-            (( dt++ ))
-            p="${p%$q}"
-            q="/${p##*/}"
-            show="$q$show"
-        done
-        (( dt == 0 )) && dt=1
+__lp_end_path_left_shortening() {
+    if (( is_shortening )); then
+        shortened_path_length+=${#separator}
+        if (( shortened_path_length < unshortened_path_length )); then
+            lp_path_format+="${shortened_directory_format}${LP_MARK_SHORTEN_PATH}"
+            # This indescriminate adding of a separator can sometimes mean the path
+            # is slightly longer than it should be, but it is more clear.
+            lp_path_format+="${separator_format}${separator}"
+            lp_path+="${LP_MARK_SHORTEN_PATH}/"
+        else
+            lp_path+=$unshortened_path_shorten_string
+            lp_path_format+=$unshortened_path_format_shorten_string
+            shortened_path_length=$unshortened_path_length
+        fi
+        is_shortening=0
     fi
-    PROMPT_DIRTRIM=$dt
-    # For debugging
-    # echo PROMPT_DIRTRIM=$PROMPT_DIRTRIM >&2
+}
+
+# methods:
+#   truncate_chars_from_path_left
+#   truncate_chars_from_dir_middle
+#   truncate_chars_from_dir_right
+#   truncate_chars_to_unique_dir
+#   truncate_to_last_dir
+_lp_path_format() {
+    local path_format=${1-$LP_COLOR_PATH}
+    local last_directory_format=${2:-$path_format}
+    local vcs_root_format=${3:-$last_directory_format}
+    local shortened_directory_format=${4:-$path_format}
+    local separator=${5-"/"}
+    local separator_format=${6-}
+
+    lp_path=
+    lp_path_format=
+
+    local lp_pwd_tilde
+    __lp_pwd_tilde
+    local display_path=$lp_pwd_tilde
+
+    local -i path_length=${#display_path}
+
+    local lp_vcs_root lp_vcs_type
+    local vcs_root_directory=
+    if (( LP_PATH_VCS_ROOT )) && _lp_find_vcs; then
+        __lp_pwd_tilde "$lp_vcs_root"
+        vcs_root_directory=$lp_pwd_tilde
+    fi
+
+    if [[ $path_length == 1 || $LP_PATH_METHOD == "truncate_to_last_dir" ]]; then
+        if [[ $path_length > 1 ]]; then
+            lp_path=${display_path##*/}
+        else
+            # only root or home to show
+            lp_path=$display_path
+        fi
+
+        if [[ $display_path == $vcs_root_directory ]]; then
+            lp_path_format="${vcs_root_format}${lp_path}"
+        else
+            lp_path_format="${last_directory_format}${lp_path}"
+        fi
+        return
+    else
+        if [[ $separator != "/" && ${display_path:0:1} == "/" ]]; then
+            # The root directory ('/') becomes a directory name instead of a leading separator
+            # Add one to account for the first / needing to be both replaced and shown
+            path_length+=1
+        fi
+        if [[ ${#separator} > 1 ]]; then
+            # Add length to account for multichar separators
+            local slash_count="${display_path//[!\/]}"
+            path_length+=$(( ${#slash_count} * ( ${#separator} - 1 ) ))
+        fi
+    fi
+
+    local path_to_proccess="${display_path}/" current_path="" current_directory="" lp_unique_directory
+
+    local -i max_len=$(( ${COLUMNS:-80} * LP_PATH_LENGTH / 100 )) directory_count=0 needed_length
+    local -i shortened_path_length=$path_length is_shortening=0 unshortened_path_length
+    local unshortened_path_shorten_string unshortened_path_format_shorten_string shortened_path
+
+    while [[ -n $path_to_proccess ]]; do
+
+        if [[ ${path_to_proccess:0:1} == "/" ]]; then
+            # Start of root
+            current_directory="/"
+        else
+            current_directory=${path_to_proccess%%/*}
+            if [[ -n $current_path && $current_path != "/" ]]; then
+                current_path+="/"
+            fi
+        fi
+
+        directory_count+=1
+        current_path+=${current_directory}
+        path_to_proccess=${path_to_proccess#*/}
+
+        if [[ $current_path == $vcs_root_directory ]]; then
+            __lp_end_path_left_shortening
+            # No shortening
+            lp_path+=$current_directory
+            lp_path_format+="${vcs_root_format}${current_directory}"
+        elif [[ -z $path_to_proccess ]]; then
+            __lp_end_path_left_shortening
+            # Last directory
+            lp_path+=$current_directory
+            lp_path_format+="${last_directory_format}${current_directory}"
+        elif (( LP_ENABLE_SHORTEN_PATH && directory_count > LP_PATH_KEEP \
+            && ( shortened_path_length > max_len || ( shortened_path_length >= max_len && is_shortening ) ) )); then
+
+            if [[ $LP_PATH_METHOD == "truncate_chars_to_unique_dir" ]] && \
+                __lp_get_unique_directory "$current_path"; then
+
+                lp_path+=$lp_unique_directory
+                lp_path_format+="${shortened_directory_format}${lp_unique_directory}"
+                shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#lp_unique_directory} ))
+            elif [[ $LP_PATH_METHOD == "truncate_chars_from_path_left" ]]; then
+                # The only way to know if this consecutive directory shortening
+                # will actually shorten the path is to both do it and do not and
+                # compare at the end.
+
+                if (( ! is_shortening )); then
+                    unshortened_path_shorten_string=
+                    unshortened_path_format_shorten_string=
+                    unshortened_path_length=$shortened_path_length
+                    shortened_path_length+=${#LP_MARK_SHORTEN_PATH}
+                fi
+                needed_length=$(( shortened_path_length - max_len ))
+
+                unshortened_path_shorten_string+="${current_directory}/"
+                unshortened_path_format_shorten_string+="${path_format}${current_directory}${separator_format}${separator}"
+
+                if (( needed_length >= ${#current_directory} )); then
+                    # One directory was not enough, need to shorten more.
+                    # Shorten by current directory length plus separator.
+                    shortened_path_length=$(( shortened_path_length - ${#current_directory} - ${#separator} ))
+                    is_shortening=1
+                else
+                    # Do not need to check if the shortened version is actually shorter.
+                    # If we got to here, it wasn't a forced ending, which means it is.
+                    shortened_path_length=$(( shortened_path_length - needed_length ))
+
+                    shortened_path="${LP_MARK_SHORTEN_PATH}${current_directory:$needed_length}"
+                    lp_path+=$shortened_path
+                    lp_path_format+="${shortened_directory_format}${shortened_path}"
+
+                    is_shortening=0
+                fi
+            elif [[ $LP_PATH_METHOD == "truncate_chars_from_dir_right" ]] && \
+                (( ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP < ${#current_directory} )); then
+
+                shortened_path="${current_directory:0:$LP_PATH_CHARACTER_KEEP}${LP_MARK_SHORTEN_PATH}"
+                lp_path+=$shortened_path
+                lp_path_format+="${shortened_directory_format}${shortened_path}"
+                shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP ))
+            elif [[ $LP_PATH_METHOD == "truncate_chars_from_dir_middle" ]] && \
+                (( ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP * 2 < ${#current_directory} )); then
+
+                shortened_path="${current_directory:0:$LP_PATH_CHARACTER_KEEP}${LP_MARK_SHORTEN_PATH}${current_directory: -$LP_PATH_CHARACTER_KEEP}"
+                lp_path+=$shortened_path
+                lp_path_format+="${shortened_directory_format}${shortened_path}"
+                shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP * 2 ))
+            else
+                # Need to shorten, but no method matched, or the matched method
+                # did not make the string any shorter.
+                lp_path+=$current_directory
+                lp_path_format+="${path_format}${current_directory}"
+            fi
+        else
+            __lp_end_path_left_shortening
+            lp_path+=$current_directory
+            lp_path_format+="${path_format}${current_directory}"
+        fi
+
+        if [[ -n $path_to_proccess && ( $current_path != "/" || $separator != "/" ) ]] && (( ! is_shortening )); then
+            if [[ $current_path != "/" ]]; then
+                lp_path+="/"
+            fi
+            lp_path_format+="${separator_format}${separator}"
+        fi
+    done
 }
 
 ###############
@@ -965,6 +1110,12 @@ _lp_software_collections_color() {
     lp_software_collections_color="[${LP_COLOR_VIRTUALENV}${lp_software_collections}${NO_COL}]"
 }
 
+# Same as bash '\l', but can be inlined as a constant as the value will not
+# change during the shell's life.
+_lp_terminal_device() {
+    lp_terminal_device="$(basename -- "$(tty)" 2>/dev/null)"
+}
+
 # Determine what type of user we are
 _lp_user() {
     if (( EUID == 0 )); then
@@ -1089,7 +1240,9 @@ _lp_hostname_color() {
 _lp_dirstack() {
     (( LP_ENABLE_DIRSTACK )) || return 2
 
-    local count dir_stack=$(dirs -p; printf x)
+    local count dir_stack
+    dir_stack=$(dirs -p; printf x)
+
     __lp_line_count "${dir_stack%x}"
     lp_dirstack=$count
 
@@ -1123,6 +1276,7 @@ _lp_detached_sessions() {
 _lp_jobcount() {
     (( LP_ENABLE_JOBS )) || return 2
 
+    local jobs
     local -i count
     # Count running jobs
     # The $(...) syntax strips trailing newlines, so add a character to the end
@@ -1183,6 +1337,8 @@ _lp_find_vcs() {
         lp_vcs_root=
         return 2
     fi
+
+    local vcs
 
     lp_vcs_root="$PWD"
     while [[ -n "$lp_vcs_root" ]]; do
@@ -1263,7 +1419,7 @@ _lp_vcs_details_color() {
     fi
 
     local ret has_lines=
-    if _lp_vcs_uncommitted_lines; then
+    if _lp_vcs_uncommitted_files; then
         _lp_vcs_unstaged_lines; ret=$?
         # Only show unstaged changes if the VCS supports staging, otherwise
         # show uncommitted changes
@@ -1272,6 +1428,7 @@ _lp_vcs_details_color() {
         elif (( ret == 1 )); then
             has_lines="+0/-0"
         else
+            _lp_vcs_uncommitted_lines
             has_lines="+$lp_vcs_uncommitted_i_lines/-$lp_vcs_uncommitted_d_lines"
         fi
         lp_vcs_details_color="$LP_COLOR_CHANGES"
@@ -1369,6 +1526,16 @@ _lp_vcs_unstaged_files() {
 # Get the number of changed lines compared to staging.
 _lp_vcs_unstaged_lines() {
     "_lp_${lp_vcs_type}_unstaged_lines" 2>/dev/null
+}
+
+# Get the number of changed files in staging compared to the last or checked out commit.
+_lp_vcs_staged_files() {
+    "_lp_${lp_vcs_type}_staged_files" 2>/dev/null
+}
+
+# Get the number of changed lines in staging compared to the last or checked out commit.
+_lp_vcs_staged_lines() {
+    "_lp_${lp_vcs_type}_staged_lines" 2>/dev/null
 }
 
 # GIT #
@@ -1472,76 +1639,119 @@ _lp_git_untracked_files() {
     (( lp_vcs_untracked_files ))
 }
 
-# Get the number of changed files compared to HEAD.
-_lp_git_uncommitted_files() {
-    local stat
-    stat="$(LC_ALL=C \git diff --shortstat HEAD -- 2>/dev/null)"
+# Get the number of changed files.
+__lp_git_diff_shortstat_files() {  # diff_shortstat
+    local stat="$1"
 
     if [[ "$stat" = *changed* ]]; then
         stat="${stat/ file*}"
-        lp_vcs_uncommitted_files=${stat//[$' \t']}
+        lp_git_diff_shortstat_files=${stat//[$' \t']}
     else
         return 1
     fi
+}
+
+# Get the number of changed lines.
+__lp_git_diff_shortstat_lines() {  # diff_shortstat
+    local stat="$1"
+
+    stat=${stat/*changed, /} # removing "n file(s) changed"
+
+    if [[ "$stat" = *insertion* ]]; then
+        lp_git_diff_shortstat_i_lines=${stat/ inser*}
+    else
+        lp_git_diff_shortstat_i_lines=0
+    fi
+
+    if [[ "$stat" = *deletion* ]]; then
+        stat=${stat/*\(+\), }
+        lp_git_diff_shortstat_d_lines=${stat/ del*/}
+    else
+        lp_git_diff_shortstat_d_lines=0
+    fi
+
+    (( lp_git_diff_shortstat_i_lines || lp_git_diff_shortstat_d_lines ))
+}
+
+__lp_git_diff_shortstat_uncommitted() {
+    if [[ -z ${_lp_git_diff_shortstat_uncommitted-} ]]; then
+        _lp_git_diff_shortstat_uncommitted="$(LC_ALL=C \git diff --shortstat HEAD -- 2>/dev/null)"
+    fi
+}
+
+# Get the number of changed files compared to HEAD.
+_lp_git_uncommitted_files() {
+    __lp_git_diff_shortstat_uncommitted
+
+    local lp_git_diff_shortstat_files
+    __lp_git_diff_shortstat_files "$_lp_git_diff_shortstat_uncommitted" || return "$?"
+
+    lp_vcs_uncommitted_files=$lp_git_diff_shortstat_files
 }
 
 # Get the number of changed lines compared to HEAD.
 _lp_git_uncommitted_lines() {
-    local stat
-    stat="$(LC_ALL=C \git diff --shortstat HEAD -- 2>/dev/null)"
+    __lp_git_diff_shortstat_uncommitted
 
-    stat=${stat/*changed, /} # removing "n file(s) changed"
+    local lp_git_diff_shortstat_i_lines lp_git_diff_shortstat_d_lines
+    __lp_git_diff_shortstat_lines "$_lp_git_diff_shortstat_uncommitted" || return "$?"
 
-    if [[ "$stat" = *insertion* ]]; then
-        lp_vcs_uncommitted_i_lines=${stat/ inser*}
-    else
-        lp_vcs_uncommitted_i_lines=0
+    lp_vcs_uncommitted_i_lines=$lp_git_diff_shortstat_i_lines
+    lp_vcs_uncommitted_d_lines=$lp_git_diff_shortstat_d_lines
+}
+
+__lp_git_diff_shortstat_unstaged() {
+    if [[ -z ${_lp_git_diff_shortstat_unstaged-} ]]; then
+        _lp_git_diff_shortstat_unstaged="$(LC_ALL=C \git diff --shortstat 2>/dev/null)"
     fi
-
-    if [[ "$stat" = *deletion* ]]; then
-        stat=${stat/*\(+\), }
-        lp_vcs_uncommitted_d_lines=${stat/ del*/}
-    else
-        lp_vcs_uncommitted_d_lines=0
-    fi
-
-    (( lp_vcs_uncommitted_i_lines || lp_vcs_uncommitted_d_lines ))
 }
 
 # Get the number of changed files compared to staging.
 _lp_git_unstaged_files() {
-    local stat
-    stat="$(LC_ALL=C \git diff --shortstat 2>/dev/null)"
+    __lp_git_diff_shortstat_unstaged
 
-    if [[ "$stat" = *changed* ]]; then
-        stat="${stat/ file*}"
-        lp_vcs_unstaged_files=${stat//[$' \t']}
-    else
-        return 1
-    fi
+    local lp_git_diff_shortstat_files
+    __lp_git_diff_shortstat_files "$_lp_git_diff_shortstat_unstaged" || return "$?"
+
+    lp_vcs_unstaged_files=$lp_git_diff_shortstat_files
 }
 
 # Get the number of changed lines compared to staging.
 _lp_git_unstaged_lines() {
-    local stat
-    stat="$(LC_ALL=C \git diff --shortstat 2>/dev/null)"
+    __lp_git_diff_shortstat_unstaged
 
-    stat=${stat/*changed, /} # removing "n file(s) changed"
+    local lp_git_diff_shortstat_i_lines lp_git_diff_shortstat_d_lines
+    __lp_git_diff_shortstat_lines "$_lp_git_diff_shortstat_unstaged" || return "$?"
 
-    if [[ "$stat" = *insertion* ]]; then
-        lp_vcs_unstaged_i_lines=${stat/ inser*}
-    else
-        lp_vcs_unstaged_i_lines=0
+    lp_vcs_unstaged_i_lines=$lp_git_diff_shortstat_i_lines
+    lp_vcs_unstaged_d_lines=$lp_git_diff_shortstat_d_lines
+}
+
+__lp_git_diff_shortstat_staged() {
+    if [[ -z ${_lp_git_diff_shortstat_staged-} ]]; then
+        _lp_git_diff_shortstat_staged="$(LC_ALL=C \git diff --shortstat --cached 2>/dev/null)"
     fi
+}
 
-    if [[ "$stat" = *deletion* ]]; then
-        stat=${stat/*\(+\), }
-        lp_vcs_unstaged_d_lines=${stat/ del*/}
-    else
-        lp_vcs_unstaged_d_lines=0
-    fi
+# Get the number of changed files in staging compared to HEAD.
+_lp_git_staged_files() {
+    __lp_git_diff_shortstat_staged
 
-    (( lp_vcs_unstaged_i_lines || lp_vcs_unstaged_d_lines ))
+    local lp_git_diff_shortstat_files
+    __lp_git_diff_shortstat_files "$_lp_git_diff_shortstat_staged" || return "$?"
+
+    lp_vcs_staged_files=$lp_git_diff_shortstat_files
+}
+
+# Get the number of changed lines in staging compared to HEAD.
+_lp_git_staged_lines() {
+    __lp_git_diff_shortstat_staged
+
+    local lp_git_diff_shortstat_i_lines lp_git_diff_shortstat_d_lines
+    __lp_git_diff_shortstat_lines "$_lp_git_diff_shortstat_staged" || return "$?"
+
+    lp_vcs_staged_i_lines=$lp_git_diff_shortstat_i_lines
+    lp_vcs_staged_d_lines=$lp_git_diff_shortstat_d_lines
 }
 
 # MERCURIAL #
@@ -1867,7 +2077,7 @@ _lp_bzr_commit_id() {
 _lp_bzr_stash_count() {
     local shelves count
     shelves="$(\bzr shelve --list 2>/dev/null)"
-    local -i ret=$?
+    local -i ret="$?"
 
     if (( ret == 0 )); then
         # No error code means no shelves.
@@ -1987,10 +2197,8 @@ esac
 _lp_battery_color() {
     (( LP_ENABLE_BATT )) || return 2
 
-    local mark=$LP_MARK_BATTERY
-    local chargingmark=$LP_MARK_ADAPTER
     _lp_battery
-    local -i _status=$?
+    local -i _status="$?"
 
     if (( _status >= 4 || lp_battery == 100 )); then
         # no battery support or battery full: nothing displayed
@@ -1998,18 +2206,18 @@ _lp_battery_color() {
     elif (( _status == 3 && lp_battery != 100 )); then
         # charging and above threshold and not 100%
         # green ⏚
-        lp_battery_color="${LP_COLOR_CHARGING_ABOVE}$chargingmark${NO_COL}"
+        lp_battery_color="${LP_COLOR_CHARGING_ABOVE}${LP_MARK_ADAPTER}${NO_COL}"
     elif (( _status == 2 )); then
         # charging but under threshold
         # yellow ⏚
-        lp_battery_color="${LP_COLOR_CHARGING_UNDER}$chargingmark${NO_COL}"
+        lp_battery_color="${LP_COLOR_CHARGING_UNDER}${LP_MARK_ADAPTER}${NO_COL}"
     elif (( _status == 1 )); then
         # discharging but above threshold
         # yellow ⌁
-        lp_battery_color="${LP_COLOR_DISCHARGING_ABOVE}$mark${NO_COL}"
+        lp_battery_color="${LP_COLOR_DISCHARGING_ABOVE}${LP_MARK_BATTERY}${NO_COL}"
     # discharging and under threshold
     else
-        lp_battery_color="${LP_COLOR_DISCHARGING_UNDER}${mark}${NO_COL}"
+        lp_battery_color="${LP_COLOR_DISCHARGING_UNDER}${LP_MARK_BATTERY}${NO_COL}"
 
         if (( LP_PERCENTS_ALWAYS )); then
             local -i idx
@@ -2189,7 +2397,7 @@ __lp_temp_acpi() {
     local IFS=$' \t\n'
     # Only the integer part is retained
     for i in $(LC_ALL=C \acpi -t |
-            sed 's/.* \(-\?[0-9]*\)\.[0-9]* degrees C$/\1/p'); do
+            sed -n 's/.* \(-\{0,1\}[0-9]*\)\.[0-9]* degrees C$/\1/p'); do
         (( $i > ${lp_temperature:-0} )) && lp_temperature=$i
     done
 }
@@ -2335,7 +2543,7 @@ _lp_default_theme_activate() {
     LP_PERM=${LP_MARK_PERM}   # without color
 
     _lp_user
-    local -i user_type=$?
+    local -i user_type="$?"
 
     if (( user_type < 2 )); then  # if user is not root
         if (( LP_ENABLE_SUDO )); then
@@ -2367,9 +2575,8 @@ _lp_default_theme_activate() {
         LP_BRACKET_CLOSE="${LP_MARK_BRACKET_CLOSE}"
     fi
 
-    # Same as bash '\l', but inlined as a constant as the value will not change
-    # during the shell's life
-    LP_TTYN="$(basename -- "$(tty)" 2>/dev/null)"
+    _lp_terminal_device
+    LP_TTYN=$lp_terminal_device
 
     if _lp_time_color; then
         LP_TIME="${lp_time_color} "
@@ -2391,10 +2598,13 @@ _lp_default_theme_directory() {
         fi
     fi
 
-    LP_PWD="${LP_COLOR_PATH}${lp_path}${NO_COL}"
+    local lp_path lp_path_format
+    _lp_path_format "$LP_COLOR_PATH" "$LP_COLOR_PATH_LAST_DIR" "$LP_COLOR_PATH_VCS_ROOT" "$LP_COLOR_PATH_SHORTENED" "/" "$LP_COLOR_PATH_SEPARATOR"
+
+    LP_PWD="${lp_path_format}${NO_COL}"
 }
 
-_lp_default_theme_prompt() {
+_lp_default_theme_prompt_data() {
     # left of main prompt: space at right
     if _lp_jobcount_color; then
         LP_JOBS="$lp_jobcount_color "
@@ -2470,7 +2680,9 @@ _lp_default_theme_prompt() {
 
     _lp_smart_mark
     LP_MARK="${lp_smart_mark}${NO_COL} "
+}
 
+_lp_default_theme_prompt_template() {
     if [[ -f "${LP_PS1_FILE-}" ]]; then
         source "$LP_PS1_FILE"
     fi
@@ -2503,6 +2715,11 @@ _lp_default_theme_prompt() {
     fi
 }
 
+_lp_default_theme_prompt() {
+    _lp_default_theme_prompt_data
+    _lp_default_theme_prompt_template
+}
+
 ########################
 # Construct the prompt #
 ########################
@@ -2510,7 +2727,7 @@ _lp_default_theme_prompt() {
 __lp_set_prompt() {
     # Display the return value of the last command, if different from zero
     # As this get the last returned code, it should be called first
-    local -i lp_error=$?
+    local -i lp_error="$?"
 
     #TODO: unused?
     local GREP_OPTIONS=
@@ -2522,12 +2739,13 @@ __lp_set_prompt() {
         printf '%s' "$_LP_TI_BELL"
     fi
 
+    # Localize cache data variables
+    local _lp_git_diff_shortstat_uncommitted _lp_git_diff_shortstat_unstaged _lp_git_diff_shortstat_staged
+
     # if change of working directory
     if [[ "${LP_OLD_PWD-}" != "LP:$PWD" ]]; then
         # Update directory icon for MacOS X
         "$_LP_TERM_UPDATE_DIR"
-
-        __lp_path
 
         "$_LP_THEME_DIRECTORY_FUNCTION"
 
@@ -2644,7 +2862,7 @@ prompt_OFF() {
 }
 
 lp_theme() {
-    local theme=${1-}
+    local theme="${1-}"
 
     if [[ $theme == '--list' ]]; then
         local -a lp_theme_list

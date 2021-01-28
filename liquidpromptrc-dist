@@ -47,7 +47,7 @@ LP_PATH_LENGTH=35
 # The number of directories (including '/') to keep at the beginning of a
 # shortened path.
 # Recommended value is 2
-LP_PATH_KEEP=-1
+LP_PATH_METHOD='truncate_to_last_dir'
 
 # Determine if the hostname should always be displayed, even if not connecting
 # through network.
@@ -103,7 +103,7 @@ LP_ENABLE_BATT=0
 LP_ENABLE_SUDO=1
 
 # Enable the directory stack support.
-LP_ENABLE_DIRSTACK=1
+LP_ENABLE_DIRSTACK=0
 
 # Enable the VCS features with the root account.
 # Recommended value is 0
