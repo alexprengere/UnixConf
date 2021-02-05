@@ -34,6 +34,7 @@ Plug 'derekwyatt/vim-scala'
 Plug 'rust-lang/rust.vim'
 Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
+Plug 'cespare/vim-toml'
 
 Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
 call plug#end()
