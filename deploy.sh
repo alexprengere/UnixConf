@@ -27,6 +27,7 @@ SPECIALS=(
       [subversion_config]="$HOME/.subversion/config"
              [ssh_config]="$HOME/.ssh/config"
     [liquidpromptrc-dist]="$HOME/.liquidpromptrc"
+               [pip.conf]="$HOME/.pip/pip.conf"
               [fstab.ssd]="/etc/fstab"
                   [fstab]="/etc/fstab"
 )
