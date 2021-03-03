@@ -5,8 +5,8 @@ Basic packages installation
 ---------------------------
 * Install basic packages on Debian/Ubuntu:
 ```bash
-sudo apt-get update
-sudo apt-get install              \
+sudo apt update
+sudo apt install                  \
     nfs-common                    \
     openssh-server                \
     wget curl                     \
@@ -27,7 +27,7 @@ sudo apt-get install              \
     python-dev                    \
     libffi-dev
 ```
-* Install basic packages on Fedora (use ``dnf`` for recent versions):
+* Install basic packages on Fedora/CentOS:
 ```bash
 sudo dnf -y install epel-release
 sudo dnf update
