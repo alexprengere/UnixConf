@@ -149,6 +149,9 @@ Miscellaneous
 # Change default shell to zsh
 chsh -s /bin/zsh
 
+# Fix permissions
+chmod 600 ~/.ssh/config
+
 # Generate your ssh keys
 ssh-keygen -t rsa -b 2048
 ```
