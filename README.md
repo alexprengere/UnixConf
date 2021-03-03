@@ -18,39 +18,21 @@ sudo apt-get install              \
     dkms                          \
     git subversion cvs            \
     imagemagick                   \
-    python-setuptools             \
     ipython                       \
-    python-numpy python-scipy     \
-    python-matplotlib             \
     ruby                          \
     npm                           \
-    r-base                        \
-    mongodb                       \
-    memcached redis-server        \
-    tokyocabinet-bin              \
     exuberant-ctags               \
     silversearcher-ag             \
     gparted                       \
     python-dev                    \
-    libffi-dev                    \
-    libxml2-dev                   \
-    libxslt1-dev                  \
-    libyaml libyaml-dev           \
-    libtokyocabinet-dev           \
-    cairo-dev                     \
-    openssl-dev                   \
-    libcurl-dev                   \
-    libXt-dev                     \
-    readline-dev                  \
-    gtk2-dev                      \
-    ggobi-dev                     \
-    bzip2-dev                     \
-    tk-dev
+    libffi-dev
 ```
 * Install basic packages on Fedora (use ``dnf`` for recent versions):
 ```bash
-sudo dnf check-update
+sudo dnf -y install epel-release
+sudo dnf update
 sudo dnf install                  \
+    passwd sudo                   \
     openssh-server                \
     wget curl                     \
     vim screen zsh htop colordiff \
@@ -61,36 +43,14 @@ sudo dnf install                  \
     dkms                          \
     git subversion cvs            \
     ImageMagick                   \
-    python-setuptools             \
     ipython                       \
-    numpy scipy                   \
-    python-matplotlib             \
     ruby-irb                      \
     npm                           \
-    R                             \
-    mongodb                       \
-    memcached redis               \
-    tokyocabinet                  \
     ctags                         \
-    jsl                           \
     the_silver_searcher           \
     gparted                       \
-    python-devel                  \
-    libffi-devel                  \
-    libxml2-devel                 \
-    libxslt-devel                 \
-    libyaml libyaml-devel         \
-    tokyocabinet-devel            \
-    cairo-devel                   \
-    openssl-devel                 \
-    libcurl-devel                 \
-    libXt-devel                   \
-    readline-devel                \
-    gtk2-devel                    \
-    ggobi-devel                   \
-    bzip2-devel                   \
-    tk-devel                      \
-    lapack-devel
+    python3 python3-devel         \
+    libffi-devel
 ```
 * Install Python packages:
 ```bash
