@@ -49,8 +49,8 @@ sudo apt-get install              \
 ```
 * Install basic packages on Fedora (use ``dnf`` for recent versions):
 ```bash
-sudo yum check-update
-sudo yum install                  \
+sudo dnf check-update
+sudo dnf install                  \
     openssh-server                \
     wget curl                     \
     vim screen zsh htop colordiff \
