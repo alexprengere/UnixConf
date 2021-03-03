@@ -14,8 +14,6 @@ Plug 'ambv/black'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
-Plug 'garbas/vim-snipmate'
-Plug 'honza/vim-snippets'
 
 Plug 'bling/vim-airline'
 Plug 'jwhitley/vim-matchit'
@@ -36,7 +34,8 @@ Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
 Plug 'cespare/vim-toml'
 
-Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
+Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py', 'commit':'d98f896' }
+
 call plug#end()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
