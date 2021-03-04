@@ -50,7 +50,17 @@ sudo dnf install                  \
     the_silver_searcher           \
     gparted                       \
     python3 python3-devel         \
-    libffi-devel
+    libffi-devel                  \
+    zlib-devel                    \
+    bzip2-devel                   \
+    xz-devel                      \
+    openssl-devel                 \
+    ncurses-devel                 \
+    sqlite-devel                  \
+    readline-devel                \
+    tk-devel                      \
+    gdbm-devel                    \
+    expat-devel
 ```
 * Install Python packages:
 ```bash
