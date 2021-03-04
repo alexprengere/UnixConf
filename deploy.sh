@@ -17,6 +17,8 @@ SKIPPED=(
     "gitignore"
     "fstab.ssd"
     "fstab"
+    "wsl.conf"
+    "WindowsTerminal.json"
 )
 
 # Special targets, default is $HOME/.$SOURCE
