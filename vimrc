@@ -58,6 +58,7 @@ set showfulltag                 "Get function usage help automatically
 set cursorline                 "Active une barre horizontale pour indiquer le curseur
 "set cursorcolumn               "Active une barre verticale
 "set visualbell                 "Use visual bell instead of beeping
+set belloff=all
 
 set ttyfast                     "Améliore le rendu
 set background=dark             "Couleurs claires pour fond de terminal foncé, change le theme
@@ -279,4 +280,3 @@ hi PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=yellow     guifg=blac
 hi SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
 "hi Todo         term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
 hi Error        term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
-
