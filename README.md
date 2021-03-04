@@ -1,9 +1,11 @@
 Environment setup
 =================
 
-Basic packages installation
----------------------------
-* Install basic packages on Debian/Ubuntu:
+System packages
+---------------
+
+* Install packages on Debian/Ubuntu:
+
 ```bash
 sudo apt update
 sudo apt install                  \
@@ -27,7 +29,9 @@ sudo apt install                  \
     python-dev                    \
     libffi-dev
 ```
-* Install basic packages on Fedora/CentOS:
+
+* Install packages on Fedora/CentOS:
+
 ```bash
 sudo dnf -y install epel-release
 sudo dnf update
@@ -62,7 +66,9 @@ sudo dnf install                  \
     gdbm-devel                    \
     expat-devel
 ```
+
 * Install Python packages:
+
 ```bash
 python3 -m pip install --user pipx
 pipx install virtualenv
@@ -71,38 +77,26 @@ pipx install black
 pipx install pylint
 pipx install flake8
 ```
-* Install node packages:
+* Install Node packages:
+
 ```bash
 sudo npm install -g coffeelint grunt-cli diff-so-fancy
 ```
 
 Deploy the configuration files
 ------------------------------
+
 ```bash
 git clone https://github.com/alexprengere/UnixConf.git
 cd UnixConf
-./deploy.sh -f
-  SOURCE                TARGET                 
-✓ agignore              ~/.agignore            exists (same)
-✓ bashrc                ~/.bashrc              exists (same)
-✓ colordiffrc           ~/.colordiffrc         exists (same)
-✓ conkyrc               ~/.conkyrc             exists (same)
-✓ gitconfig             ~/.gitconfig           exists (same)
-✓ jsl.conf              ~/.jsl.conf            exists (same)
-✓ liquidprompt          ~/.liquidprompt        copied (overriding)
-✓ liquidpromptrc-dist   ~/.liquidpromptrc      copied (overriding)
-✓ liquid.ps1            ~/.liquid.ps1          copied (overriding)
-✓ liquid.theme          ~/.liquid.theme        exists (same)
-✓ pylintrc              ~/.pylintrc            exists (same)
-✓ ssh_config            ~/.ssh/config          exists (same)
-✓ subversion_config     ~/.subversion/config   exists (same)
-✓ vimrc                 ~/.vimrc               exists (same)
-✓ zshrc                 ~/.zshrc               copied (overriding)
+./deploy.sh
 ```
 
 Generate vim directory
 ----------------------
+
 After the `vimrc` deployment, generate the `vim` directory with:
+
 ```bash
 rm -rf ~/.vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -113,8 +107,16 @@ Some vim plugins (*Syntastic*, *vim-ag*) use external tools. These tools need to
 * `jsl` with `~/.jsl.conf`
 * `Ag` with `~/.agignore`
 
+Rust
+----
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
 Miscellaneous
 -------------
+
 ```bash
 # Change default shell to zsh
 chsh -s /bin/zsh
@@ -141,6 +143,10 @@ If running with WSL, this can help get network access:
 Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -InterfaceMetric 1
 Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
 ```
+
 Also you should edit your `/etc/wsl.conf` to set the default user and disallow the overriding of `/etc/resolv.conf`.
 
-Finally, you can edit the Windows Terminal settings in `/mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json` add configure things.
+Finally, you can edit the Windows Terminal settings and add things from `WindowsTerminal.json`:
+```
+/mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+```
