@@ -54,6 +54,8 @@ sudo dnf install                  \
     the_silver_searcher           \
     gparted                       \
     python3 python3-devel         \
+    libxslt-devel libxslt         \
+    libxml2-devel libxml2         \
     libffi-devel                  \
     zlib-devel                    \
     bzip2-devel                   \
