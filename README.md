@@ -109,10 +109,22 @@ Miscellaneous
 # Change default shell to zsh
 chsh -s /bin/zsh
 
-# Fix permissions
+# Fix permissions that may be wrong after copying ssh_config
 chmod 600 ~/.ssh/config
 
 # Generate your ssh keys
 ssh-keygen -t rsa -b 2048
+
+# Fix sticky bits
+sudo dnf reinstall shadow-utils
+
+# Enable ping for non-root users
+sudo dnf install procps-ng iputils
+sudo sysctl -w net.ipv4.ping_group_range="0 2000"
 ```
 
+If running with WSL, this can help get network access:
+```
+Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -InterfaceMetric 1
+Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
+```
