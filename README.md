@@ -123,8 +123,14 @@ sudo dnf install procps-ng iputils
 sudo sysctl -w net.ipv4.ping_group_range="0 2000"
 ```
 
+WSL2
+----
+
 If running with WSL, this can help get network access:
 ```
 Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -InterfaceMetric 1
 Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
 ```
+Also you should edit your `/etc/wsl.conf` to set the default user and disallow the overriding of `/etc/resolv.conf`.
+
+Finally, you can edit the Windows Terminal settings in `/mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json` add configure things.
