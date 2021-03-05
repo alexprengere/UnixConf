@@ -48,6 +48,8 @@ Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -Inter
 Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
 ```
 
+Also make sure the VPN DNS servers are in your `resolv.conf`.
+
 Finally, you can edit the Windows Terminal settings and add things from `WindowsTerminal.json`:
 
 ```
@@ -86,7 +88,7 @@ sudo apt install                  \
 * Install packages on Fedora/CentOS:
 
 ```bash
-sudo dnf -y install epel-release
+sudo dnf -y install epel-release  # CentOS only
 sudo dnf update
 sudo dnf install                  \
     passwd sudo                   \
