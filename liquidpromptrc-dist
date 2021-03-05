@@ -119,7 +119,7 @@ LP_ENABLE_SVN=0
 
 # Enable the Mercurial special features.
 # Recommended value is 1
-LP_ENABLE_HG=0
+LP_ENABLE_HG=1
 
 # Enable the Fossil special features.
 # Recommended value is 1
