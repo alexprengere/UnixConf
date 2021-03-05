@@ -25,9 +25,9 @@
     logg = log --graph --decorate --pretty=format:'%C(yellow)%h %C(bold green)(%cr)%Creset %s %C(bold blue)<%an>%C(red)%d' --abbrev-commit --all
 [core]
     editor = vim
-    pager = diff-so-fancy | less --tabs=4 -RFX
+    pager = diff-so-fancy | less --quiet --tabs=4 -RFX
 #[interactive]
-#    diffFilter = diff-so-fancy | less --tabs=4 -RFX
+#    diffFilter = diff-so-fancy | less --quiet --tabs=4 -RFX
 [diff]
     compactionHeuristic = true
 [diff "zip"]
@@ -38,3 +38,5 @@
     textconv = zcat
 [diff "tbz"]
     textconv = bzcat
+[pull]
+	rebase = true
