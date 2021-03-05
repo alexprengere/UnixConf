@@ -1,6 +1,59 @@
 Environment setup
 =================
 
+WSL2
+----
+
+After installing WSL2, you can import/export a rootfs:
+
+```
+wsl --import CentOS C:\WSL\CentOS C:\WSL\CentOS.tar
+wsl --export CentOS C:\WSL\CentOS-new.tar
+```
+
+Connect with:
+
+```
+wsl -d CentOS
+```
+
+You should edit your `/etc/wsl.conf` to disallow the overriding of `/etc/resolv.conf`.
+
+```bash
+echo -e "[network]\ngenerateResolvConf = false" > /etc/wsl.conf
+```
+
+Create a non-root user:
+
+```bash
+dnf install -y passwd cracklib-dicts
+useradd -G wheel username
+passwd username
+
+# Logout + login as <username> with: wsl -u username
+# Default user is configurable in /etc/wsl.conf
+
+# Fix sticky bits
+sudo dnf reinstall shadow-utils
+
+# Enable ping for non-root users
+sudo dnf install procps-ng iputils
+sudo sysctl -w net.ipv4.ping_group_range="0 2000"
+```
+
+When working with a VPN, this can help get network access after connecting:
+
+```
+Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -InterfaceMetric 1
+Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
+```
+
+Finally, you can edit the Windows Terminal settings and add things from `WindowsTerminal.json`:
+
+```
+/mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+```
+
 System packages
 ---------------
 
@@ -128,27 +181,4 @@ chmod 600 ~/.ssh/config
 
 # Generate your ssh keys
 ssh-keygen -t rsa -b 2048
-
-# Fix sticky bits
-sudo dnf reinstall shadow-utils
-
-# Enable ping for non-root users
-sudo dnf install procps-ng iputils
-sudo sysctl -w net.ipv4.ping_group_range="0 2000"
-```
-
-WSL2
-----
-
-If running with WSL, this can help get network access:
-```
-Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -InterfaceMetric 1
-Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
-```
-
-Also you should edit your `/etc/wsl.conf` to set the default user and disallow the overriding of `/etc/resolv.conf`.
-
-Finally, you can edit the Windows Terminal settings and add things from `WindowsTerminal.json`:
-```
-/mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
 ```
