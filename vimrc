@@ -60,6 +60,9 @@ set cursorline                 "Active une barre horizontale pour indiquer le cu
 "set visualbell                 "Use visual bell instead of beeping
 set belloff=all
 
+" For WSL2
+set ttymouse=sgr
+
 set ttyfast                     "Améliore le rendu
 set background=dark             "Couleurs claires pour fond de terminal foncé, change le theme
 colorscheme koehler             "Colorscheme qui roxx
