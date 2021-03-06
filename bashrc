@@ -115,5 +115,8 @@ shopt -s cdspell
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
+# WSL startingDirectory not really working so far, so we force it
+cd ~
+
 # Aliases and liquid prompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
