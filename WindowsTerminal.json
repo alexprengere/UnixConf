@@ -2,12 +2,12 @@
     "copyOnSelect": true,
     "copyFormatting": false,
     "multiLinePasteWarning": false,
-	"wordDelimiters": "()':,;<>~!@#$%^&*|+=[]{}~?",
+    "wordDelimiters": "()':,;<>~!@#$%^&*|+=[]{}~?",
 
     "profiles": {
         "defaults": {
             "cursorShape" : "filledBox",
-			"fontFace" : "Consolas",
+            "fontFace" : "Consolas",
         },
     },
 
