@@ -1,11 +1,13 @@
 {
     "copyOnSelect": true,
-    "multiLinePasteWarning": false,
     "copyFormatting": false,
+    "multiLinePasteWarning": false,
+	"wordDelimiters": "()':,;<>~!@#$%^&*|+=[]{}~?",
 
     "profiles": {
         "defaults": {
-            "cursorShape" : "filledBox"
+            "cursorShape" : "filledBox",
+			"fontFace" : "Consolas",
         },
     },
 

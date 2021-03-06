@@ -56,6 +56,8 @@ Finally, you can edit the Windows Terminal settings and add things from `Windows
 /mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
 ```
 
+To feel like Linux in your WSL, you will probably need to update your keyboard layout from "US International" to "US", avoid avoid having to double press quotes for them to appear.
+
 System packages
 ---------------
 
