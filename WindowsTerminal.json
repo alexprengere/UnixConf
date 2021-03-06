@@ -1,24 +1,36 @@
 {
     "copyOnSelect": true,
     "multiLinePasteWarning": false,
+    "copyFormatting": false,
+
+    "profiles": {
+        "defaults": {
+            "cursorShape" : "filledBox"
+        },
+    },
 
     "actions":
     [
         { "command": {"action": "copy", "singleLine": false }, "keys": "ctrl+c" },
         { "command": "paste", "keys": "ctrl+v" },
 
-        // closeTab is not necessary, use closePane instead
-        { "command": "newTab", "keys": "ctrl+shift+n" },
-        { "command": "duplicateTab", "keys": "ctrl+shift+t" },
-        { "command": "nextTab", "keys": "ctrl+pagedown" },
-        { "command": "prevTab", "keys": "ctrl+pageup" },
+        // Press Ctrl+Shift+F to open the search box
+        { "command": "find", "keys": "ctrl+shift+f" },
 
         // Visual Adjustments
         { "command": { "action": "adjustFontSize", "delta": 1 }, "keys": "ctrl+shift+=" },
         { "command": { "action": "adjustFontSize", "delta": -1 }, "keys": "ctrl+-" },
         { "command": "resetFontSize", "keys": "ctrl+0" },
 
+        // Tabs
+        // closeTab is not bound, use closePane to close pane+tabs
+        { "command": "newTab", "keys": "ctrl+shift+n" },
+        { "command": "duplicateTab", "keys": "ctrl+shift+t" },
+        { "command": "nextTab", "keys": "ctrl+pagedown" },
+        { "command": "prevTab", "keys": "ctrl+pageup" },
+
         // Panes
+        { "command": { "action": "closePane" }, "keys": "ctrl+shift+d" },
         { "command": { "action": "splitPane", "split": "auto", "splitMode": "duplicate" }, "keys": "ctrl+shift+|" },
         { "command": { "action": "splitPane", "split": "vertical", "splitMode": "duplicate" }, "keys": "alt+shift+plus" },
         { "command": { "action": "splitPane", "split": "horizontal", "splitMode": "duplicate" }, "keys": "alt+shift+-" },
