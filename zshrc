@@ -392,7 +392,9 @@ ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bold,bg=red')
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # WSL startingDirectory not really working so far, so we force it
-cd ~
+if [[ $(uname -r) =~ WSL && $(pwd) =~ /mnt/ ]]; then
+    cd ~
+fi
 
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
