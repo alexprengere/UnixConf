@@ -129,7 +129,7 @@ sudo dnf install                  \
 * Install Python packages:
 
 ```bash
-python3 -m pip install --user pipx
+python3 -m pip install --user wheel pipx
 pipx install virtualenv
 pipx install tox
 pipx install black
