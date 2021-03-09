@@ -1,10 +1,15 @@
 [user]
     name = Alex
     email = alexprengere@gmail.com
-[push]
-    default = current
+    signingkey = BA48F942CE10968A
 [credential]
     helper = cache --timeout=36000
+[commit]
+    gpgsign = true
+[push]
+    default = current
+[pull]
+    rebase = true
 [color]
     diff = auto
     status = auto
@@ -38,5 +43,3 @@
     textconv = zcat
 [diff "tbz"]
     textconv = bzcat
-[pull]
-	rebase = true
