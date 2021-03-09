@@ -77,9 +77,8 @@ set ignorecase                  "Ignore la casse lors de la recherche
 set smartcase                   "Sauf si la recherche est cassée
 "set gdefault                   "Add /g when using %s
 
-set shiftwidth=4                "Tabs should be converted to a group of 8 spaces.
-set tabstop=4                   "Avec << et >>
-set softtabstop=4               "Causes backspace to delete 8 spaces=converted <TAB>
+set shiftwidth=4                "Tabs should be converted to a group of 4 spaces.
+set softtabstop=4               "Causes backspace to delete 4 spaces=converted <TAB>
 set expandtab                   "Replaces a <TAB> with spaces
 set smarttab                    "Uses shiftwidth instead of tabstop at start of lines
 
