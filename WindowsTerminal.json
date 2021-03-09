@@ -6,12 +6,37 @@
 
     "profiles": {
         "defaults": {
+            "colorScheme": "Tango",
             "cursorShape" : "filledBox",
             "fontFace" : "Consolas",
             "fontSize" : 11,
             "padding": "1, 1, 1, 1",
         },
     },
+
+    "schemes": [{
+        "name" : "Tango",
+        "cursorColor" : "#3465a4",
+        "selectionBackground": "#FFFFFF",
+        "background" : "#0C0C0C",
+        "foreground" : "#eeeeec",
+        "black" : "#0C0C0C",
+        "blue" : "#204a87",
+        "cyan" : "#008b8b",
+        "green" : "#4e9a06",
+        "purple" : "#75507b",
+        "red" : "#cc0000",
+        "white" : "#eeeeec",
+        "yellow" : "#c4a000",
+        "brightBlack" : "#767676",
+        "brightBlue" : "#3465a4",
+        "brightCyan" : "#00ffff",
+        "brightGreen" : "#73d216",
+        "brightPurple" : "#ad7fa8",
+        "brightRed" : "#ef2929",
+        "brightWhite" : "#eeeeec",
+        "brightYellow" : "#fce94f",
+    }],
 
     "actions":
     [
