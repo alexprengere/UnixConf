@@ -107,6 +107,9 @@ export PATH=/usr/local/heroku/bin:$PATH
 
 # MISC
 #
+# GPG signing
+export GPG_TTY=$(tty)
+
 # Git pushes
 unset SSH_ASKPASS
 

@@ -378,11 +378,11 @@ export PATH=/usr/local/heroku/bin:$PATH
 
 # MISC
 #
+# GPG signing
+export GPG_TTY=$(tty)
+
 # Git pushes
 unset SSH_ASKPASS
-
-# For GeoBase CLI
-export BACKGROUND_COLOR=black
 
 # Fish like syntax highlighting
 source "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
