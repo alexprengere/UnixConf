@@ -1,8 +1,6 @@
-Environment setup
-=================
+# Environment setup
 
-WSL2
-----
+## WSL2
 
 After installing WSL2, you can import/export a rootfs:
 
@@ -41,16 +39,19 @@ sudo dnf install procps-ng iputils
 sudo sysctl -w net.ipv4.ping_group_range="0 2000"
 ```
 
-When working with a VPN, this can help get network access after connecting:
+### Working with a VPN
+
+* make sure the VPN DNS servers are in your `resolv.conf`, and that `resolv.conf` does not get overriden
+* this can help get network access, after each VPN connection:
 
 ```
 Get-NetIPInterface -InterfaceAlias "vEthernet (WSL)" | Set-NetIPInterface -InterfaceMetric 1
 Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "Cisco AnyConnect"} | Set-NetIPInterface -InterfaceMetric 6000
 ```
 
-Also make sure the VPN DNS servers are in your `resolv.conf`.
+### Windows Terminal config
 
-Finally, you can edit the Windows Terminal settings and add things from `WindowsTerminal.json`:
+You can edit the Windows Terminal settings and add things from `WindowsTerminal.json`:
 
 ```
 /mnt/c/Users/<USER>/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
@@ -58,8 +59,11 @@ Finally, you can edit the Windows Terminal settings and add things from `Windows
 
 To feel like Linux in your WSL, you will probably need to update your keyboard layout from "US International" to "US", avoid avoid having to double press quotes for them to appear.
 
-System packages
----------------
+### Docker
+
+Things relying on systemd will typically not work, for example Docker needs to be installed on Windows, with WSL2 integration.
+
+## System packages
 
 * Install packages on Debian/Ubuntu:
 
@@ -142,8 +146,7 @@ pipx install flake8
 sudo npm install -g coffeelint grunt-cli diff-so-fancy
 ```
 
-Deploy the configuration files
-------------------------------
+## Deploy the configuration files
 
 ```bash
 git clone https://github.com/alexprengere/UnixConf.git
@@ -151,8 +154,7 @@ cd UnixConf
 ./deploy.sh
 ```
 
-Generate vim directory
-----------------------
+## Generate vim directory
 
 After the `vimrc` deployment, generate the `vim` directory with:
 
@@ -166,15 +168,7 @@ Some vim plugins (*Syntastic*, *vim-ag*) use external tools. These tools need to
 * `jsl` with `~/.jsl.conf`
 * `Ag` with `~/.agignore`
 
-Rust
-----
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-Miscellaneous
--------------
+## Miscellaneous
 
 ```bash
 # Change default shell to zsh
@@ -185,4 +179,15 @@ chmod 600 ~/.ssh/config
 
 # Generate your ssh keys
 ssh-keygen -t rsa -b 2048
+
+# Generate a GPG key and export it
+gpg --full-generate-key                     # 4096 bits please
+gpg --list-secret-keys --keyid-format LONG  # lookup the key ID after sec rsa4096/<HERE>
+gpg --armor --export <ID>
+
+# If you run docker
+sudo usermod -aG docker $USER
+
+# Install Rust toolchain
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
