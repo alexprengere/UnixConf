@@ -63,6 +63,13 @@ To feel like Linux in your WSL, you will probably need to update your keyboard l
 
 Things relying on systemd will typically not work, for example Docker needs to be installed on Windows, with WSL2 integration.
 
+For old Docker images, you need to edit a `.wslconfig` file in your *Windows* home directory:
+
+```
+[wsl2]
+kernelCommandLine = vsyscall=emulate
+```
+
 ## System packages
 
 * Install packages on Debian/Ubuntu:

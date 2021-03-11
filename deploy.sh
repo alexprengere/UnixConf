@@ -18,6 +18,7 @@ SKIPPED=(
     "fstab.ssd"
     "fstab"
     "wsl.conf"
+    "wslconfig"
     "WindowsTerminal.json"
 )
 
