@@ -10,7 +10,7 @@
             "cursorShape" : "filledBox",
             "fontFace" : "Consolas",
             "fontSize" : 11,
-            "padding": "1, 1, 1, 1",
+            "padding": "5, 5, 5, 5",
         },
     },
 
