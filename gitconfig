@@ -43,3 +43,5 @@
     textconv = zcat
 [diff "tbz"]
     textconv = bzcat
+[pack]
+    writeReverseIndex = true
