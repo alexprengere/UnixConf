@@ -101,7 +101,10 @@ sudo apt install                  \
 * Install packages on Fedora/CentOS:
 
 ```bash
-sudo dnf -y install epel-release  # CentOS only
+# CentOS only
+sudo dnf -y install epel-release
+sudo dnf config-manager --set-enabled powertools
+# All
 sudo dnf update
 sudo dnf install                  \
     passwd sudo                   \
