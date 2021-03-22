@@ -378,6 +378,9 @@ export PATH=/usr/local/heroku/bin:$PATH
 
 # MISC
 #
+# SSH Agent
+[ -z "$SSH_AUTH_SOCK" ] && eval "$(ssh-agent -s)"
+
 # GPG signing
 export GPG_TTY=$(tty)
 
