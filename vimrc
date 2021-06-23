@@ -128,15 +128,16 @@ iab #y #!/usr/bin/python
 iab #l #!/usr/bin/perl
 
 "Modification du comportement de vim en fonction du type de langage rencontré
-autocmd BufRead  *.md set ft=markdown
-autocmd BufRead  *.html,*.htm set ft=html
-autocmd BufRead  *.php,*.php3 set ft=php
-autocmd BufRead  *.c,*.h set ft=c
-autocmd BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
-autocmd BufRead  *.sh set ft=sh
-autocmd BufRead  *.pl set ft=perl
-autocmd BufNewFile,BufRead *.edifact,*.edi,*.EDIFACT,*.EDI set filetype=edifact
-"autocmd BufRead *.tex set ft=tex               "Documents latex, surchargé par le plugin latex-suite
+autocmd BufNewFile,BufRead  *.md set ft=markdown
+autocmd BufNewFile,BufRead  *.html,*.htm set ft=html
+autocmd BufNewFile,BufRead  *.php,*.php3 set ft=php
+autocmd BufNewFile,BufRead  *.c,*.h set ft=c
+autocmd BufNewFile,BufRead  *.pyi set ft=python
+autocmd BufNewFile,BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
+autocmd BufNewFile,BufRead  *.sh set ft=sh
+autocmd BufNewFile,BufRead  *.pl set ft=perl
+autocmd BufNewFile,BufRead *.edifact,*.edi,*.EDIFACT,*.EDI set ft=edifact
+"autocmd BufNewFile,BufRead *.tex set ft=tex               "Documents latex, surchargé par le plugin latex-suite
 augroup filetypedetect
     autocmd BufNewFile,BufRead *.tex setlocal spelllang=en,fr
 augroup END
