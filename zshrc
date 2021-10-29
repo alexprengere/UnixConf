@@ -371,6 +371,7 @@ export PATH=$GOROOT/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.cabal/bin:$PATH
 export PATH=$HOME/.cargo/bin:$PATH
+export PATH=$HOME/.pyenv/bin:$PATH
 export PATH=/opt/vagrant/bin:$PATH
 export PATH=/usr/local/heroku/bin:$PATH
 
