@@ -34,7 +34,7 @@ Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
 Plug 'cespare/vim-toml'
 
-Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py', 'commit':'d98f896' }
+Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
 
 call plug#end()
 
@@ -132,7 +132,7 @@ autocmd BufNewFile,BufRead  *.md set ft=markdown
 autocmd BufNewFile,BufRead  *.html,*.htm set ft=html
 autocmd BufNewFile,BufRead  *.php,*.php3 set ft=php
 autocmd BufNewFile,BufRead  *.c,*.h set ft=c
-autocmd BufNewFile,BufRead  *.pyi set ft=python
+autocmd BufNewFile,BufRead  *.pyi,*.pxi set ft=python
 autocmd BufNewFile,BufRead  .followup,.article*,.letter,/tmp/mutt*,*.txt set ft=mail
 autocmd BufNewFile,BufRead  *.sh set ft=sh
 autocmd BufNewFile,BufRead  *.pl set ft=perl
