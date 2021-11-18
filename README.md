@@ -200,4 +200,20 @@ sudo usermod -aG docker $USER
 
 # Install Rust toolchain
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Compile vim 8.2 on CentOS8
+# https://github.com/ycm-core/YouCompleteMe/wiki/Building-Vim-from-source
+git clone https://github.com/vim/vim.git
+cd vim
+rm -f src/auto/config.cache
+./configure --with-features=huge \
+            --enable-multibyte \
+            --enable-rubyinterp=yes \
+            --enable-python3interp=yes \
+            --with-python3-config-dir=/lib64/python3.6/config-3.6m-x86_64-linux-gnu \
+            --enable-luainterp=yes \
+            --enable-gui=gtk2 \
+            --enable-cscope \
+            --prefix=/usr/local
+make VIMRUNTIMEDIR=/usr/local/share/vim/vim82
 ```
