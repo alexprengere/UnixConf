@@ -45,3 +45,5 @@
     textconv = bzcat
 [pack]
     writeReverseIndex = true
+[init]
+	defaultBranch = main
