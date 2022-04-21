@@ -146,6 +146,7 @@ sudo dnf install                  \
 python3 -m pip install --user wheel pipx
 pipx install virtualenv
 pipx install tox
+pipx install twine
 pipx install black
 pipx install pylint
 pipx install flake8

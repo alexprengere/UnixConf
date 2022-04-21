@@ -14,7 +14,6 @@ SKIPPED=(
     `basename $0`
     "README.md"
     "gitattributes"
-    "gitignore"
     "fstab.ssd"
     "fstab"
     "wsl.conf"

@@ -1,22 +1,6 @@
 # vim
-*.sw[pon]
-# python
-*.py[co]
+*.sw[klmnop]
 # Eclipse / Pydev
-.settings
-.project
-.pydevproject
-# Ignoring build dir
-/build
-/dist
-/*.egg-info/
-# Coverage reports
-/.coverage
-# Ignoring profiling reports
-/*.prof
-/*.lprof
-# Tox and pytest
-/.tox
-/.cache
-# Virtualenv
-/.env
+/.settings
+/.project
+/.pydevproject
