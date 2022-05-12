@@ -15,7 +15,7 @@ Connect with:
 wsl -d CentOS
 ```
 
-You should edit your `/etc/wsl.conf` to disallow the overriding of `/etc/resolv.conf`.
+You should edit your `/etc/wsl.conf` to disallow the overriding of `/etc/resolv.conf` (this needs a complete reboot of WSL to take effect).
 
 ```bash
 echo -e "[network]\ngenerateResolvConf = false" > /etc/wsl.conf
@@ -108,7 +108,7 @@ sudo dnf config-manager --set-enabled powertools
 sudo dnf update
 sudo dnf install                  \
     passwd sudo                   \
-    openssh-server                \
+    openssh-server hostname       \
     wget curl                     \
     vim screen zsh htop colordiff \
     tree                          \
