@@ -186,6 +186,7 @@ noremap <leader>g :UndotreeToggle       <cr>
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
 "let g:tagbar_left = 1                   " Pour placer le panneau a gauche
+let g:tagbar_sort = 0
 
 "Ctrlp
 set runtimepath^=~/.vim/plugged/ctrlp.vim
