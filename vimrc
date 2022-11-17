@@ -19,9 +19,6 @@ Plug 'bling/vim-airline'
 Plug 'jwhitley/vim-matchit'
 Plug 'docunext/closetag.vim'
 Plug 'tpope/vim-repeat'
-"Plug 'tpope/vim-fugitive'
-"Plug 'tpope/vim-abolish'
-"Plug 'Lokaltog/vim-easymotion'
 
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
@@ -39,7 +36,6 @@ Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': '
 
 call plug#end()
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 filetype indent plugin on       "Active les plugins de vim
 
 set encoding=utf-8              "Encodage
@@ -57,8 +53,6 @@ set showmode                    "Affiche le mode dans le buffer
 set showmatch                   "Affiche les délimiteurs fermants correspondants
 set showfulltag                 "Get function usage help automatically
 set cursorline                 "Active une barre horizontale pour indiquer le curseur
-"set cursorcolumn               "Active une barre verticale
-"set visualbell                 "Use visual bell instead of beeping
 set belloff=all
 
 " For WSL2
@@ -66,17 +60,15 @@ set ttymouse=sgr
 
 set ttyfast                     "Améliore le rendu
 set background=dark             "Couleurs claires pour fond de terminal foncé, change le theme
-colorscheme koehler             "Colorscheme qui roxx
+colorscheme slate               "Colorscheme qui roxx
 
 set autoindent                  "Copy indent from current line when starting a new line
 set smartindent                 "Also recognizes some C syntax to manage the indent
-"set cindent                    "More clever and is configurable to different indenting styles
 
 set hlsearch                    "Met en surbrillance les résultats d'une recherche
 set incsearch                   "Active la recherche incrémentale
 set ignorecase                  "Ignore la casse lors de la recherche
 set smartcase                   "Sauf si la recherche est cassée
-"set gdefault                   "Add /g when using %s
 
 set shiftwidth=4                "Tabs should be converted to a group of 4 spaces.
 set softtabstop=4               "Causes backspace to delete 4 spaces=converted <TAB>
@@ -88,9 +80,6 @@ set wildmode=list:longest,list:full             "Options qui vont bien
 set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when completing files
 
 set t_kb=    "fix weird backspace behaviour
-
-"set splitbelow                  "split horizontally at the bottom
-"set splitright                  "split vertically on the right
 
 set previewheight=20            "increase default height for preview window (used by autocomplete)
 au BufEnter ?* call PreviewHeightWorkAround()
@@ -153,7 +142,6 @@ autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "norm
 "Reglage de la correction orthographique (z= pour afficher les propositions)
 set spelllang=en,fr     "Dictionnaires par défaut
 set spellsuggest=7      "Nombre de propositions par défaut
-"set spell              "Désactivé à l'ouverture du document
 
 "Remappage des touches classiques -- help/recherche/orthographe/numeros/viewports
 set pastetoggle=<F2>
@@ -210,78 +198,10 @@ let g:ale_linters = {'pyopencl': ['flake8'], 'python': ['flake8']}
 "vim-airline options
 set laststatus=2
 
-"Change csv colors
-hi CSVColumnEven      term=bold ctermbg=darkred guibg=darkred ctermfg=grey guifg=grey
-hi CSVColumnHeader    term=bold ctermbg=darkred guibg=darkred ctermfg=grey guifg=grey
-hi CSVColumnOdd       term=bold ctermbg=blue guibg=blue ctermfg=yellow guifg=yellow
-hi CSVColumnHeaderOdd term=bold ctermbg=blue guibg=blue ctermfg=yellow guifg=yellow
-
-"Change highlight line style
-hi CursorLine   term=none cterm=none ctermbg=black guibg=black
-hi CursorColumn term=none cterm=none ctermbg=black guibg=black
-
-"Modification des couleurs du theme
-"Effacement des anciennes configurations
-hi clear WhitespaceEOL
-hi clear Folded
-hi clear FoldColumn
-hi clear Search
-hi clear Comment
-hi clear Statusline
-hi clear StatusLineNC
 hi clear VertSplit
-hi clear wildmenu
-hi clear spellbad
-hi clear spelllocal
-hi clear spellcap
-hi clear spellrare
-hi clear TabLineSel
-hi clear TabLine
-hi clear TabLineFill
-hi clear Pmenu
-hi clear PmenuSel
-hi clear SignColumn
-"hi clear Todo
 hi clear Error
 
-hi LineNr     term=none cterm=none ctermfg=cyan gui=none guifg=cyan
-
-"Gestion des folds -- fold replié + foldcolumn dans la marge de gauche
-hi Folded        term=bold cterm=bold ctermfg=brown gui=bold guifg=brown
-hi FoldColumn    term=bold cterm=bold ctermfg=white gui=bold guifg=white
-
-"highlight des recherches
-hi Search        term=bold cterm=bold ctermfg=white ctermbg=darkgreen guifg=white guibg=darkgreen
-
-"Commentaires
-hi Comment       term=none cterm=none ctermfg=darkgrey guifg=darkgrey
-
-"Statusline courante et non-courante, highlight du wildmenu
-hi StatusLine    term=bold cterm=bold ctermfg=white    ctermbg=darkgrey gui=bold guifg=white    guibg=darkgrey
-hi StatusLineNC  term=bold cterm=bold ctermfg=grey     ctermbg=darkgrey gui=bold guifg=grey     guibg=darkgrey
-hi Vertsplit     term=bold cterm=bold ctermfg=white                     gui=bold guifg=white
-hi wildmenu      term=bold cterm=bold ctermfg=white    ctermbg=darkblue gui=bold guifg=white    guibg=darkblue
-
-"Correction orthographique
-"spellbad word not recognized
-"spelllocal wrong spelling for selected region (en_au, en_ca, ...)
-"spellcap word not capitalised
-"spellrare rare words
-hi spellbad      term=bold cterm=bold ctermfg=white ctermbg=darkred     gui=bold guifg=white guibg=darkred
-hi spelllocal    term=bold cterm=bold ctermfg=white ctermbg=brown       gui=bold guifg=white guibg=brown
-hi spellcap      term=bold cterm=bold ctermfg=white ctermbg=darkmagenta gui=bold guifg=white guibg=darkmagenta
-hi spellrare     term=bold cterm=bold ctermfg=white ctermbg=darkblue    gui=bold guifg=white guibg=darkblue
-
-"Barre de tabulation -- sélectionné/autres onglets/barre de fond
-hi TabLineSel    term=bold cterm=bold ctermfg=white                  gui=bold guifg=white
-hi TabLine       term=bold cterm=bold ctermfg=darkblue ctermbg=white gui=bold guifg=darkblue guibg=white
-hi TabLineFill   term=bold cterm=bold                  ctermbg=white gui=bold                guibg=white
-
-"Completion
-hi Pmenu        term=bold cterm=bold ctermfg=white ctermbg=darkblue   guifg=white guibg=darkblue
-hi PmenuSel     term=bold cterm=bold ctermfg=black ctermbg=yellow     guifg=black guibg=yellow
-
 "Signs column
-hi SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
+"hi SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
 "hi Todo         term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
 hi Error        term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
