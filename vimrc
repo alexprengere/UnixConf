@@ -81,19 +81,14 @@ set wildignore=*.o,*.r,*.so,*.sl,*.tar,*.tgz    "Patterns to ignore when complet
 
 set t_kb=    "fix weird backspace behaviour
 
-set previewheight=20            "increase default height for preview window (used by autocomplete)
-au BufEnter ?* call PreviewHeightWorkAround()
-func! PreviewHeightWorkAround()
-    if &previewwindow
-        exec 'setlocal winheight='.&previewheight
-    endif
-endfunc
-
 " Make folding indent sensitive
 set foldmethod=indent
 set foldcolumn=0                "Barre à gauche de l'écran et gérer les folds avec
 set foldlevel=100               "Ouvrir tous les folds à l'ouverture du fichier
                                 "Surchargé par le plugin latex-suite pour les .tex
+
+set splitkeep=screen
+set splitbelow
 
 " highlight lines too long
 augroup aspect
@@ -179,10 +174,6 @@ let g:tagbar_sort = 0
 "Ctrlp
 set runtimepath^=~/.vim/plugged/ctrlp.vim
 let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|(\.(swp|swo|pyc|so|dll|exe|ico|git|svn))$'
-
-"Custom snipMate trigger key
-imap <c-e> <Plug>snipMateNextOrTrigger
-smap <c-e> <Plug>snipMateNextOrTrigger
 
 "Custom YCM
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
