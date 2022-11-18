@@ -1,7 +1,7 @@
 [user]
     name = Alex
     email = alexprengere@gmail.com
-    signingkey = BA48F942CE10968A
+    signingkey = FAFE0164F52C15FC
 [credential]
     helper = cache --timeout=36000
 [commit]
@@ -32,8 +32,8 @@
     editor = vim
     pager = diff-so-fancy | less --quiet --tabs=4 -RFX
     excludesfile = ~/.gitignore
-#[interactive]
-#    diffFilter = diff-so-fancy | less --quiet --tabs=4 -RFX
+[interactive]
+    diffFilter = diff-so-fancy --patch
 [diff]
     compactionHeuristic = true
 [diff "zip"]
