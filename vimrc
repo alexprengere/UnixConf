@@ -21,6 +21,7 @@ Plug 'docunext/closetag.vim'
 Plug 'tpope/vim-repeat'
 
 Plug 'godlygeek/tabular'
+Plug 'vim-python/python-syntax'
 Plug 'plasticboy/vim-markdown'
 Plug 'jnwhiteh/vim-golang'
 Plug 'kchmck/vim-coffee-script'
@@ -165,6 +166,9 @@ noremap <leader>b :CtrlPBuffer          <cr>
 noremap <leader>l :TagbarToggle         <cr>
 noremap <leader>t :NERDTreeToggle       <cr>
 noremap <leader>g :UndotreeToggle       <cr>
+
+"Custom Python syntax highlighting
+let g:python_highlight_all=1
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
