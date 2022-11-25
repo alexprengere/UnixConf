@@ -88,7 +88,7 @@ set foldcolumn=0                "Barre à gauche de l'écran et gérer les folds
 set foldlevel=100               "Ouvrir tous les folds à l'ouverture du fichier
                                 "Surchargé par le plugin latex-suite pour les .tex
 
-set splitkeep=screen
+set splitkeep=cursor
 set splitbelow
 
 " highlight lines too long
