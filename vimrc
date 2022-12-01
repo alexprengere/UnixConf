@@ -172,7 +172,7 @@ let g:python_highlight_all=1
 
 "Tagbar options
 let Tlist_Ctags_Cmd = '/usr/bin/ctags'  " Pour pouvoir utiliser le plugin taglist
-"let g:tagbar_left = 1                   " Pour placer le panneau a gauche
+"let g:tagbar_left = 1
 let g:tagbar_sort = 0
 
 "Ctrlp
@@ -182,7 +182,7 @@ let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|
 "Custom YCM
 "let g:ycm_key_list_select_completion = ['<C-TAB>', '<Down>']
 "let g:ycm_key_list_previous_completion = ['<C-S-TAB>', '<Up>']
-let g:ycm_autoclose_preview_window_after_completion = 1
+"let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
 
 "let g:ale_open_list = 1
