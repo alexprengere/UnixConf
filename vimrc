@@ -4,26 +4,26 @@ set nocompatible                  " Must come first because it changes other opt
 
 call plug#begin('~/.vim/plugged')
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'majutsushi/tagbar'
-Plug 'techlivezheng/tagbar-phpctags'
+Plug 'preservim/tagbar'
+Plug 'vim-php/tagbar-phpctags.vim'
 Plug 'mbbill/undotree'
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'scrooloose/nerdcommenter'
+Plug 'preservim/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'preservim/nerdcommenter'
 Plug 'dense-analysis/ale'
-Plug 'ambv/black'
+Plug 'psf/black'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
 
-Plug 'bling/vim-airline'
-Plug 'jwhitley/vim-matchit'
-Plug 'docunext/closetag.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'adelarsq/vim-matchit'
+Plug 'alvan/vim-closetag'
 Plug 'tpope/vim-repeat'
 
 Plug 'godlygeek/tabular'
 Plug 'vim-python/python-syntax'
 Plug 'preservim/vim-markdown'
-Plug 'jnwhiteh/vim-golang'
+Plug 'fatih/vim-go'
 Plug 'kchmck/vim-coffee-script'
 Plug 'smancill/conky-syntax.vim'
 Plug 'derekwyatt/vim-scala'
