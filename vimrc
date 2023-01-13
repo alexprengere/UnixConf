@@ -22,7 +22,7 @@ Plug 'tpope/vim-repeat'
 
 Plug 'godlygeek/tabular'
 Plug 'vim-python/python-syntax'
-Plug 'plasticboy/vim-markdown'
+Plug 'preservim/vim-markdown'
 Plug 'jnwhiteh/vim-golang'
 Plug 'kchmck/vim-coffee-script'
 Plug 'smancill/conky-syntax.vim'
@@ -166,6 +166,9 @@ noremap <leader>b :CtrlPBuffer          <cr>
 noremap <leader>l :TagbarToggle         <cr>
 noremap <leader>t :NERDTreeToggle       <cr>
 noremap <leader>g :UndotreeToggle       <cr>
+
+"Speed up markdown plugin
+let g:vim_markdown_folding_disabled = 1
 
 "Custom Python syntax highlighting
 let g:python_highlight_all=1
