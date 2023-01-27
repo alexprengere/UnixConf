@@ -175,10 +175,6 @@ rm -rf ~/.vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall
 ```
-Some vim plugins (*Syntastic*, *vim-ag*) use external tools. These tools need to be installed and have their configuration files in place (check the `.vimrc` for file locations):
-* `pylint` with `~/.pylintrc`
-* `jsl` with `~/.jsl.conf`
-* `Ag` with `~/.agignore`
 
 ## Miscellaneous
 

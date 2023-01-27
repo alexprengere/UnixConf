@@ -1,0 +1,27 @@
+line-length = 100
+target-version = "py37"
+exclude = [
+    ".*",
+    "*.egg-info",
+    "build",
+    "dist",
+    ".eggs",
+    "__pycache__",
+    "*_pb2.py",
+]
+select = [
+    "F",  # pyflakes
+    "E",  # pycodestyle
+    "W",  # pycodestyle
+    "UP",  # pyupgrade
+    "YTT",  # flake8-2020
+    "B",  # flake8-bugbear
+    "T10",  # flake8-debugger
+    "C4",  # flake8-comprehensions
+    "G",  # flake8-logging-format
+    "ISC",  # flake8-implicit-str-concat
+    "ICN",  # flake8-import-conventions
+]
+ignore = [
+    "E402",  # module-import-not-at-top-of-file
+]

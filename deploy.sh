@@ -25,6 +25,7 @@ SKIPPED=(
 declare -A SPECIALS
 SPECIALS=(
                  [flake8]="$HOME/.config/flake8"
+              [ruff.toml]="$HOME/.config/ruff.toml"
                [pylintrc]="$HOME/.config/pylintrc"
       [subversion_config]="$HOME/.subversion/config"
              [ssh_config]="$HOME/.ssh/config"
