@@ -150,6 +150,7 @@ pipx install twine
 pipx install black
 pipx install pylint
 pipx install flake8
+pipx install ruff
 ```
 * Install Node packages:
 
