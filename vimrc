@@ -190,8 +190,8 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 
 "let g:ale_open_list = 1
 "let g:ale_lint_on_save = 1
-"let g:ale_lint_on_text_changed = 0
-let g:ale_linters = {'pyopencl': ['flake8'], 'python': ['flake8']}
+let g:ale_lint_on_text_changed = 1
+let g:ale_linters = {'pyopencl': ['ruff'], 'python': ['ruff']}
 
 "vim-airline options
 set laststatus=2
