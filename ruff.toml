@@ -1,14 +1,5 @@
 line-length = 100
 target-version = "py37"
-exclude = [
-    ".*",
-    "*.egg-info",
-    "build",
-    "dist",
-    ".eggs",
-    "__pycache__",
-    "*_pb2.py",
-]
 select = [
     "F",  # pyflakes
     "E",  # pycodestyle
