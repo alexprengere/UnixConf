@@ -91,6 +91,9 @@ set foldlevel=100               "Ouvrir tous les folds à l'ouverture du fichier
 set splitkeep=cursor
 set splitbelow
 
+set signcolumn=yes              "Always show gutter, to avoid flickering with ALE linting
+set completeopt-=preview        "Do not show autocomplete details in preview window
+
 " highlight lines too long
 augroup aspect
     autocmd BufRead * hi RedundantSpaces ctermbg=darkblue guibg=darkblue
@@ -187,10 +190,11 @@ let g:ctrlp_custom_ignore = '\v[\/](node_modules|target|dist|build)|\v.egg-info|
 "let g:ycm_key_list_previous_completion = ['<C-S-TAB>', '<Up>']
 "let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_disable_signature_help=1
 
 "let g:ale_open_list = 1
 "let g:ale_lint_on_save = 1
-let g:ale_lint_on_text_changed = 1
+"let g:ale_lint_on_text_changed = 1
 let g:ale_linters = {'pyopencl': ['ruff'], 'python': ['ruff']}
 
 "vim-airline options
