@@ -278,6 +278,7 @@ if [ -e /usr/share/terminfo/x/xterm*256color* ]; then
 else
     export TERM='xterm-color'
 fi
+export COLORTERM=truecolor
 
 # Gestion de la couleur pour 'ls' (exportation de LS_COLORS)
 if [ -x /usr/bin/dircolors ]; then
