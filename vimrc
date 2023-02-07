@@ -202,10 +202,13 @@ let g:ale_linters = {'pyopencl': ['ruff'], 'python': ['ruff']}
 set laststatus=2
 let g:airline_theme='fairyfloss'
 
+"For a transparent background
+hi Normal     guibg=NONE ctermbg=NONE
+hi SignColumn guibg=NONE ctermbg=NONE
 hi clear VertSplit
-hi clear Error
 
-"Signs column
-"hi SignColumn   term=bold cterm=bold ctermbg=darkgrey                     guifg=red   guibg=darkgrey
-"hi Todo         term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
-hi Error        term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
+"hi Todo                     term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
+hi Error                     term=bold cterm=bold ctermfg=white     ctermbg=red        guifg=white guibg=red
+hi Warning                   term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
+hi ALEVirtualTextError       term=bold cterm=bold ctermfg=red                          guifg=red
+hi ALEVirtualTextWarning     term=bold cterm=bold ctermfg=darkyellow                   guifg=darkyellow
