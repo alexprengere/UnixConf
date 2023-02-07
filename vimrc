@@ -212,6 +212,7 @@ hi Error                     term=bold cterm=bold ctermfg=white     ctermbg=red 
 hi Warning                   term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
 hi ALEVirtualTextError       term=bold cterm=bold ctermfg=red                          guifg=red
 hi ALEVirtualTextWarning     term=bold cterm=bold ctermfg=darkyellow                   guifg=darkyellow
+hi MatchParen                term=bold cterm=bold ctermfg=yellow    ctermbg=brown  guifg=lightyellow guibg=brown
 
 "set cursor to be a blinking box in normal mode, fixes some issues with WSL
 let &t_EI .= "\<Esc>[1 q"
