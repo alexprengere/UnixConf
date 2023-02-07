@@ -16,6 +16,7 @@ Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
 
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'adelarsq/vim-matchit'
 Plug 'alvan/vim-closetag'
 Plug 'tpope/vim-repeat'
@@ -199,6 +200,7 @@ let g:ale_linters = {'pyopencl': ['ruff'], 'python': ['ruff']}
 
 "vim-airline options
 set laststatus=2
+let g:airline_theme='fairyfloss'
 
 hi clear VertSplit
 hi clear Error
