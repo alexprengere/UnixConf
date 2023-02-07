@@ -54,7 +54,7 @@ set showcmd                     "Affiche les commandes dans le buffer en mode no
 set showmode                    "Affiche le mode dans le buffer
 set showmatch                   "Affiche les délimiteurs fermants correspondants
 set showfulltag                 "Get function usage help automatically
-set cursorline                 "Active une barre horizontale pour indiquer le curseur
+"set cursorline                 "Active une barre horizontale pour indiquer le curseur
 set belloff=all
 
 " For WSL2
@@ -212,3 +212,7 @@ hi Error                     term=bold cterm=bold ctermfg=white     ctermbg=red 
 hi Warning                   term=bold cterm=bold ctermfg=white     ctermbg=darkyellow guifg=white guibg=darkyellow
 hi ALEVirtualTextError       term=bold cterm=bold ctermfg=red                          guifg=red
 hi ALEVirtualTextWarning     term=bold cterm=bold ctermfg=darkyellow                   guifg=darkyellow
+
+"set cursor to be a blinking box in normal mode, fixes some issues with WSL
+let &t_EI .= "\<Esc>[1 q"
+autocmd BufEnter * execute 'silent !echo -ne "' . &t_EI . '"'
