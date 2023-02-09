@@ -7,6 +7,9 @@ color_prompt=yes
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+export HISTSIZE=1000000
+export HISTFILESIZE=1000000
+
 # don't put duplicate lines in the history. See bash(1) for more options
 export HISTCONTROL=ignoredups
 # ... and ignore same sucessive entries.

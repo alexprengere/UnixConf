@@ -141,8 +141,9 @@ setopt prompt_subst
 # ZSH HISTORY
 #
 # Nombre d'entrées dans l'historique
-export HISTORY=100000
-export SAVEHIST=100000
+export SAVEHIST=1000000
+export HISTSIZE=1000000
+export HISTFILESIZE=1000000
 
 # Fichier où est stocké l'historique
 export HISTFILE=$HOME/.history
