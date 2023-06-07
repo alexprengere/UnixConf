@@ -6,12 +6,25 @@ select = [
     "W",  # pycodestyle
     "UP",  # pyupgrade
     "YTT",  # flake8-2020
+    "ASYNC",  # flake8-async
     "B",  # flake8-bugbear
-    "T10",  # flake8-debugger
     "C4",  # flake8-comprehensions
-    "G",  # flake8-logging-format
+    "T10",  # flake8-debugger
     "ISC",  # flake8-implicit-str-concat
     "ICN",  # flake8-import-conventions
+    "G",  # flake8-logging-format
+    "PIE",  # flake8-pie
+    "PYI",  # flake8-pyi
+    "RSE",  # flake8-raise
+    "TCH",  # flake8-type-checking
+    "INT",  # flake8-gettext
+    "TD",  # flake8-todos
+    "PD",  # pandas-vet
+    "PGH",  # pygrep-hooks
+    "FLY",  # flynt
+    "NPY",  # NumPy-specific rules
+    "AIR",  # Airflow
+    "RUF",  # Ruff-specific rules
 ]
 ignore = [
     "E402",  # module-import-not-at-top-of-file
