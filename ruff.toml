@@ -28,4 +28,5 @@ select = [
 ]
 ignore = [
     "E402",  # module-import-not-at-top-of-file
+    "RUF005",  # splat-instead-of-concatenation
 ]
