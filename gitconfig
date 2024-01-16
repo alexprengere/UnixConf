@@ -37,6 +37,7 @@
     diffFilter = diff-so-fancy --patch
 [diff]
     compactionHeuristic = true
+    tool = vimdiff
 [diff "zip"]
     textconv = unzip -c -a
 [diff "word"]
