@@ -18,7 +18,7 @@ alias l='ll -S'
 alias grep='grep --color=auto'
 alias c='clear'
 alias tree='tree -hC'
-alias less='less --quiet'
+alias less='less --quiet -R'
 alias vi='vim '
 alias notebook='ipython notebook --ip 0.0.0.0 --pylab=inline'
 
