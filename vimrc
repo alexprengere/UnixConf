@@ -37,6 +37,10 @@ Plug 'cespare/vim-toml'
 
 Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
 
+"Putting the github/copilot.vim plugin here does not work, as it interferes with YCM.
+"We load it manually from the pack/ directory instead, follow instructions from:
+" https://github.com/github/copilot.vim
+
 call plug#end()
 
 filetype indent plugin on       "Active les plugins de vim
