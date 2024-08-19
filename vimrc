@@ -11,6 +11,7 @@ Plug 'preservim/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'preservim/nerdcommenter'
 Plug 'dense-analysis/ale'
 Plug 'psf/black'
+Plug 'wellle/context.vim'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
@@ -201,6 +202,8 @@ let g:ale_linters = {'pyopencl': ['ruff'], 'python': ['ruff']}
 "vim-airline options
 set laststatus=2
 let g:airline_theme='fairyfloss'
+
+let g:context_enabled = 1
 
 "For a transparent background
 hi Normal     guibg=NONE ctermbg=NONE
