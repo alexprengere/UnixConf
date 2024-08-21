@@ -140,19 +140,30 @@ sudo dnf install                  \
     expat-devel
 ```
 
-* Install Python packages:
+* Install Python apps:
 
 ```bash
-python3 -m pip install --user wheel pipx
-pipx install virtualenv
-pipx install tox
-pipx install twine
-pipx install black
-pipx install pylint
-pipx install flake8
-pipx install ruff
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install black
+uv tool install ruff
+uv tool install pylint
+uv tool install pyupgrade
+uv tool install flake8
+uv tool install flynt
+uv tool install mypy
+uv tool install py-spy
+uv tool install pipenv
+uv tool install poetry
+uv tool install pre-commit
+uv tool install rich-cli
+uv tool install tox --with tox-uv
+uv tool install twine
+uv tool install virtualenv
+uv tool install glances
+uv tool install posting -p python3.11
 ```
-* Install Node packages:
+
+* Install Node apps:
 
 ```bash
 sudo npm install -g coffeelint grunt-cli diff-so-fancy
@@ -175,6 +186,8 @@ rm -rf ~/.vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall
 ```
+
+Do not forget to set up [GitHub copilot](https://github.com/github/copilot.vim).
 
 ## Miscellaneous
 
