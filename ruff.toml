@@ -1,5 +1,5 @@
 line-length = 88
-target-version = "py37"
+target-version = "py39"
 extend-exclude = ["*_pb2.py"]
 
 [lint]
@@ -34,6 +34,4 @@ ignore = [
     "RUF005",  # splat-instead-of-concatenation
     "RUF012",  # mutable-class-default
     "PYI024",  # collections-named-tuple
-    "RUF022",  # unsorted-dunder-all
-    "RUF023",  # unsorted-dunder-slots
 ]
