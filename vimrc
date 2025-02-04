@@ -34,6 +34,7 @@ Plug 'ziglang/zig.vim'
 Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
 Plug 'cespare/vim-toml'
+Plug 'lark-parser/vim-lark-syntax'
 
 Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
 
