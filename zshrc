@@ -8,7 +8,7 @@
 # alias somealias='sudo mount -t smbfs -o user=USER //host/dir /mount/point'
 # alias somealias='VBoxManage startvm a_vm &'
 
-alias ls='ls --classify --tabsize=0 --literal --color=auto --show-control-chars --human-readable'
+alias ls='ls --color=auto'
 alias sl='ls'
 alias ll='ls -lhX'
 alias la='ls -AhX'
@@ -333,9 +333,6 @@ function precmd() {
         /usr/bin/python /usr/lib/command-not-found -- "$command"
         unset command
     }
-    # Update this variable, displayed in the right prompt
-    local nc=$(who |grep -v $USER |cut -d ' ' -f1 |sort |uniq |wc -l)
-    [[ "$nc" -ne 0 ]] && RPS1_CONNECTIONS="%{[0;31m%}($nc)%{[0m%}"
 }
 
 if [ "`id -u`" -eq 0 ]; then
@@ -348,12 +345,8 @@ PS2="%{[0;30m%}%n%{[0;35m%}@%{[0;30m%}%m %{[0;30m%}%1~ %{[1;31m%}> %{[0m%}
 PS3="%{[1;36m%}?# %{[0m%}"
 PS4="%{[0;36m%}(+) %{[0;32m%}%N%{[1;30m%}:%{[0;31m%}%i %{[1;33m%}$ %{[0m%}"
 
-RPS1='$RPS1_CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
-RPS2='%{[0;33m%}[%_] %{[1;30m%}%T%{[0m%}'
-
 function zle-line-init zle-keymap-select {
     local vimode="%{[1;32m%}% [% NORMAL]% %{[0m%}"
-    RPS1='${${KEYMAP/vicmd/$vimode}/(main|viins)/}$EPS1 $RPS1_CONNECTIONS %{[30;1m%}%~ %{[0;36m%}%*%{[0m%}'
     zle reset-prompt
 }
 
