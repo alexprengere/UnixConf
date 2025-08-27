@@ -3,6 +3,10 @@
 # An intelligent and non-intrusive prompt for Bash and zsh
 ################################################################################
 
+# shellcheck shell=bash
+
+_LP_VERSION=(2 2 1)
+
 # Licensed under the AGPL version 3
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,7 +32,7 @@
 if test -n "${BASH_VERSION-}"; then
     # Check for recent enough version of bash.
     if (( ${BASH_VERSINFO[0]:-0} < 3 || ( ${BASH_VERSINFO[0]:-0} == 3 && ${BASH_VERSINFO[1]:-0} < 2 ) )); then
-        echo "liquidprompt: Bash version $BASH_VERSION not supported" 2>&1
+        echo "liquidprompt: Bash version $BASH_VERSION not supported" >&2
         return
     fi
 
@@ -41,6 +45,8 @@ if test -n "${BASH_VERSION-}"; then
 
     _LP_FIRST_INDEX=0
     _LP_PERCENT='%'    # must be escaped on zsh
+    # shellcheck disable=SC1003
+    _LP_BACKSLASH='\\' # must be escaped on bash
 
     # Escape the given strings
     # Must be used for all strings injected in PS1 that may comes from remote sources,
@@ -54,16 +60,10 @@ if test -n "${BASH_VERSION-}"; then
     }
 
     __lp_strip_escapes() {
-        if ! shopt -q extglob ; then
-            local _lp_no_extglob=true
-            shopt -s extglob
-        fi
-
-        ret="${1//"${_LP_OPEN_ESC}"!(*"${_LP_CLOSE_ESC}"*)"${_LP_CLOSE_ESC}"}"
-
-        if [[ -n ${_lp_no_extglob-} ]]; then
-            shopt -u extglob
-        fi
+        ret="$1"
+        while [[ "$ret" == *"$_LP_OPEN_ESC"* ]]; do
+            ret="${ret%%"$_LP_OPEN_ESC"*}${ret#*"$_LP_CLOSE_ESC"}"
+        done
 
         ret="${ret//\\\\/\\}"
         if shopt -q promptvars ; then
@@ -74,7 +74,7 @@ if test -n "${BASH_VERSION-}"; then
 elif test -n "${ZSH_VERSION-}" ; then
     # Check for recent enough version of zsh.
     if (( ${ZSH_VERSION:0:1} < 5 )); then
-        echo "liquidprompt: Zsh version $ZSH_VERSION not supported" 2>&1
+        echo "liquidprompt: Zsh version $ZSH_VERSION not supported" >&2
         return
     fi
 
@@ -85,8 +85,14 @@ elif test -n "${ZSH_VERSION-}" ; then
 
     _LP_MARK_SYMBOL='%%'
 
-    _LP_FIRST_INDEX=1
+    if [[ -o ksh_arrays ]]; then
+      _LP_FIRST_INDEX=0
+    else
+      _LP_FIRST_INDEX=1
+    fi
     _LP_PERCENT='%%'
+    # shellcheck disable=SC1003
+    _LP_BACKSLASH='\'
 
     __lp_escape() {
         ret="${1//\\/\\\\}"
@@ -150,9 +156,168 @@ case "$(uname)" in
     *)         LP_OS=Linux   ;;
 esac
 
+_lp_os() {
+    # Fine-grained OS detection: arch, family, kernel, distrib, version.
+    (( LP_ENABLE_OS )) || return 2
+
+    # Output variables:
+    lp_os_arch=
+    lp_os_family=
+    lp_os_kernel=
+    lp_os_distrib=
+    lp_os_version=
+
+    local uname_sm kernel
+
+    # Get the kernel (and possibly the arch).
+    if (( LP_ENABLE_OS_ARCH )); then
+        # We can get the arch along, with a single subshell.
+        uname_sm="$(uname -s -m)"
+        IFS=' ' read -r kernel lp_os_arch <<<"$uname_sm"
+    else # In any case, we need to know the kernel.
+        kernel="$(uname -s)"
+    fi
+
+    if (( LP_ENABLE_OS_KERNEL
+       || LP_ENABLE_OS_FAMILY
+       || LP_ENABLE_OS_DISTRIB
+       || LP_ENABLE_OS_VERSION )); then
+
+        case "$kernel" in
+            FreeBSD)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=BSD; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=FreeBSD; fi
+                ;;
+            DragonFly)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=BSD; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=DragonFly; fi
+                ;;
+            OpenBSD)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=BSD; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=OpenBSD; fi
+                ;;
+            Darwin)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=BSD; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=Darwin; fi
+                ;;
+            SunOS)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=UNIX; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=SunOS; fi
+                ;;
+            CYGWIN*)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=Windows; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=Cygwin; fi
+                ;;
+            MSYS*)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=Windows; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=MSYS; fi
+                ;;
+            MINGW*)
+                if (( LP_ENABLE_OS_FAMILY )); then lp_os_family=Windows; fi
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=MinGW; fi
+                ;;
+            Linux)
+                if (( LP_ENABLE_OS_KERNEL )); then lp_os_kernel=Linux; fi
+                if (( LP_ENABLE_OS_FAMILY )); then
+                    if [[ "$kernel" == "Linux" ]]; then
+                        osfamily="$(uname -o)"
+                        if [[ "$osfamily" == "Android" ]]; then
+                            lp_os_family=Android
+                            return
+                        fi # Android
+                    fi # Linux
+                    lp_os_family=GNU
+                fi
+                # TODO parse HOME_URL and add an hyperlink.
+                if (( LP_ENABLE_OS_DISTRIB && LP_ENABLE_OS_VERSION )); then
+                    if _lp_grep_fields "/etc/os-release" "=" "ID" "VERSION_CODENAME"; then
+                        lp_os_distrib=${lp_grep_fields[_LP_FIRST_INDEX+0]-}
+                        lp_os_version=${lp_grep_fields[_LP_FIRST_INDEX+1]-}
+                    fi
+                elif (( LP_ENABLE_OS_DISTRIB )); then
+                    if _lp_grep_fields "/etc/os-release" "=" "ID"; then
+                        lp_os_distrib=${lp_grep_fields[_LP_FIRST_INDEX+0]-}
+                    fi
+                elif (( LP_ENABLE_OS_VERSION )); then
+                    if _lp_grep_fields "/etc/os-release" "=" "VERSION_CODENAME"; then
+                        lp_os_version=${lp_grep_fields[_LP_FIRST_INDEX+0]-}
+                    fi
+                fi
+                ;;
+        esac
+    fi
+
+    if [[ -z "${lp_os_arch}${lp_os_family}${lp_os_kernel}${lp_os_distrib}${lp_os_version}" ]]; then
+        return 1
+    fi
+}
+
+_lp_os_color() {
+    # Substitute lp_os_* names with icons/colored strings (from LP_MARK_OS),
+    # or hash colored versions.
+    # Join everything with LP_MARK_OS_SEP.
+
+    lp_os_color=
+    local lp_os_arch lp_os_family lp_os_kernel lp_os_distrib lp_os_version
+
+    _lp_os || return "$?"
+
+    local lp_substitute lp_hash_color lp_join
+    local active
+    active=()
+    for value in \
+        "$lp_os_arch" "$lp_os_family" "$lp_os_kernel" "$lp_os_distrib" "$lp_os_version"; do
+        if [[ -n "$value" ]]; then
+            if _lp_substitute "$value" "${LP_MARK_OS[@]}"; then
+                active+=("$lp_substitute")
+            elif _lp_hash_color "$value"; then
+                active+=("$lp_hash_color")
+            else
+                active+=("$value")
+            fi
+        fi
+    done
+
+    if [[ ${#active} -gt 0 ]]; then
+        _lp_join "$LP_MARK_OS_SEP" "${active[@]}"
+        lp_os_color="$lp_join"
+    else
+        return 1
+    fi
+}
+
 #################
 # CONFIGURATION #
 #################
+
+# Return true if the current Liquid Prompt version is greater than or equal to the specified version.
+# Return 1 if minor or less version difference, 2 if major difference.
+_lp_version_greatereq() {  # major, minor, [patch], [string], [number]
+    local major="$1" minor="$2" patch="${3-}" string="${4-}" number="${5-}"
+    if (( major > _LP_VERSION[_LP_FIRST_INDEX+0] )); then
+        return 2
+    elif (( major == _LP_VERSION[_LP_FIRST_INDEX+0] )); then
+        if (( minor > _LP_VERSION[_LP_FIRST_INDEX+1] )); then
+            return 1
+        elif (( minor == _LP_VERSION[_LP_FIRST_INDEX+1] )) && [[ -n $patch ]]; then
+            if (( patch > _LP_VERSION[_LP_FIRST_INDEX+2] )); then
+                return 1
+            elif (( patch == _LP_VERSION[_LP_FIRST_INDEX+2] )) && [[ -n $string && -n $number ]]; then
+                if [[ $string == "${_LP_VERSION[_LP_FIRST_INDEX+3]-}" ]]; then
+                    if (( number > _LP_VERSION[_LP_FIRST_INDEX+4] )); then
+                        return 1
+                    fi
+                elif [[ ${_LP_VERSION[_LP_FIRST_INDEX+3]-} == "alpha" || \
+                        ( ${_LP_VERSION[_LP_FIRST_INDEX+3]-} == "beta" && \
+                        $string == "rc" ) ]]; then
+                    return 1
+                fi
+            fi
+        fi
+    fi
+
+    return 0
+}
 
 # Load the user configuration and setup defaults.
 # shellcheck disable=SC2034
@@ -218,10 +383,15 @@ __lp_source_config() {
     __lp_foreground_color "$(( 1 + lp_hostname_hash % 6 ))"
     LP_COLOR_HOST_HASH="${_LP_OPEN_ESC}${af_color}${_LP_CLOSE_ESC}"
 
-
     # Default values (globals)
     LP_TIME_FORMAT=${LP_TIME_FORMAT:-"%H:%M:%S"}
     LP_BATTERY_THRESHOLD=${LP_BATTERY_THRESHOLD:-75}
+    LP_DISK_THRESHOLD=${LP_DISK_THRESHOLD:-102400} # 100 MiB in KiB
+    LP_DISK_THRESHOLD_PERC=${LP_DISK_THRESHOLD_PERC:-10} # 10% or less
+    LP_DISK_PRECISION=${LP_DISK_PRECISION:-2}
+    LP_RAM_THRESHOLD=${LP_RAM_THRESHOLD:-102400} # 100 MiB in KiB
+    LP_RAM_THRESHOLD_PERC=${LP_RAM_THRESHOLD_PERC:-10} # 10% or less
+    LP_RAM_PRECISION=${LP_RAM_PRECISION:-2}
     LP_LOAD_THRESHOLD=${LP_LOAD_THRESHOLD:-0.60}
     LP_LOAD_CAP=${LP_LOAD_CAP:-2.0}
     LP_TEMP_THRESHOLD=${LP_TEMP_THRESHOLD:-60}
@@ -236,28 +406,36 @@ __lp_source_config() {
     LP_HOSTNAME_ALWAYS=${LP_HOSTNAME_ALWAYS:-0}
     LP_HOSTNAME_METHOD=${LP_HOSTNAME_METHOD:-short}
     LP_USER_ALWAYS=${LP_USER_ALWAYS:-1}
-    LP_PERCENTS_ALWAYS=${LP_PERCENTS_ALWAYS:-1}
+    LP_ALWAYS_DISPLAY_VALUES=${LP_ALWAYS_DISPLAY_VALUES:-1}
+    LP_DISPLAY_VALUES_AS_PERCENTS=${LP_DISPLAY_VALUES_AS_PERCENTS:-0}
     LP_PS1=${LP_PS1:-""}
     LP_PS1_PREFIX=${LP_PS1_PREFIX:-""}
     LP_PS1_POSTFIX=${LP_PS1_POSTFIX:-""}
-    LP_MARK_KUBECONTEXT=${LP_MARK_KUBECONTEXT:-"⎈"}
     LP_DELIMITER_KUBECONTEXT_SUFFIX=${LP_DELIMITER_KUBECONTEXT_SUFFIX:-""}
     LP_DELIMITER_KUBECONTEXT_PREFIX=${LP_DELIMITER_KUBECONTEXT_PREFIX:-""}
+    LP_ENV_VARS=( ${LP_ENV_VARS[@]+"${LP_ENV_VARS[@]}"} )
 
+    LP_ENABLE_DISPLAY=${LP_ENABLE_DISPLAY:-1}
+    LP_ENABLE_CHROOT=${LP_ENABLE_CHROOT:-1}
+    LP_ENABLE_MULTIPLEXER=${LP_ENABLE_MULTIPLEXER:-1}
     LP_ENABLE_PERM=${LP_ENABLE_PERM:-1}
     LP_ENABLE_SHORTEN_PATH=${LP_ENABLE_SHORTEN_PATH:-1}
     LP_ENABLE_PROXY=${LP_ENABLE_PROXY:-1}
+    LP_ENABLE_ENV_VARS=${LP_ENABLE_ENV_VARS:-1}
     LP_ENABLE_TEMP=${LP_ENABLE_TEMP:-1}
     LP_ENABLE_JOBS=${LP_ENABLE_JOBS:-1}
     LP_ENABLE_DETACHED_SESSIONS=${LP_ENABLE_DETACHED_SESSIONS:-1}
     LP_ENABLE_LOAD=${LP_ENABLE_LOAD:-1}
     LP_ENABLE_BATT=${LP_ENABLE_BATT:-1}
+    LP_ENABLE_RAM=${LP_ENABLE_RAM:-1}
+    LP_ENABLE_DISK=${LP_ENABLE_DISK:-0}
     LP_ENABLE_GIT=${LP_ENABLE_GIT:-1}
     LP_ENABLE_SVN=${LP_ENABLE_SVN:-1}
     LP_ENABLE_FOSSIL=${LP_ENABLE_FOSSIL:-1}
     LP_ENABLE_HG=${LP_ENABLE_HG:-1}
     LP_HG_COMMAND=${LP_HG_COMMAND:-hg}
     LP_ENABLE_BZR=${LP_ENABLE_BZR:-1}
+    LP_ENABLE_VCS_REMOTE=${LP_ENABLE_VCS_REMOTE:-0}
     LP_ENABLE_TIME=${LP_ENABLE_TIME:-0}
     LP_TIME_ANALOG=${LP_TIME_ANALOG:-0}
     LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-1}
@@ -267,24 +445,43 @@ __lp_source_config() {
     LP_ENABLE_RUBY_VENV=${LP_ENABLE_RUBY_VENV:-1}
     LP_RUBY_RVM_PROMPT_OPTIONS=( ${LP_RUBY_RVM_PROMPT_OPTIONS[@]+"${LP_RUBY_RVM_PROMPT_OPTIONS[@]}"} )
     [[ ${#LP_RUBY_RVM_PROMPT_OPTIONS[@]} == 0 ]] && LP_RUBY_RVM_PROMPT_OPTIONS=(i v g s)
+    LP_ENABLE_PERL_VENV=${LP_ENABLE_PERL_VENV:-1}
     LP_ENABLE_TERRAFORM=${LP_ENABLE_TERRAFORM:-0}
     LP_ENABLE_CONTAINER=${LP_ENABLE_CONTAINER:-0}
     LP_ENABLE_SCLS=${LP_ENABLE_SCLS:-1}
     LP_ENABLE_AWS_PROFILE=${LP_ENABLE_AWS_PROFILE:-1}
+    LP_ENABLE_MODULES=${LP_ENABLE_MODULES:-1}
+    LP_ENABLE_MODULES_VERSIONS=${LP_ENABLE_MODULES_VERSIONS:-1}
+    LP_ENABLE_MODULES_HASHCOLOR=${LP_ENABLE_MODULES_HASHCOLOR:-0}
     LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
     LP_ENABLE_TITLE=${LP_ENABLE_TITLE:-0}
     LP_ENABLE_SCREEN_TITLE=${LP_ENABLE_SCREEN_TITLE:-0}
     LP_ENABLE_TITLE_COMMAND=${LP_ENABLE_TITLE_COMMAND:-1}
+    LP_ENABLE_TMUX_TITLE_PANES=${LP_ENABLE_TMUX_TITLE_PANES:-1}
     LP_ENABLE_SSH_COLORS=${LP_ENABLE_SSH_COLORS:-0}
     LP_DISABLED_VCS_PATHS=( ${LP_DISABLED_VCS_PATHS[@]+"${LP_DISABLED_VCS_PATHS[@]}"} )
+    LP_TEMP_SYSFS_IGNORE_FILES=( ${LP_TEMP_SYSFS_IGNORE_FILES[@]+"${LP_TEMP_SYSFS_IGNORE_FILES[@]}"} )
     LP_ENABLE_SUDO=${LP_ENABLE_SUDO:-0}
     LP_ENABLE_COLOR=${LP_ENABLE_COLOR:-1}
     LP_ENABLE_ERROR=${LP_ENABLE_ERROR:-1}
+    LP_ENABLE_ERROR_MEANING=${LP_ENABLE_ERROR_MEANING:-0}
+    LP_ENABLE_ERROR_MEANING_EXTENDED=${LP_ENABLE_ERROR_MEANING_EXTENDED:-0}
     LP_ENABLE_DIRSTACK=${LP_ENABLE_DIRSTACK:-0}
     LP_ENABLE_KUBECONTEXT=${LP_ENABLE_KUBECONTEXT:-0}
     LP_ENABLE_KUBE_NAMESPACE=${LP_ENABLE_KUBE_NAMESPACE:-0}
+    LP_ENABLE_CMAKE=${LP_ENABLE_CMAKE:-0}
     LP_ENABLE_SHLVL=${LP_ENABLE_SHLVL:-1}
+    LP_SHLVL_THRESHOLD=${LP_SHLVL_THRESHOLD:-2}
     LP_ENABLE_WIFI_STRENGTH=${LP_ENABLE_WIFI_STRENGTH:-0}
+    LP_ENABLE_OS=${LP_ENABLE_OS:-0}
+    LP_ENABLE_OS_ARCH=${LP_ENABLE_OS_ARCH:-0}
+    LP_ENABLE_OS_FAMILY=${LP_ENABLE_OS_FAMILY:-0}
+    LP_ENABLE_OS_KERNEL=${LP_ENABLE_OS_KERNEL:-1}
+    LP_ENABLE_OS_DISTRIB=${LP_ENABLE_OS_DISTRIB:-0}
+    LP_ENABLE_OS_VERSION=${LP_ENABLE_OS_VERSION:-1}
+    LP_ENABLE_HYPERLINKS=${LP_ENABLE_HYPERLINKS:-0}
+    LP_ENABLE_PATH=${LP_ENABLE_PATH:-1}
+    LP_HIDE_EMPTY_ERROR=${LP_HIDE_EMPTY_ERROR:-1}
 
     LP_MARK_DEFAULT="${LP_MARK_DEFAULT:-$_LP_MARK_SYMBOL}"
     LP_MARK_BATTERY="${LP_MARK_BATTERY:-"⌁"}"
@@ -292,6 +489,9 @@ __lp_source_config() {
     LP_MARK_LOAD="${LP_MARK_LOAD:-"⌂"}"
     LP_MARK_TEMP="${LP_MARK_TEMP:-"θ"}"
     LP_MARK_PROXY="${LP_MARK_PROXY:-"↥"}"
+    LP_MARK_ENV_VARS_OPEN="${LP_MARK_ENV_VARS_OPEN:-"("}"
+    LP_MARK_ENV_VARS_SEP="${LP_MARK_ENV_VARS_SEP:-" "}"
+    LP_MARK_ENV_VARS_CLOSE="${LP_MARK_ENV_VARS_CLOSE:-")"}"
     LP_MARK_HG="${LP_MARK_HG:-"☿"}"
     LP_MARK_SVN="${LP_MARK_SVN:-"‡"}"
     LP_MARK_GIT="${LP_MARK_GIT:-"±"}"
@@ -301,6 +501,7 @@ __lp_source_config() {
     LP_MARK_DISABLED="${LP_MARK_DISABLED:-"⌀"}"
     LP_MARK_UNTRACKED="${LP_MARK_UNTRACKED:-"*"}"
     LP_MARK_STASH="${LP_MARK_STASH:-"+"}"
+    LP_MARK_VCS_REMOTE="${LP_MARK_VCS_REMOTE:-"⭚"}"
     LP_MARK_BRACKET_OPEN="${LP_MARK_BRACKET_OPEN:-"["}"
     LP_MARK_BRACKET_CLOSE="${LP_MARK_BRACKET_CLOSE:-"]"}"
     LP_MARK_MULTIPLEXER_OPEN="${LP_MARK_MULTIPLEXER_OPEN:-"$LP_MARK_BRACKET_OPEN"}"
@@ -311,7 +512,23 @@ __lp_source_config() {
     LP_MARK_DIRSTACK="${LP_MARK_DIRSTACK:-"⚞"}"
     LP_MARK_SHLVL="${LP_MARK_SHLVL:-"└"}"
     LP_MARK_WIFI="${LP_MARK_WIFI:-"📶"}"
+    LP_MARK_DEV_OPEN="${LP_MARK_DEV_OPEN:-"<"}"
+    LP_MARK_DEV_CLOSE="${LP_MARK_DEV_CLOSE:-">"}"
+    LP_MARK_DEV_MID="${LP_MARK_DEV_MID:-"|"}"
+    LP_MARK_MODULES_OPEN="${LP_MARK_MODULES_OPEN:-""}"
+    LP_MARK_MODULES_SEP="${LP_MARK_MODULES_SEP:-":"}"
+    LP_MARK_MODULES_CLOSE="${LP_MARK_MODULES_CLOSE:-""}"
+    LP_MARK_CMAKE="${LP_MARK_CMAKE:-":"}"
+    LP_MARK_KUBECONTEXT=${LP_MARK_KUBECONTEXT:-"⎈"}
+    LP_MARK_JOBS_SEPARATOR="${LP_MARK_JOBS_SEPARATOR:-"/"}"
+    LP_MARK_OS_SEP=${LP_MARK_OS_SEP:-"/"}
+    LP_MARK_OS=( ${LP_MARK_OS[@]+"${LP_MARK_OS[@]}"} )
+    LP_MARK_DISK="${LP_MARK_DISK:-"🖴 "}"
+    LP_MARK_RAM="${LP_MARK_RAM:-"M"}"
 
+    LP_COLOR_CMAKE_DEBUG=${LP_COLOR_CMAKE_DEBUG:-$MAGENTA}
+    LP_COLOR_CMAKE_RWDI=${LP_COLOR_CMAKE_RWDI:-$BLUE}
+    LP_COLOR_CMAKE_RELEASE=${LP_COLOR_CMAKE_RELEASE:-$CYAN}
     LP_COLOR_PATH=${LP_COLOR_PATH:-$NO_COL}
     lp_terminal_format 8 -1 0 0 -1
     LP_COLOR_PATH_SEPARATOR=${LP_COLOR_PATH_SEPARATOR:-$lp_terminal_format}
@@ -321,10 +538,13 @@ __lp_source_config() {
     LP_COLOR_PATH_LAST_DIR=${LP_COLOR_PATH_LAST_DIR:-$lp_terminal_format}
     LP_COLOR_PATH_ROOT=${LP_COLOR_PATH_ROOT:-$BOLD_YELLOW}
     LP_COLOR_PROXY=${LP_COLOR_PROXY:-$BOLD_BLUE}
+    LP_COLOR_ENV_VARS_UNSET=${LP_COLOR_ENV_VARS_UNSET:-$BLUE}
+    LP_COLOR_ENV_VARS_SET=${LP_COLOR_ENV_VARS_SET:-$BOLD_BLUE}
     LP_COLOR_JOB_D=${LP_COLOR_JOB_D:-$YELLOW}
     LP_COLOR_JOB_R=${LP_COLOR_JOB_R:-$BOLD_YELLOW}
     LP_COLOR_JOB_Z=${LP_COLOR_JOB_Z:-$BOLD_YELLOW}
     LP_COLOR_ERR=${LP_COLOR_ERR:-$PURPLE}
+    LP_COLOR_ERR_MEANING=${LP_COLOR_ERR_MEANING:-$LP_COLOR_ERR}
     LP_COLOR_MARK=${LP_COLOR_MARK:-$BOLD}
     LP_COLOR_MARK_ROOT=${LP_COLOR_MARK_ROOT:-$BOLD_RED}
     LP_COLOR_MARK_SUDO=${LP_COLOR_MARK_SUDO:-$LP_COLOR_MARK_ROOT}
@@ -354,12 +574,18 @@ __lp_source_config() {
     LP_COLOR_VIRTUALENV=${LP_COLOR_VIRTUALENV:-$CYAN}
     LP_COLOR_NODE_VENV=${LP_COLOR_NODE_VENV:-$LP_COLOR_VIRTUALENV}
     LP_COLOR_RUBY_VENV=${LP_COLOR_RUBY_VENV:-$LP_COLOR_VIRTUALENV}
+    LP_COLOR_PERL_VENV=${LP_COLOR_PERL_VENV:-$LP_COLOR_VIRTUALENV}
     LP_COLOR_TERRAFORM=${LP_COLOR_TERRAFORM:-$PINK}
     LP_COLOR_CONTAINER=${LP_COLOR_CONTAINER:-$BOLD_BLUE}
     LP_COLOR_DIRSTACK=${LP_COLOR_DIRSTACK:-$BOLD_YELLOW}
     LP_COLOR_KUBECONTEXT=${LP_COLOR_KUBECONTEXT:-$CYAN}
     LP_COLOR_AWS_PROFILE=${LP_COLOR_AWS_PROFILE:-$YELLOW}
+    LP_COLOR_MODULES=${LP_COLOR_MODULES:-$BLUE}
     LP_COLOR_SHLVL=${LP_COLOR_SHLVL:-$BOLD_GREEN}
+    LP_COLOR_DISK=${LP_COLOR_DISK:-$BOLD_RED}
+    LP_COLOR_DISK_UNITS=${LP_COLOR_DISK_UNITS:-$RED}
+    LP_COLOR_RAM=${LP_COLOR_RAM:-$BOLD_RED}
+    LP_COLOR_RAM_UNITS=${LP_COLOR_RAM_UNITS:-$RED}
 
     LP_COLORMAP=( ${LP_COLORMAP[@]+"${LP_COLORMAP[@]}"} )
     if [[ ${#LP_COLORMAP[@]} == 0 ]]; then
@@ -381,6 +607,8 @@ __lp_source_config() {
     _LP_LINUX_POWERSUPPLY_PATH="/sys/class/power_supply"
     _LP_LINUX_WIRELESS_FILE="/proc/net/wireless"
     _LP_AIRPORT_BIN="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
+    _LP_LINUX_RAM_FILE="/proc/meminfo"
+    _LP_BSD_RAM_FILE="/var/run/dmesg.boot"
 
     if (( _LP_SHELL_zsh )); then
         setopt local_options nullglob
@@ -398,29 +626,34 @@ __lp_source_config() {
     LP_DEBUG_TIME=${LP_DEBUG_TIME:-0}
 
     if [[ ${1-} == --no-config ]]; then
-        return
+        shift
+    else
+        # Default config file may be the XDG standard ~/.config/liquidpromptrc,
+        # but heirloom dotfile has priority.
+        local -a configfiles
+        configfiles=("$HOME/.liquidpromptrc" "${XDG_CONFIG_HOME:-"$HOME/.config"}/liquidpromptrc")
+
+        # trailing ":" is so that ${search#*:} always removes something
+        local configfile search="${XDG_CONFIG_DIRS:-/etc/xdg}:"
+        while [[ -n "$search" ]]; do
+            configfiles+=("${search%%:*}/liquidpromptrc")
+            search="${search#*:}"
+        done
+
+        configfiles+=("/etc/liquidpromptrc")
+
+        for configfile in "${configfiles[@]}"; do
+            if [[ -f "$configfile" ]]; then
+                # shellcheck source=/dev/null
+                source "$configfile"
+                break
+            fi
+        done
     fi
 
-    # Default config file may be the XDG standard ~/.config/liquidpromptrc,
-    # but heirloom dotfile has priority.
-    local -a configfiles
-    configfiles=("$HOME/.liquidpromptrc" "${XDG_CONFIG_HOME:-"$HOME/.config"}/liquidpromptrc")
-
-    # trailing ":" is so that ${search#*:} always removes something
-    local configfile search="${XDG_CONFIG_DIRS:-/etc/xdg}:"
-    while [[ -n "$search" ]]; do
-        configfiles+=("${search%%:*}/liquidpromptrc")
-        search="${search#*:}"
-    done
-
-    configfiles+=("/etc/liquidpromptrc")
-
-    for configfile in "${configfiles[@]}"; do
-        if [[ -f "$configfile" ]]; then
-            # shellcheck source=liquidpromptrc-dist
-            source "$configfile"
-            break
-        fi
+    for file in "$@"; do
+        # shellcheck disable=SC1090
+        . "$file"
     done
 
     # Deprecations and compatibility shims
@@ -435,7 +668,7 @@ __lp_source_config() {
         done
     fi
 
-    # Delete this code in version 1.11
+    # FIXME Delete this code in version 1.11
     if [[ -n "${LP_COLORMAP_1-}" ]]; then
         echo "liquidprompt: LP_COLORMAP_x variables are deprecated. Update your theme to use LP_COLORMAP array." >&2
         LP_COLORMAP=(
@@ -484,6 +717,12 @@ __lp_source_config() {
         echo "liquidprompt: LP_ENABLE_FQDN is deprecated. Update your config to set LP_HOSTNAME_METHOD=full
               or LP_HOSTNAME_METHOD=fqdn instead." >&2
         LP_HOSTNAME_METHOD="full"
+    fi
+
+    if [[ -n ${LP_PERCENTS_ALWAYS-} ]]; then
+        echo "liquidprompt: LP_PERCENTS_ALWAYS is deprecated. Update your config to set LP_ALWAYS_DISPLAY_VALUES and LP_DISPLAY_VALUES_AS_PERCENTS instead." >&2
+        LP_ALWAYS_DISPLAY_VALUES=${LP_PERCENTS_ALWAYS}
+        LP_DISPLAY_VALUES_AS_PERCENTS=${LP_PERCENTS_ALWAYS}
     fi
 }
 
@@ -566,6 +805,8 @@ lp_activate() {
     _lp_require_tool FOSSIL fossil
     _lp_require_tool HG "$LP_HG_COMMAND"
     _lp_require_tool BZR bzr
+    _lp_require_tool CMAKE cmake
+    _lp_require_tool DISK df
 
     _LP_ENABLED_VCSS=()
     (( LP_ENABLE_GIT )) && _LP_ENABLED_VCSS+=(git)
@@ -575,6 +816,7 @@ lp_activate() {
 
     if [[ "$LP_OS" = Darwin ]]; then
         _lp_require_tool BATT pmset
+        _lp_require_tool RAM vm_stat
     elif (( LP_ENABLE_BATT )); then
         __lp_battery_detect || LP_ENABLE_BATT=0
     fi
@@ -583,6 +825,13 @@ lp_activate() {
     _lp_require_tool TERRAFORM terraform
 
     unset -f _lp_require_tool
+
+    _LP_ENABLE_PREEXEC=$((
+        LP_ENABLE_RUNTIME \
+        || LP_ENABLE_RUNTIME_BELL \
+        || LP_ENABLE_TITLE_COMMAND \
+        || LP_HIDE_EMPTY_ERROR \
+    ))
 
     # LP_ENABLE_RUBY_VENV depends either from rvm or rbenv. Thus we cannot
     # directly use _lp_require_tool for it.
@@ -599,6 +848,16 @@ lp_activate() {
         fi
     fi
 
+    if (( LP_ENABLE_PERL_VENV )) ; then
+        if command -v perlbrew >/dev/null ; then
+            _LP_PERL_VENV_PROGRAM=perlbrew
+        elif command -v plenv >/dev/null ; then
+            _LP_PERL_VENV_PROGRAM=plenv
+        else
+            LP_ENABLE_PERL_VENV=0
+        fi
+    fi
+
     if (( LP_ENABLE_DETACHED_SESSIONS )); then
         command -v screen >/dev/null ; _LP_ENABLE_SCREEN=$(( ! $? ))
         command -v tmux >/dev/null   ; _LP_ENABLE_TMUX=$(( ! $? ))
@@ -608,9 +867,13 @@ lp_activate() {
     [[ -n "${MC_SID-}" ]] && LP_ENABLE_SHORTEN_PATH=0
 
     # If we are running in a terminal multiplexer, special title escapes
-    if _lp_multiplexer; then
+    if _lp_multiplexer --internal; then
         (( LP_ENABLE_TITLE = LP_ENABLE_TITLE && LP_ENABLE_SCREEN_TITLE ))
-        LP_TITLE_OPEN=$'\Ek'
+        if (( LP_ENABLE_TMUX_TITLE_PANES )) && [[ $lp_multiplexer == tmux ]]; then
+            LP_TITLE_OPEN=$'\E]2;'
+        else
+            LP_TITLE_OPEN=$'\Ek'
+        fi
         LP_TITLE_CLOSE=$'\E\\'
     else
         LP_TITLE_OPEN=$'\E]0;'
@@ -743,7 +1006,7 @@ _lp_bool() {
     return "$res"
 }
 
-_lp_color_map() {
+_lp_color_map() { # value [scale=100]
     # Default scale: 0..100
     # Custom scale: 0..$2
     local -i scale value
@@ -757,6 +1020,39 @@ _lp_color_map() {
     fi
     # Transform the value to a 0..${#COLOR_MAP} scale
     ret="${LP_COLORMAP[_LP_FIRST_INDEX+value*${#LP_COLORMAP[*]}/scale]}"
+}
+
+# Generate a terminal hyperlink from a URL and text.
+_lp_create_link() {  # url, text
+    (( LP_ENABLE_HYPERLINKS )) || return 2
+    lp_link="$_LP_OPEN_ESC"$'\E]8;;'"${1}"$'\E'"${_LP_BACKSLASH}${_LP_CLOSE_ESC}${2}${_LP_OPEN_ESC}"$'\E]8;;\E'"${_LP_BACKSLASH}$_LP_CLOSE_ESC"
+}
+
+# Add a link to a path element, with protocol depending on the connection.
+_lp_create_link_path() { # path
+    local _path="$1"
+    if (( LP_ENABLE_HYPERLINKS )); then
+        _lp_connection
+
+        if [[ "$lp_connection" == "ssh" ]]; then
+            # SSH connection needs the `sftp` protocol to reach the remote host.
+            local client_ip client_port server_ip server_port
+            IFS=" " read -r client_ip client_port server_ip server_port <<<"$SSH_CONNECTION"
+            local username=${USER:-${USERNAME:-${LOGNAME-}}}
+            _lp_create_link "sftp://${username}@${server_ip}:${client_port}/${PWD}/" "$_path"
+            lp_link_path="$lp_link"
+
+        elif [[ "$lp_connection" == "su" || "$lp_connection" == "lcl" ]]; then
+            # Reach local host with the `file` protocol.
+            _lp_create_link "file://${PWD}/" "$_path"
+            lp_link_path="$lp_link"
+
+        else # no link for telnet.
+            lp_link_path="$_path"
+        fi
+    else # No link.
+        lp_link_path="$_path"
+    fi
 }
 
 # Return true if the input is the name of a function.
@@ -776,7 +1072,8 @@ __lp_line_count() {
 
 __lp_hostname_hash() {
     # cksum is separated with tab on SunOS, space on others
-    local cksum="$(hostname | cksum)"
+    # Newline is required to keep the same color as before.
+    local cksum="$(printf '%s\n' "${HOSTNAME:-${HOST-}}" | cksum)"
     lp_hostname_hash=${cksum%%[$' \t']*}
 }
 
@@ -929,6 +1226,182 @@ __lp_theme_zsh_complete() {
     _describe 'theme' lp_theme_list
 }
 
+_lp_hash_color() {
+    (( LP_ENABLE_COLOR )) || return 2
+    # compute the hash of the argument and color it with the corresponding color in:
+    # (green, yellow, blue, purple, cyan)
+    # Red (would be index 1) is not used here, as it should be reserved for alerts.
+    local str=${1-}
+    local cksum="$(printf '%s' "$str" | cksum)"
+    local hash="${cksum%%[$' \t']*}"
+    __lp_foreground_color "$(( 2 + hash % 5 ))"
+    local color="${_LP_OPEN_ESC}${af_color-}${_LP_CLOSE_ESC}"
+    lp_hash_color="${color}${str}${NO_COL}"
+}
+
+_lp_join() {
+    # Join the $2... array with the $1 string.
+    local delimiter=${1-}
+    local IFS=""
+    if (( _LP_SHELL_zsh )); then
+        shift 1
+        # shellcheck disable=SC2296
+        lp_join="${(pj/$delimiter/)*}"
+    else
+        local first=${2-}
+        shift 2
+        lp_join="${first}${*/#/$delimiter}"
+    fi
+}
+
+_lp_grep_fields() {
+    # Open file $1 and parse it for key/value pairs having delimiter $2, for each key in $3...
+    # Silently bypass inexisting fields.
+    local file="$1"
+    [[ -f "$file" ]] || return 1
+
+    local delimiter="$2"
+    shift 2
+    local -a fields
+    fields=("$@")
+
+    lp_grep_fields=()
+    # We test for $line in the loop is here to ensure that we read the last line,
+    # even if the file does not ends with a \n.
+    # This bypass a known behavior of the C standard, not fixed in POSIX.
+    while IFS='' read -r line || [[ -n "$line" ]] ; do
+        for (( i=_LP_FIRST_INDEX; i < ${#fields[@]} + _LP_FIRST_INDEX; i++ )); do
+            key="${fields[i]}"
+            if [[ "$line" == "${key}${delimiter}"* ]] ; then
+                line="${line#*"${key}${delimiter}"}" # Remove first part until delimiter.
+                lp_grep_fields[i]="${line}"
+            fi
+        done
+    done <"$file"
+}
+
+# Adds as much $3 (fillchars) character(s) (e.g. spaces) between $1 (left) and $2 (right),
+# so as to make the resulting string the same width as the current terminal.
+# If $4 (splitends) is true, then will cut $3 (fillchars) so as to perfectly fill the available space.
+#
+# This function would have been slow if you put escaped characters in $3 (fillchars)
+# and the width of the gap to fill is large. Thus, any escaped character is
+# removed from $3 (fillchars) at the beginning.
+#
+# To color the filling sequence, you can add formating at the end of $1 (left)
+# and/or at the beginning of $2 (right).
+_lp_fill() {
+
+    local left="$1" right="$2" fillchars="${3:-" "}" splitends="${4:-1}"
+
+    # Remove any escaped character from fillchars,
+    # to avoid any costly __lp_strip_escape call on a potentially long
+    # sequence of characters.
+    __lp_strip_escapes "$fillchars"
+    fillchars="$ret"
+
+    # Compute the gap between left and right.
+    local ret
+    __lp_strip_escapes "${left}"
+    local left_as_text="$ret"
+    __lp_strip_escapes "${right}"
+    local right_as_text="$ret"
+    # Width of the gap is width of the screen minus every printable character.
+    local gap_width=$((${COLUMNS:-80}-${#left_as_text}-${#right_as_text}))
+    if [[ $gap_width -lt 0 ]] ; then
+        lp_fill="${left}${right}"
+        return 1
+    fi
+
+    # Assemble a candidate filling sequence of characters.
+    local filled=""
+    local fillchars_width=${#fillchars}
+    local nb_fillchars=$((gap_width/fillchars_width))
+    local i
+    for (( i=0; i < nb_fillchars; i++ )) ; do
+        filled+="$fillchars"
+    done
+
+    local actual_width=${#filled}
+    # If there is still a gap (i.e. we have an unaligned multi-character fillchars).
+    if [[ ${actual_width} -lt ${gap_width} ]] ; then
+        # User asked for splitends.
+        if [[ $splitends -ne 0 ]] ; then
+            for (( i=_LP_FIRST_INDEX; i < $((${#fillchars}+_LP_FIRST_INDEX)); i++ )) ; do
+                # Get one single character.
+                if (( _LP_SHELL_zsh )) ; then
+                    filled+="${fillchars[i,i]}"
+                else
+                    filled+="${fillchars:i:1}"
+                fi
+                actual_width=${#filled}
+                if [[ ${actual_width} -ge ${gap_width} ]] ; then
+                    # Stop at this char if we're full.
+                    break
+                fi
+            done
+        else # User asked for no splitends.
+            for (( i=actual_width; i < gap_width; i++ )) ; do
+                # Fill with spaces.
+                filled+=" "
+            done
+        fi
+    fi
+
+    # shellcheck disable=SC2034
+    lp_fill="${left}${filled}${right}"
+}
+
+_lp_version_string() { # [major, [minor, [patch, [string, [number]]]]]
+
+    if [[ $# -eq 0 ]]; then
+        local major="${_LP_VERSION[_LP_FIRST_INDEX+0]}"
+        local minor="${_LP_VERSION[_LP_FIRST_INDEX+1]}"
+        local patch="${_LP_VERSION[_LP_FIRST_INDEX+2]-}"
+        local string="${_LP_VERSION[_LP_FIRST_INDEX+3]-}"
+        local number="${_LP_VERSION[_LP_FIRST_INDEX+4]-}"
+    else
+        local major="${1}"
+        local minor="${2}"
+        local patch="${3-}"
+        local string="${4-}"
+        local number="${5-}"
+    fi
+    #shellcheck disable=SC2034
+    lp_version="${major}.${minor}"
+    if [[ -n "$patch" ]]; then
+        lp_version+=".${patch}"
+        if [[ -n "$string" ]]; then
+            lp_version+="-${string}"
+            if [[ -n "$number" ]]; then
+                lp_version+=".${number}"
+            fi
+        fi
+    fi
+}
+
+_lp_substitute() { # string pairs_array
+    # Replace string with the "right" part of the first pair in the given array, if the "left" part matches the string.
+    # FIXME If we ever support Bash>4.3, this would be better implemented with associative arrays.
+    lp_substitute=""
+    local string="${1}"
+    shift 1
+    local pairs
+    pairs=("$@")
+    [[ -n "${pairs[*]}" ]] || return 2
+
+    local i key
+    for (( i=0; i < ${#pairs[@]}; i+=2 )); do
+        key=${pairs[_LP_FIRST_INDEX+i]}
+        if [[ "$key" == "$string" ]]; then
+            lp_substitute=${pairs[_LP_FIRST_INDEX+i+1]-}
+            return 0 # Found.
+        fi
+    done
+    return 1 # Not found.
+}
+
+
 ##########################
 # Working Directory Path #
 ##########################
@@ -973,6 +1446,8 @@ __lp_end_path_left_shortening() {
 #   truncate_chars_to_unique_dir
 #   truncate_to_last_dir
 _lp_path_format() {
+    ((LP_ENABLE_PATH)) || return 2
+
     local path_format="${1-$LP_COLOR_PATH}"
     local last_directory_format="${2:-$path_format}"
     local vcs_root_format="${3:-$last_directory_format}"
@@ -983,7 +1458,7 @@ _lp_path_format() {
     lp_path=
     lp_path_format=
 
-    local ret
+    local ret lp_link_path
 
     local lp_pwd_tilde
     __lp_pwd_tilde
@@ -991,7 +1466,7 @@ _lp_path_format() {
 
     local -i path_length="${#display_path}"
 
-    local lp_vcs_root lp_vcs_dir lp_vcs_type lp_vcs_subtype
+    local lp_vcs_root lp_vcs_dir lp_vcs_specific_dir lp_vcs_type lp_vcs_subtype
     local vcs_root_directory=
     if (( LP_PATH_VCS_ROOT )) && _lp_find_vcs; then
         __lp_pwd_tilde "$lp_vcs_root"
@@ -1009,10 +1484,13 @@ _lp_path_format() {
         __lp_escape "$lp_path"
 
         if [[ $display_path == "$vcs_root_directory" ]]; then
-            lp_path_format="${vcs_root_format}${ret}"
+            _lp_create_link_path "${ret}"
+            lp_path_format="${vcs_root_format}$lp_link_path"
         else
-            lp_path_format="${last_directory_format}${ret}"
+            _lp_create_link_path "${ret}"
+            lp_path_format="${last_directory_format}$lp_link_path"
         fi
+
         return
     else
         if [[ $separator != "/" && ${display_path:0:1} == "/" ]]; then
@@ -1054,13 +1532,13 @@ _lp_path_format() {
             # No shortening
             lp_path+=$current_directory
             __lp_escape "$current_directory"
-            lp_path_format+="${vcs_root_format}${ret}"
+            lp_path_format+="${vcs_root_format}"
         elif [[ -z $path_to_proccess ]]; then
             __lp_end_path_left_shortening
             # Last directory
             lp_path+=$current_directory
             __lp_escape "$current_directory"
-            lp_path_format+="${last_directory_format}${ret}"
+            lp_path_format+="${last_directory_format}"
         elif (( LP_ENABLE_SHORTEN_PATH && directory_count > LP_PATH_KEEP \
             && ( shortened_path_length > max_len || ( shortened_path_length >= max_len && is_shortening ) ) )); then
 
@@ -1069,7 +1547,7 @@ _lp_path_format() {
 
                 lp_path+=$lp_unique_directory
                 __lp_escape "$lp_unique_directory"
-                lp_path_format+="${shortened_directory_format}${ret}"
+                lp_path_format+="${shortened_directory_format}"
                 shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#lp_unique_directory} ))
             elif [[ $LP_PATH_METHOD == "truncate_chars_from_path_left" ]]; then
                 # The only way to know if this consecutive directory shortening
@@ -1100,7 +1578,7 @@ _lp_path_format() {
                     shortened_path="${LP_MARK_SHORTEN_PATH}${current_directory:$needed_length}"
                     lp_path+=$shortened_path
                     __lp_escape "$shortened_path"
-                    lp_path_format+="${shortened_directory_format}${ret}"
+                    lp_path_format+="${shortened_directory_format}"
 
                     is_shortening=0
                 fi
@@ -1110,7 +1588,7 @@ _lp_path_format() {
                 shortened_path="${current_directory:0:$LP_PATH_CHARACTER_KEEP}${LP_MARK_SHORTEN_PATH}"
                 lp_path+=$shortened_path
                 __lp_escape "$shortened_path"
-                lp_path_format+="${shortened_directory_format}${ret}"
+                lp_path_format+="${shortened_directory_format}"
                 shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP ))
             elif [[ $LP_PATH_METHOD == "truncate_chars_from_dir_middle" ]] && \
                 (( ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP * 2 < ${#current_directory} )); then
@@ -1118,27 +1596,33 @@ _lp_path_format() {
                 shortened_path="${current_directory:0:$LP_PATH_CHARACTER_KEEP}${LP_MARK_SHORTEN_PATH}${current_directory: -$LP_PATH_CHARACTER_KEEP}"
                 lp_path+=$shortened_path
                 __lp_escape "$shortened_path"
-                lp_path_format+="${shortened_directory_format}${ret}"
+                lp_path_format+="${shortened_directory_format}"
                 shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP * 2 ))
             else
                 # Need to shorten, but no method matched, or the matched method
                 # did not make the string any shorter.
                 lp_path+=$current_directory
                 __lp_escape "$current_directory"
-                lp_path_format+="${path_format}${ret}"
+                lp_path_format+="${path_format}"
             fi
         else
             __lp_end_path_left_shortening
             lp_path+=$current_directory
             __lp_escape "$current_directory"
-            lp_path_format+="${path_format}${ret}"
+            lp_path_format+="${path_format}"
         fi
 
-        if [[ -n $path_to_proccess && ( $current_path != "/" || $separator != "/" ) ]] && (( ! is_shortening )); then
-            if [[ $current_path != "/" ]]; then
-                lp_path+="/"
+        if (( ! is_shortening )); then
+
+            _lp_create_link_path "$ret"
+            lp_path_format+="$lp_link_path"
+
+            if [[ -n $path_to_proccess && ( $current_path != "/" || $separator != "/" ) ]]; then
+                if [[ $current_path != "/" ]]; then
+                    lp_path+="/"
+                fi
+                lp_path_format+="${separator_format}${separator}"
             fi
-            lp_path_format+="${separator_format}${separator}"
         fi
     done
 }
@@ -1149,6 +1633,7 @@ _lp_path_format() {
 
 # If we are connected with a X11 support
 _lp_connected_display() {
+    (( LP_ENABLE_DISPLAY )) || return 2
     [[ -n "${DISPLAY-}" ]]
 }
 
@@ -1170,6 +1655,7 @@ _lp_connection() {
 }
 
 _lp_chroot() {
+    (( LP_ENABLE_CHROOT )) || return 2
     if [[ -r /etc/debian_chroot ]]; then
         IFS= read -r lp_chroot </etc/debian_chroot
         if [[ -n "$lp_chroot" ]]; then
@@ -1194,13 +1680,217 @@ _lp_error_color() {
     lp_error_color="${LP_COLOR_ERR}${lp_error}${NO_COL}"
 }
 
+_lp_error_meaning() {
+    # Reasonable codes for a POSIX env.
+
+    (( LP_ENABLE_ERROR_MEANING )) || return 2
+
+    (( lp_error != 0 )) || return 1
+
+    local meaning=
+    case $lp_error in
+        # Common
+        1 )
+            meaning="error"        #1
+            ;;
+        2 )
+            meaning="usage"        #2
+            ;;
+        126 )
+            meaning="no perm"      #126
+            ;;
+        127 )
+            meaning="not found"    #127
+            ;;
+        128 )
+            meaning="bad exit"     #128
+            ;;
+
+        # Portable and meaningful codes from signal.h:
+        130 )
+            meaning="interrupted"  #128+2  SIGINT    Ctrl-C
+            ;;
+        131 )
+            meaning="quit"         #128+3  SIGQUIT
+            ;;
+        137 )
+            meaning="killed"       #128+9  SIGKILL
+            ;;
+        139 )
+            meaning="segfault"     #128+11 SIGSEGV
+            ;;
+        143 )
+            meaning="terminated"   #128+15 SIGTERM
+            ;;
+        141 )
+            meaning="pipe"         #128+13 SIGPIPE
+            ;;
+        # Not including the widespread SIGUSR* because they are not portable across architectures.
+
+        *)
+            if ((LP_ENABLE_ERROR_MEANING_EXTENDED)); then
+                case $lp_error in
+
+                    # sysexit.h
+                    64 )
+                        meaning="usage"        #64+0
+                        ;;
+                    65 )
+                        meaning="data format"  #64+1
+                        ;;
+                    66 )
+                        meaning="no input"     #64+2
+                        ;;
+                    67 )
+                        meaning="no user"      #64+3
+                        ;;
+                    68 )
+                        meaning="no host"      #64+4
+                        ;;
+                    69 )
+                        meaning="unavailable"  #64+5
+                        ;;
+                    70 )
+                        meaning="internal"     #64+6
+                        ;;
+                    71 )
+                        meaning="OS error"     #64+7
+                        ;;
+                    72 )
+                        meaning="OS file"      #64+8
+                        ;;
+                    73 )
+                        meaning="file create"  #64+9
+                        ;;
+                    74 )
+                        meaning="I/O err"      #64+10
+                        ;;
+                    75 )
+                        meaning="temporary"    #64+11
+                        ;;
+                    76 )
+                        meaning="protocol"     #64+12
+                        ;;
+                    77 )
+                        meaning="no perm"      #64+13
+                        ;;
+                    78 )
+                        meaning="bad config"   #64+14
+                        ;;
+
+                    # signal.h for POSIX on x86/ARM (from `man 7 signal`)
+                    # The OS will exit with 128 + the actual signal ID.
+                    # [action] indicates the default OS action, ignored/continue are not raised up to the shell,
+                    # and thus may be commented out if needed (but the OS config may differ, so they are kept here).
+                    129 )
+                        meaning="hangup"       #128+1  SIGHUP
+                        ;;
+                    132 )
+                        meaning="illegal"      #128+4  SIGILL
+                        ;;
+                    133 )
+                        meaning="trap"         #128+5  SIGTRAP
+                        ;;
+                    134 )
+                        meaning="I/O trap"     #128+6  SIGIOT
+                        ;;
+                    135 )
+                        meaning="bus"          #128+7  SIGBUS    (10, on SPARC, MIPS and RISC)
+                        ;;
+                    136 )
+                        meaning="arithmetic"   #128+8  SIGFPE
+                        ;;
+                    138 )
+                        meaning="user 1"       #128+10 SIGUSR1   (30 on SPARC, 16 on MIPS & RISC)
+                        ;;
+                    140 )
+                        meaning="user 2"       #128+12 SIGUSR2   (31 on SPARC, 17 on MIPS & RISC)
+                        ;;
+                    142 )
+                        meaning="alarm"        #128+14 SIGALRM
+                        ;;
+                    144 )
+                        meaning="stack fault"  #128+16 SIGSTKFLT (7 on RISC, not on SPARC & MPIS)
+                        ;;
+                    145 )
+                        meaning="child"        #128+17 SIGCHLD   (20 on SPARC, 18 on MIPS & RISC)      [ignored ]
+                        ;;
+                    146 )
+                        meaning="continue"     #128+18 SIGCONT   (19 on SPARC, 25 on MIPS, 26 on RISC) [continue]
+                        ;;
+                    147 )
+                        meaning="stop"         #128+19 SIGSTOP   (17 on SPARC, 23 on MIPS, 24 on RISC)
+                        ;;
+                    148 )
+                        meaning="term stop"    #128+20 SIGTSTP   (18 on SPARC, 24 on MIPS, 25 on RISC)
+                        ;;
+                    149 )
+                        meaning="bckgrd read"  #128+21 SIGTTIN   (26 on MIPS, 27 on RISC)
+                        ;;
+                    150 )
+                        meaning="bckgrd write" #128+22 SIGTTOU   (27 on MIPS, 28 on RISC)
+                        ;;
+                    151 )
+                        meaning="socket"       #128+23 SIGURG    (16 on SPARC, 21 on MIPS, 29 on RISC) [ignored ] +BSD
+                        ;;
+                    152 )
+                        meaning="CPU limit"    #128+24 SIGXCPU   (30 on MIPS, 12 on RISC)
+                        ;;
+                    153 )
+                        meaning="file size"    #128+25 SIGXFSZ   (31 on MIPS, 30 on SPARC)                        +BSD
+                        ;;
+                    154 )
+                        meaning="virt. alarm"  #128+26 SIGVTALRM (28 o MIPS, 20 on RISC)                          +BSD
+                        ;;
+                    155 )
+                        meaning="profilr time" #128+27 SIGPROF   (29 on MIPS, 21 on RISC)
+                        ;;
+                    156 )
+                        meaning="win resize"   #128+28 SIGWINCH  (20 on MIPS, 23 on RISC)              [ignored ] +BSD, Sun
+                        ;;
+                    157 )
+                        meaning="I/O allowed"  #128+29 SIGIO     (23 on SPARC, 22 on MIPS & RISC)                 +BSD
+                        ;;
+                    158 )
+                        meaning="power fail"   #128+30 SIGPWR    (29 on SPARC, 19 on MIPS & RISC)
+                        ;;
+                    159 )
+                        meaning="bad sys call" #128+31 SIGSYS    (12 on SPARC & MIPS)
+                        ;;
+                    *)
+                        return 1 # No known error meaning.
+                        ;;
+                esac
+            else
+                return 1 # We do not want to display those error meanings.
+            fi
+            ;; # End of * for simple case switch.
+    esac
+    lp_error_meaning="${meaning}"
+}
+
+_lp_error_meaning_color() {
+    _lp_error_meaning || return "$?"
+    # Not sure if we would want to make the parentheses configurable.
+    # Assumed no, as the meaning is straightforward and this function is simple to bypass in a theme.
+    lp_error_meaning_color="${LP_COLOR_ERR_MEANING}(${lp_error_meaning})${NO_COL}"
+}
+
+# Use --internal to avoid being disabled by LP_ENABLE_MULTIPLEXER.
+# Note: this still tests for LP_ENABLE_SCREEN_TITLE and LP_ENABLE_TMUX_TITLE_PANES.
 # shellcheck disable=SC2034
-_lp_multiplexer() {
+_lp_multiplexer() { # [--internal]
+    if [[ ${1-} == "--internal" ]]; then
+        (( LP_ENABLE_SCREEN_TITLE || LP_ENABLE_TMUX_TITLE_PANES )) || return 2
+    else
+        (( LP_ENABLE_MULTIPLEXER )) || return 2
+    fi
+
     if [[ -n ${TMUX-} ]]; then
-        lp_mulitplexer=tmux
+        lp_multiplexer=tmux
         return 0
     elif [[ "${TERM-}" == screen* ]]; then
-        lp_mulitplexer=screen
+        lp_multiplexer=screen
         return 0
     fi
     return 1
@@ -1225,6 +1915,79 @@ _lp_http_proxy_color() {
     lp_http_proxy_color="${LP_COLOR_PROXY}${LP_MARK_PROXY}${NO_COL}"
 }
 
+_lp_env_vars() { # [color_set, [color_unset, [end_color]]]
+    # Expects LP_ENV_VARS to be an array containing items of the form:
+    # "<ENV_VAR_NAME> <string if set>[ <string if unset>]"
+    # Strings may be `%s`, which will be replaced by the variable's actual content.
+    # <end_color> is added after each variable.
+    # If end_color is not passed, it will default to $NO_COL.
+
+    (( LP_ENABLE_ENV_VARS )) || return 2
+
+    local color_set="${1-}"
+    local color_unset="${2-}"
+    local color_no="${3-$NO_COL}"
+    if [[ -z "$color_set" && -z "$color_unset" ]]; then
+        color_no=""
+    fi
+
+    local var_rep var evar fmt_if_set fmt_if_unset
+
+    lp_env_vars=()
+    # For all user-defined setup.
+    for var_rep in ${LP_ENV_VARS[@]+"${LP_ENV_VARS[@]}"}; do
+        IFS=' ' read -r var fmt_if_set fmt_if_unset <<<"$var_rep"
+        # Variable name and set format has to be set, but unset format is optional.
+        if [[ -n "${var}" && -n "${fmt_if_set}" ]]; then
+            # Expands the underlying variable name.
+            local var_is_set=
+            if (( _LP_SHELL_zsh )); then
+                # From https://www.shellcheck.net/wiki/SC2296 :
+                # "Some Zsh specific parameter expansions like ${(q)value} trigger this warning,
+                # but ShellCheck does not support Zsh."
+                # shellcheck disable=SC2296
+                var_is_set="${(P)var+IS_SET}"
+            else
+                # NOTE: indirection expansion are deprecated starting at bash 4.3, should use nameref.
+                var_is_set="${!var+IS_SET}"
+            fi
+
+            if [[ -n "$var_is_set" ]]; then
+                if [[ "${fmt_if_set}" == *"%s"* ]]; then
+                    local evar=
+                    if (( _LP_SHELL_zsh )); then
+                        # shellcheck disable=SC2296
+                        evar="${(P)var}"
+                    else
+                        evar="${!var}"
+                    fi
+                    # Print content.
+                    lp_env_vars+=( "${color_set}${fmt_if_set/\%s/${evar}}${color_no}" )
+                else
+                    # Print tag.
+                    lp_env_vars+=( "${color_set}${fmt_if_set}${color_no}" )
+                fi
+            elif [[ -n "$fmt_if_unset" ]]; then
+                # Print default.
+                lp_env_vars+=( "${color_unset}${fmt_if_unset}${color_no}" )
+            fi
+        fi
+    done
+    if [[ -z "${lp_env_vars-}" ]]; then
+        return 1
+    fi
+}
+
+_lp_env_vars_color() {
+    if _lp_env_vars "${LP_COLOR_ENV_VARS_SET}" "${LP_COLOR_ENV_VARS_UNSET}"; then
+        _lp_join "${LP_MARK_ENV_VARS_SEP}" "${lp_env_vars[@]}"
+        lp_env_vars_color="${LP_MARK_ENV_VARS_OPEN}${lp_join}${LP_MARK_ENV_VARS_CLOSE}"
+    else
+        return "$?"
+    fi
+}
+
+
 _lp_python_env() {
     (( LP_ENABLE_VIRTUALENV )) || return 2
 
@@ -1236,9 +1999,11 @@ _lp_python_env() {
         if [[ -r "$virtualenv_config" ]]; then
             local line
             while IFS='' read -r line ; do
-                if [[ $line == "prompt = "* ]]; then
-                    line="${line#"prompt = '"}"
-                    line="${line%"'"}"
+                if [[ $line == "prompt"*"="* ]]; then
+                    line="${line#"prompt"*"="}"
+                    line="${line#[[:space:]]}"
+                    line="${line#[\'\"]}"
+                    line="${line%[\'\"]}"
                     __lp_escape "$line"
                     break
                 fi
@@ -1259,9 +2024,10 @@ _lp_python_env() {
 }
 
 _lp_python_env_color() {
+    unset lp_python_env_color
     _lp_python_env || return "$?"
 
-    lp_python_env_color="[${LP_COLOR_VIRTUALENV}${lp_python_env}${NO_COL}]"
+    lp_python_env_color="${LP_COLOR_VIRTUALENV}${lp_python_env}${NO_COL}"
 }
 
 _lp_node_env() {
@@ -1284,9 +2050,46 @@ _lp_node_env() {
 }
 
 _lp_node_env_color() {
+    unset lp_node_env_color
     _lp_node_env || return "$?"
 
-    lp_node_env_color="[${LP_COLOR_NODE_VENV}${lp_node_env}${NO_COL}]"
+    lp_node_env_color="${LP_COLOR_NODE_VENV}${lp_node_env}${NO_COL}"
+}
+
+_lp_perl_env() {
+    (( LP_ENABLE_PERL_VENV )) || return 2
+
+    local ret
+
+    if [[ "$_LP_PERL_VENV_PROGRAM" = "perlbrew" ]] ; then
+        local perlbrew_perl_ver="$(perlbrew use)"
+
+        if [[ "$perlbrew_perl_ver" == "Currently using system perl" ]]; then
+            return 1
+        fi
+
+        # Example: Currently using perl-5.38.0
+        __lp_escape "${perlbrew_perl_ver##*perl-}"
+        lp_perl_env=$ret
+    elif [[ "$_LP_PERL_VENV_PROGRAM" = "plenv" ]] ; then
+        local plenv_ver="$(plenv version-name)"
+
+        if [[ "$plenv_ver" == "system" ]]; then
+            return 1
+        fi
+
+        __lp_escape "$plenv_ver"
+        lp_perl_env=$ret
+    else
+        return 1
+    fi
+}
+
+_lp_perl_env_color() {
+    unset lp_perl_env_color
+    _lp_perl_env || return "$?"
+
+    lp_perl_env_color="${LP_COLOR_PERL_VENV}${lp_perl_env}${NO_COL}"
 }
 
 _lp_ruby_env() {
@@ -1295,12 +2098,23 @@ _lp_ruby_env() {
     local ret
 
     if [[ "$_LP_RUBY_VENV_PROGRAM" = "rvm" ]] ; then
-        __lp_escape "$(rvm-prompt "${LP_RUBY_RVM_PROMPT_OPTIONS[@]}")"
+        local rvm_ver="$(rvm-prompt "${LP_RUBY_RVM_PROMPT_OPTIONS[@]}")"
+
+        # Will return nothing if 's' is not in the options, and "system" if it is.
+        if [[ -z "$rvm_ver" || "$rvm_ver" == "system" ]]; then
+            return 1
+        fi
+
+        __lp_escape "$rvm_ver"
         lp_ruby_env=$ret
     elif [[ "$_LP_RUBY_VENV_PROGRAM" = "rbenv" ]] ; then
-        local rbenv_ver="$(rbenv version)"
-        # Only first word is necessary
-        __lp_escape "${rbenv_ver%%" (set"*}"
+        local rbenv_ver="$(rbenv version-name)"
+
+        if [[ "$rbenv_ver" == "system" ]]; then
+            return 1
+        fi
+
+        __lp_escape "$rbenv_ver"
         lp_ruby_env=$ret
     else
         return 1
@@ -1308,9 +2122,10 @@ _lp_ruby_env() {
 }
 
 _lp_ruby_env_color() {
+    unset lp_ruby_env_color
     _lp_ruby_env || return "$?"
 
-    lp_ruby_env_color="[${LP_COLOR_RUBY_VENV}${lp_ruby_env}${NO_COL}]"
+    lp_ruby_env_color="${LP_COLOR_RUBY_VENV}${lp_ruby_env}${NO_COL}"
 }
 
 _lp_terraform_env() {
@@ -1333,9 +2148,10 @@ _lp_terraform_env() {
 }
 
 _lp_terraform_env_color() {
+    unset lp_terraform_env_color
     _lp_terraform_env || return "$?"
 
-    lp_terraform_env_color="[${LP_COLOR_TERRAFORM}${lp_terraform_env}${NO_COL}]"
+    lp_terraform_env_color="${LP_COLOR_TERRAFORM}${lp_terraform_env}${NO_COL}"
 }
 
 _lp_software_collections() {
@@ -1351,11 +2167,11 @@ _lp_software_collections() {
 }
 
 _lp_software_collections_color() {
+    unset lp_software_collections_color
     _lp_software_collections || return "$?"
 
-    lp_software_collections_color="[${LP_COLOR_VIRTUALENV}${lp_software_collections}${NO_COL}]"
+    lp_software_collections_color="${LP_COLOR_VIRTUALENV}${lp_software_collections}${NO_COL}"
 }
-
 
 _lp_kubernetes_context() {
     (( LP_ENABLE_KUBECONTEXT )) || return 2
@@ -1395,10 +2211,148 @@ _lp_kubernetes_context() {
 }
 
 _lp_kubernetes_context_color() {
+    unset lp_kubernetes_context_color
     _lp_kubernetes_context || return "$?"
 
-    lp_kubernetes_context_color="[${LP_MARK_KUBECONTEXT}${LP_COLOR_KUBECONTEXT}${lp_kubernetes_context}${lp_kubernetes_namespace+:}${lp_kubernetes_namespace-}${NO_COL}]"
+    lp_kubernetes_context_color="${LP_MARK_KUBECONTEXT}${LP_COLOR_KUBECONTEXT}${lp_kubernetes_context}${lp_kubernetes_namespace+:}${lp_kubernetes_namespace-}${NO_COL}"
 }
+
+_lp_aws_profile() {
+    (( LP_ENABLE_AWS_PROFILE )) || return 2
+
+    local ret
+
+    local aws_profile="${AWS_PROFILE-${AWS_DEFAULT_PROFILE-${AWS_VAULT-}}}"
+    if [[ -n $aws_profile ]]; then
+        __lp_escape "${aws_profile}"
+        lp_aws_profile=$ret
+    else
+        return 1
+    fi
+}
+
+_lp_aws_profile_color() {
+    unset lp_aws_profile_color
+    _lp_aws_profile || return "$?"
+
+    lp_aws_profile_color="${LP_COLOR_AWS_PROFILE}${lp_aws_profile}${NO_COL}"
+}
+
+
+_lp_cmake() {
+    ((  LP_ENABLE_CMAKE  )) || return 2
+    [[ -f CMakeCache.txt ]] || return 1
+
+    _lp_grep_fields "CMakeCache.txt" "=" "CMAKE_C_COMPILER:FILEPATH"  "CMAKE_CXX_COMPILER:FILEPATH" "CMAKE_GENERATOR:INTERNAL" "CMAKE_BUILD_TYPE:STRING"
+
+    local cmake_c_compiler=${lp_grep_fields[_LP_FIRST_INDEX+0]-}
+    lp_cmake_c_compiler="${cmake_c_compiler##*/}" # Only the part after the last slash.
+
+    local cmake_cxx_compiler=${lp_grep_fields[_LP_FIRST_INDEX+1]-}
+    lp_cmake_cxx_compiler="${cmake_cxx_compiler##*/}" # Only the part after the last slash.
+
+    local cmake_generator=${lp_grep_fields[_LP_FIRST_INDEX+2]-}
+    # Shorten: Makefiles -> Make, and Visual Studio -> VS.
+    cmake_generator="${cmake_generator/%Makefiles/Make}"
+    cmake_generator="${cmake_generator/#Visual Studio/VS}"
+    # Remove all white spaces.
+    lp_cmake_generator="${cmake_generator// /}"
+
+    lp_cmake_buildtype=${lp_grep_fields[_LP_FIRST_INDEX+3]-}
+    [[ -n "${lp_cmake_c_compiler}${lp_cmake_cxx_compiler}${lp_cmake_generator}${lp_cmake_buildtype}" ]] || return 1
+}
+
+_lp_cmake_color() {
+    unset lp_cmake_color
+    _lp_cmake || return "$?"
+
+    local lp_hash_color
+
+    lp_cmake_color=""
+
+    if [[ -n "$lp_cmake_c_compiler" ]] ; then
+        _lp_hash_color "$lp_cmake_c_compiler"
+        lp_cmake_color+="${lp_hash_color}${LP_MARK_CMAKE}"
+    fi
+
+    if [[ -n "$lp_cmake_cxx_compiler" ]] ; then
+        _lp_hash_color "$lp_cmake_cxx_compiler"
+        lp_cmake_color+="${lp_hash_color}${LP_MARK_CMAKE}"
+    fi
+
+    if [[ -n "$lp_cmake_generator" ]] ; then
+        _lp_hash_color "$lp_cmake_generator"
+        lp_cmake_color+="$lp_hash_color${LP_MARK_CMAKE}"
+    fi
+
+    if [[ -n "$lp_cmake_buildtype" ]] ; then
+        if [[ "$lp_cmake_buildtype" == "Release" ]] ; then
+            lp_cmake_color+="${LP_COLOR_CMAKE_RELEASE}${lp_cmake_buildtype}${NO_COL}"
+        elif [[ "$lp_cmake_buildtype" == "RelWithDebInfo" ]] ; then
+            lp_cmake_color+="${LP_COLOR_CMAKE_RWDI}${lp_cmake_buildtype}${NO_COL}"
+        elif [[ "$lp_cmake_buildtype" == "Debug" ]] ; then
+            lp_cmake_color+="${LP_COLOR_CMAKE_DEBUG}${lp_cmake_buildtype}${NO_COL}"
+        else
+            _lp_hash_color "$lp_cmake_buildtype"
+            lp_cmake_color+="$lp_hash_color"
+        fi
+    fi
+}
+
+_lp_modules() {
+    (( LP_ENABLE_MODULES )) || return 2
+    lp_modules=()
+    # # Module sets the LOADEDMODULES environment variable.
+    if [[ -n "${LOADEDMODULES-}" ]]; then
+        # Outer test should be faster.
+        if (( LP_ENABLE_MODULES_VERSIONS )); then
+            local IFS=':'
+            for mod in $LOADEDMODULES; do
+                lp_modules+=("${mod}")
+            done
+        else
+            local IFS=':'
+            for mod in $LOADEDMODULES; do
+                # Simply remove the part after the slash.
+                # Should work on both Bash and Zsh.
+                lp_modules+=("${mod%/*}")
+            done
+        fi
+        if (( ${#lp_modules[@]} == 0 )); then
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
+_lp_modules_color() {
+    lp_modules_color=
+    if _lp_modules; then
+        if (( LP_ENABLE_COLOR )); then
+            local lp_join
+            if (( LP_ENABLE_MODULES_HASHCOLOR )); then
+                local modules=()
+                for mod in "${lp_modules[@]}"; do
+                    _lp_hash_color "${mod}"
+                    modules+=("${lp_hash_color}")
+                done
+                # Do not color marks and separators.
+                _lp_join "${NO_COL}${LP_MARK_MODULES_SEP}" "${modules[@]}"
+                lp_modules_color="${LP_MARK_MODULES_OPEN}${lp_join}${NO_COL}${LP_MARK_MODULES_CLOSE}"
+            else # No hashcolor.
+                _lp_join "${NO_COL}${LP_MARK_MODULES_SEP}${LP_COLOR_MODULES}" "${lp_modules[@]}"
+                lp_modules_color="${LP_MARK_MODULES_OPEN}${LP_COLOR_MODULES}${lp_join}${NO_COL}${LP_MARK_MODULES_CLOSE}"
+            fi
+        else # No color.
+            _lp_join "${LP_MARK_MODULES_SEP}" "${lp_modules[@]}"
+            lp_modules_color="${LP_MARK_MODULES_OPEN}${lp_join}${LP_MARK_MODULES_CLOSE}"
+        fi
+    else
+        return "$?"
+    fi
+}
+
 
 # Same as bash '\l', but can be inlined as a constant as the value will not
 # change during the shell's life.
@@ -1499,6 +2453,7 @@ _lp_hostname() {
         local ret
         __lp_escape "$lp_hostname"
         lp_hostname=$ret
+
     else
         return 2
     fi
@@ -1519,14 +2474,25 @@ _lp_hostname_color() {
     fi
 
     if _lp_hostname; then
+
         case "$lp_connection" in
         lcl)
             lp_hostname_color+="@${LP_COLOR_HOST}${lp_hostname}${NO_COL}"
             ;;
         ssh)
+            local client_ip client_port server_ip server_port hostname=
+            # client_* are unused
+            # shellcheck disable=SC2034
+            IFS=" " read -r client_ip client_port server_ip server_port <<<"$SSH_CONNECTION"
+            local username=${USER:-${USERNAME:-${LOGNAME-}}}
+            if _lp_create_link "ssh://${username}@${server_ip}:${server_port}" "$lp_hostname"; then
+                hostname="$lp_link"
+            else
+                hostname="$lp_hostname"
+            fi
             # If we want a different color for each host
             (( LP_ENABLE_SSH_COLORS )) && LP_COLOR_SSH="$LP_COLOR_HOST_HASH"
-            lp_hostname_color+="@${LP_COLOR_SSH}${lp_hostname}${NO_COL}"
+            lp_hostname_color+="@${LP_COLOR_SSH}${hostname}${NO_COL}"
             ;;
         su)
             lp_hostname_color+="@${LP_COLOR_SU}${lp_hostname}${NO_COL}"
@@ -1568,32 +2534,12 @@ _lp_dirstack_color() {
     lp_dirstack_color="${LP_COLOR_DIRSTACK}${LP_MARK_DIRSTACK}${lp_dirstack}${NO_COL}"
 }
 
-_lp_aws_profile() {
-    (( LP_ENABLE_AWS_PROFILE )) || return 2
-
-    local ret
-
-    local aws_profile="${AWS_PROFILE-${AWS_DEFAULT_PROFILE-${AWS_VAULT-}}}"
-    if [[ -n $aws_profile ]]; then
-        __lp_escape "${aws_profile}"
-        lp_aws_profile=$ret
-    else
-        return 1
-    fi
-}
-
-_lp_aws_profile_color() {
-    _lp_aws_profile || return "$?"
-
-    lp_aws_profile_color="[${LP_COLOR_AWS_PROFILE}${lp_aws_profile}${NO_COL}]"
-}
-
 _lp_shell_level() {
     (( LP_ENABLE_SHLVL )) || return 2
 
     lp_shell_level=${SHLVL:-1}
 
-    (( lp_shell_level > 1 ))
+    (( lp_shell_level >= LP_SHLVL_THRESHOLD ))
 }
 
 _lp_shell_level_color() {
@@ -1650,11 +2596,11 @@ _lp_jobcount_color() {
 
     if _lp_jobcount; then
         if (( lp_running_jobs > 0 )); then
-            [[ -n "$lp_jobcount_color" ]] && lp_jobcount_color+='/'
+            [[ -n "$lp_jobcount_color" ]] && lp_jobcount_color+="$LP_MARK_JOBS_SEPARATOR"
             lp_jobcount_color+="${LP_COLOR_JOB_R}${lp_running_jobs}&${NO_COL}"
         fi
         if (( lp_stopped_jobs > 0 )); then
-            [[ -n "$lp_jobcount_color" ]] && lp_jobcount_color+='/'
+            [[ -n "$lp_jobcount_color" ]] && lp_jobcount_color+="$LP_MARK_JOBS_SEPARATOR"
             lp_jobcount_color+="${LP_COLOR_JOB_Z}${lp_stopped_jobs}z${NO_COL}"
         fi
     fi
@@ -1724,6 +2670,12 @@ _lp_find_vcs() {
     fi
 
     if [[ $lp_vcs_type == git ]]; then
+        lp_vcs_specific_dir="$lp_vcs_dir"
+        if [[ -f "${lp_vcs_dir}/gitdir" ]]; then
+            # Then this is a worktree, and the config exists two levels up.
+            lp_vcs_dir="${lp_vcs_dir}/../.."
+        fi
+
         if [[ -n "${VCSH_DIRECTORY-}" ]]; then
             lp_vcs_subtype="vcsh"
         elif [[ -d "${lp_vcs_dir}/svn" ]]; then
@@ -1837,10 +2789,27 @@ _lp_vcs_details_color() {
         fi
     fi
 
+    if _lp_vcs_remote; then
+        # Commits behind but not ahead.
+        if   [[ "$lp_vcs_commit_behind" -ne 0 && "$lp_vcs_commit_ahead" -eq 0 ]]; then
+            lp_vcs_details_color+="${LP_COLOR_COMMITS_BEHIND}${LP_MARK_VCS_REMOTE}${lp_vcs_remote}${NO_COL}"
+
+        # Commits ahead but not behind.
+        elif [[ "$lp_vcs_commit_behind" -eq 0 && "$lp_vcs_commit_ahead" -ne 0 ]]; then
+            lp_vcs_details_color+="${LP_COLOR_COMMITS}${LP_MARK_VCS_REMOTE}${lp_vcs_remote}${NO_COL}"
+
+        # Commits both ahead and behind: the mark is colored differently.
+        elif [[ "$lp_vcs_commit_behind" -ne 0 && "$lp_vcs_commit_ahead" -ne 0 ]]; then
+            lp_vcs_details_color+="${LP_COLOR_COMMITS_BEHIND}${LP_MARK_VCS_REMOTE}${LP_COLOR_COMMITS}${lp_vcs_remote}${NO_COL}"
+
+        # else: display nothing.
+        fi
+    fi
+
     lp_vcs_details_color+="$NO_COL"
 }
 
-# Check if the detected VCS is enabled in Liquidprompt and the current
+# Check if the detected VCS is enabled in Liquid Prompt and the current
 # directory is a valid repository of that type.
 _lp_vcs_active() {
     "_lp_${lp_vcs_type}_active"
@@ -1917,9 +2886,15 @@ _lp_vcs_staged_lines() {
     "_lp_${lp_vcs_type}_staged_lines"
 }
 
+# Get the remote name for the current branch.
+_lp_vcs_remote() {
+    (( LP_ENABLE_VCS_REMOTE )) || return 2
+    "_lp_${lp_vcs_type}_remote"
+}
+
 # GIT #
 
-# Check if Git is enabled in Liquidprompt and the current directory is a valid
+# Check if Git is enabled in Liquid Prompt and the current directory is a valid
 # Git repository.
 _lp_git_active() {
     (( LP_ENABLE_GIT )) || return 2
@@ -1928,6 +2903,7 @@ _lp_git_active() {
 
 # Get the branch name of the Git repo in the current directory.
 _lp_git_branch() {
+    lp_vcs_branch=""
     local branch ret
     # Recent versions of Git support the --short option for symbolic-ref, but
     # not 1.7.9 (Ubuntu 12.04)
@@ -1962,31 +2938,31 @@ _lp_git_commit_id() {
 _lp_git_head_status() {
     local IFS="" step total
 
-    if [[ -f "${lp_vcs_dir}/MERGE_HEAD" ]]; then
+    if [[ -f "${lp_vcs_specific_dir}/MERGE_HEAD" ]]; then
         lp_vcs_head_status="MERGING"
-    elif [[ -d "${lp_vcs_dir}/rebase-merge" ]]; then
-        read -r step <"${lp_vcs_dir}/rebase-merge/msgnum"
-        read -r total <"${lp_vcs_dir}/rebase-merge/end"
-        if [[ -f "${lp_vcs_dir}/rebase-merge/interactive" ]]; then
+    elif [[ -d "${lp_vcs_specific_dir}/rebase-merge" ]]; then
+        test -r "${lp_vcs_specific_dir}/rebase-merge/msgnum" && read -r step <"${lp_vcs_specific_dir}/rebase-merge/msgnum"
+        test -r "${lp_vcs_specific_dir}/rebase-merge/end" && read -r total <"${lp_vcs_specific_dir}/rebase-merge/end"
+        if [[ -f "${lp_vcs_specific_dir}/rebase-merge/interactive" ]]; then
             lp_vcs_head_status="REBASE-i"
         else
             lp_vcs_head_status="REBASE-m"
         fi
-    elif [[ -d "${lp_vcs_dir}/rebase-apply" ]]; then
-        read -r step <"${lp_vcs_dir}/rebase-apply/next"
-        read -r total <"${lp_vcs_dir}/rebase-apply/last"
-        if [[ -f "${lp_vcs_dir}/rebase-apply/rebasing" ]]; then
+    elif [[ -d "${lp_vcs_specific_dir}/rebase-apply" ]]; then
+        test -r "${lp_vcs_specific_dir}/rebase-apply/next" && read -r step <"${lp_vcs_specific_dir}/rebase-apply/next"
+        test -r "${lp_vcs_specific_dir}/rebase-apply/last" && read -r total <"${lp_vcs_specific_dir}/rebase-apply/last"
+        if [[ -f "${lp_vcs_specific_dir}/rebase-apply/rebasing" ]]; then
             lp_vcs_head_status="REBASE"
-        elif [[ -f "${lp_vcs_dir}/rebase-apply/applying" ]]; then
+        elif [[ -f "${lp_vcs_specific_dir}/rebase-apply/applying" ]]; then
             lp_vcs_head_status="AM"
         else
             lp_vcs_head_status="AM/REBASE"
         fi
-    elif [[ -f "${lp_vcs_dir}/CHERRY_PICK_HEAD" ]]; then
+    elif [[ -f "${lp_vcs_specific_dir}/CHERRY_PICK_HEAD" ]]; then
         lp_vcs_head_status="CHERRY-PICKING"
-    elif [[ -f "${lp_vcs_dir}/REVERT_HEAD" ]]; then
+    elif [[ -f "${lp_vcs_specific_dir}/REVERT_HEAD" ]]; then
         lp_vcs_head_status="REVERTING"
-    elif [[ -f "${lp_vcs_dir}/BISECT_START" ]]; then
+    elif [[ -f "${lp_vcs_specific_dir}/BISECT_START" ]]; then
         lp_vcs_head_status="BISECTING"
     else
         return 1
@@ -2139,9 +3115,45 @@ _lp_git_staged_lines() {
     lp_vcs_staged_d_lines=$lp_git_diff_shortstat_d_lines
 }
 
+# Get the remote name for the current branch.
+# NOTE: Assumes that `_lp_find_vcs` and `_lp_vcs_branch` (costly functions) have been called.
+_lp_git_remote() {
+    lp_vcs_remote=""
+
+    if [[ -z "$lp_vcs_branch" ]]; then
+        # There is no remote.
+        return 1
+    fi
+
+    if [[ -z "$lp_vcs_dir" ]]; then
+        # Cannot find the config file.
+        return 1
+    fi
+
+    local file="${lp_vcs_dir}/config"
+    local delimiter=" = " # With spaces.
+    local in_branch=0
+    # We test for $line in the loop is here to ensure that we read the last line,
+    # even if the file does not ends with a \n.
+    # This bypass a known behavior of the C standard, not fixed in POSIX.
+    while IFS='' read -r line || [[ -n "$line" ]] ; do
+        # If we are in the branch config section.
+        if [[ "$line" == "[branch \"${lp_vcs_branch}\"]" ]]; then
+            in_branch=1
+        elif [[ "$line" == *"remote${delimiter}"* ]] && (( in_branch )); then
+            # Remove first part until delimiter.
+            lp_vcs_remote="${line#*"remote${delimiter}"}"
+            return 0
+        fi
+    done <"$file"
+
+    # Remote not found.
+    return 1
+}
+
 # MERCURIAL #
 
-# Check if Mercurial is enabled in Liquidprompt and the current directory is a
+# Check if Mercurial is enabled in Liquid Prompt and the current directory is a
 # valid Mercurial repository.
 _lp_hg_active() {
     (( LP_ENABLE_HG )) || return 2
@@ -2219,7 +3231,7 @@ _lp_hg_stash_count() {
     (( lp_vcs_stash_count ))
 }
 
-# https://github.com/nojhan/liquidprompt/issues/217
+# https://github.com/liquidprompt/liquidprompt/issues/217
 # return: always false (2: disabled).
 _lp_hg_commits_off_remote() {
     #commits=$("$LP_HG_COMMAND" outgoing --no-merges 2>/dev/null | GREP_OPTIONS='' \grep -c '\(^changeset\:\)')
@@ -2256,9 +3268,11 @@ _lp_hg_unstaged_lines() { return 2 ; }
 _lp_hg_staged_files() { return 2 ; }
 _lp_hg_staged_lines() { return 2 ; }
 
+_lp_hg_remote() { return 2 ; } # FIXME This should be implemented.
+
 # SUBVERSION #
 
-# Check if Subversion is enabled in Liquidprompt and the current directory is a
+# Check if Subversion is enabled in Liquid Prompt and the current directory is a
 # valid Subversion repository.
 _lp_svn_active() {
     (( LP_ENABLE_SVN )) || return 2
@@ -2348,10 +3362,12 @@ _lp_svn_unstaged_files() { return 2 ; }
 _lp_svn_unstaged_lines() { return 2 ; }
 _lp_svn_staged_files() { return 2 ; }
 _lp_svn_staged_lines() { return 2 ; }
+# Subversion does not have remotes.
+_lp_svn_remote() { return 2 ; }
 
 # FOSSIL #
 
-# Check if Fossil is enabled in Liquidprompt and the current directory is a
+# Check if Fossil is enabled in Liquid Prompt and the current directory is a
 # valid Fossil repository.
 _lp_fossil_active() {
     (( LP_ENABLE_FOSSIL )) || return 2
@@ -2461,10 +3477,11 @@ _lp_fossil_unstaged_files() { return 2 ; }
 _lp_fossil_unstaged_lines() { return 2 ; }
 _lp_fossil_staged_files() { return 2 ; }
 _lp_fossil_staged_lines() { return 2 ; }
+_lp_fossil_remote() { return 2 ; }
 
 # Bazaar #
 
-# Check if Bazaar is enabled in Liquidprompt and the current directory is a
+# Check if Bazaar is enabled in Liquid Prompt and the current directory is a
 # valid Bazaar repository. This check should be done before running any other
 # _lp_bzr_* data functions.
 _lp_bzr_active() {
@@ -2562,10 +3579,11 @@ _lp_bzr_uncommitted_lines() {
 }
 
 # Bazaar does not support a staging area.
-_lp_fossil_unstaged_files() { return 2 ; }
-_lp_fossil_unstaged_lines() { return 2 ; }
-_lp_fossil_staged_files() { return 2 ; }
-_lp_fossil_staged_lines() { return 2 ; }
+_lp_bzr_unstaged_files() { return 2 ; }
+_lp_bzr_unstaged_lines() { return 2 ; }
+_lp_bzr_staged_files() { return 2 ; }
+_lp_bzr_staged_lines() { return 2 ; }
+_lp_bzr_remote() { return 2 ; }
 
 ####################
 # Wifi link status #
@@ -2635,7 +3653,7 @@ _lp_wifi_signal_strength_color() {
     _lp_color_map "$(( 100 - lp_wifi_signal_strength ))"
     lp_wifi_signal_strength_color="${ret}${LP_MARK_WIFI}"
 
-    if (( LP_PERCENTS_ALWAYS )); then
+    if (( LP_ALWAYS_DISPLAY_VALUES )); then
         lp_wifi_signal_strength_color+="${lp_wifi_signal_strength}"
     fi
     lp_wifi_signal_strength_color+="${NO_COL}"
@@ -2789,7 +3807,7 @@ _lp_battery_color() {
     else
         lp_battery_color="${LP_COLOR_DISCHARGING_UNDER}${LP_MARK_BATTERY}${NO_COL}"
 
-        if (( LP_PERCENTS_ALWAYS )); then
+        if (( LP_ALWAYS_DISPLAY_VALUES )); then
             local -i idx
             if   (( lp_battery <=  0 )); then
                 idx=0
@@ -2851,6 +3869,8 @@ __lp_runtime_after() {
     if [[ -n "${_LP_RUNTIME_LAST_SECONDS-}" ]]; then
         (( _LP_RUNTIME_SECONDS=SECONDS-_LP_RUNTIME_LAST_SECONDS ))
         unset _LP_RUNTIME_LAST_SECONDS
+    else
+        _LP_RUNTIME_SECONDS=0
     fi
 }
 
@@ -2870,10 +3890,18 @@ case "$LP_OS" in
         __lp_cpu_count() {
             _lp_CPUNUM=$( nproc 2>/dev/null || GREP_OPTIONS='' \grep -c '^[Pp]rocessor' /proc/cpuinfo )
         }
-        _lp_cpu_load () {
-            local _ IFS=$' \t'
-            read -r lp_cpu_load _ < /proc/loadavg
-        }
+        if [[ -r '/proc/loadavg' ]]; then
+            _lp_cpu_load () {
+                local _ IFS=$' \t'
+                read -r lp_cpu_load _ < /proc/loadavg
+            }
+        elif command -v uptime >/dev/null; then
+            _lp_cpu_load () {
+                lp_cpu_load="$( LP_ALL=C uptime | sed 's/.*load average: \([0-9.]*\).*/\1/' )"
+            }
+        else
+            LP_ENABLE_LOAD=0
+        fi
         ;;
     FreeBSD|Darwin|OpenBSD)
         __lp_cpu_count() {
@@ -2921,10 +3949,160 @@ _lp_load_color() {
     _lp_color_map "$lp_load_adjusted" "$_LP_LOAD_CAP"
     lp_load_color="${ret}${LP_MARK_LOAD}"
 
-    if (( LP_PERCENTS_ALWAYS )); then
+    if (( LP_ALWAYS_DISPLAY_VALUES )); then
         lp_load_color+="${lp_load}"
     fi
     lp_load_color+="$NO_COL"
+}
+
+#################
+# Available RAM #
+#################
+
+# Get RAM percentage.
+case "$LP_OS" in
+    Linux)
+        # Parse /proc/meminfo
+        __lp_ram_bytes() {
+            lp_ram_avail_bytes=
+            lp_ram_total_bytes=
+            local id value free _
+            while IFS=$' \t' read -r id value _ ; do
+                if [[ $id == 'MemTotal:' ]]; then
+                    lp_ram_total_bytes=$value
+                elif [[ $id == 'MemAvailable:' ]]; then
+                    lp_ram_avail_bytes=$value
+                    # Note: this is the best conservative estimate from the kernel
+                    # of the memory than may be available for a process.
+                    # See https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=34e431b0ae398fc54ea69ff85ec700722c9da773
+                elif [[ $id == 'MemFree:' ]]; then
+                    free=$value
+                fi
+                if [[ -n "$lp_ram_total_bytes" && -n "$lp_ram_avail_bytes" ]]; then
+                    break
+                fi
+            # Assumes file exists.
+            done < "$_LP_LINUX_RAM_FILE"
+            if [[ -z $lp_ram_avail_bytes && -n ${free-} ]]; then
+                # Very old kernels and Cygwin lack MemAvailable, so fallback to MemFree.
+                lp_ram_avail_bytes=$free
+            fi
+            # Values in file are in KiB.
+            lp_ram_total_bytes=$(( lp_ram_total_bytes * 1024 ))
+            lp_ram_avail_bytes=$(( lp_ram_avail_bytes * 1024 ))
+            # Used memory may be used in a theme.
+            # shellcheck disable=SC2034
+            lp_ram_used_bytes=$((lp_ram_total_bytes-lp_ram_avail_bytes))
+        }
+        ;;
+    FreeBSD|OpenBSD)
+        # Parse dmesg.boot
+        __lp_ram_bytes() {
+            lp_ram_avail_bytes=
+            lp_ram_total_bytes=
+            local first second _ value
+            while IFS=' ' read -r first second _ value _ _ ; do
+                if [[ $second == 'memory' ]]; then
+                    if [[ $first == 'usable' || $first == 'real' ]]; then
+                        lp_ram_total_bytes=$value
+                    elif [[ $first == 'avail' ]]; then
+                        lp_ram_avail_bytes=$value
+                    fi
+                fi
+                if [[ -n "$lp_ram_total_bytes" && -n "$lp_ram_avail_bytes" ]]; then
+                    break
+                fi
+            done < "$_LP_BSD_RAM_FILE"
+            # shellcheck disable=SC2034
+            lp_ram_used_bytes=$((lp_ram_total_bytes-lp_ram_avail_bytes))
+        }
+        ;;
+    Darwin)
+        # Parse vm_stat
+        __lp_ram_bytes() {
+            lp_ram_avail_bytes=0
+            lp_ram_total_bytes=0
+
+            # Call vm_stat.
+            local stat="$(vm_stat 2>/dev/null)"
+
+            # Read first line.
+            local page_size _ second third fourth fifth
+            IFS=' ' read -r _ _ _ _ _ _ _ page_size _ <<< "$stat"
+
+            # Read all other lines.
+            while IFS=' ' read -r _ second third fourth fifth ; do
+                case "$second" in
+                    free:|inactive:)
+                        # Remove the last "." character.
+                        lp_ram_avail_bytes=$((lp_ram_avail_bytes + ${third:0:${#third}-1}))
+                        ;;
+                    active:|speculative:|throttled:)
+                        lp_ram_total_bytes=$((lp_ram_total_bytes + ${third:0:${#third}-1}))
+                        ;;
+                    wired)
+                        lp_ram_total_bytes=$((lp_ram_total_bytes + ${fourth:0:${#fourth}-1}))
+                        ;;
+                    occupied)
+                        lp_ram_total_bytes=$((lp_ram_total_bytes + ${fifth:0:${#fifth}-1}))
+                        ;;
+                esac
+            done <<< "$stat"
+            lp_ram_avail_bytes=$((lp_ram_avail_bytes * page_size))
+            lp_ram_total_bytes=$((lp_ram_avail_bytes + lp_ram_total_bytes * page_size))
+            # shellcheck disable=SC2034
+            lp_ram_used_bytes=$((lp_ram_total_bytes-lp_ram_avail_bytes))
+        }
+        ;;
+    *)
+        # Not implemented.
+        __lp_ram_bytes() {
+            return 5 # Same code as in _lp_battery.
+        }
+        ;;
+esac
+
+_lp_ram() {
+    (( LP_ENABLE_RAM )) || return 2
+
+    # Call the OS-specific function measuring RAM.
+    __lp_ram_bytes || return "$?"
+    # Now we have: lp_ram_avail_bytes, lp_ram_total_bytes, lp_ram_used_bytes.
+
+    lp_ram_human=
+    lp_ram_perc=
+
+    lp_ram=$(( lp_ram_avail_bytes / 1024 )) # in KiB
+    lp_ram_perc=$(( 100 * lp_ram_avail_bytes / lp_ram_total_bytes ))
+
+    if (( lp_ram <= LP_RAM_THRESHOLD || lp_ram_perc <= LP_RAM_THRESHOLD_PERC )); then
+        local lp_bytes lp_bytes_units
+        __lp_bytes_to_human "${lp_ram_avail_bytes}" "$LP_RAM_PRECISION"
+        lp_ram_human="${lp_bytes}"
+        lp_ram_human_units="${lp_bytes_units}"
+        return 0
+    else
+        return 1
+    fi
+}
+
+_lp_ram_color() {
+    if _lp_ram; then
+        if (( LP_ALWAYS_DISPLAY_VALUES )); then
+            if (( LP_DISPLAY_VALUES_AS_PERCENTS )); then
+                lp_ram_color="${LP_COLOR_RAM}${LP_MARK_RAM}${lp_ram_perc}${NO_COL}${LP_COLOR_RAM_UNITS}${_LP_PERCENT}${NO_COL}"
+            else
+                # Metric SI norms ask for a space, but we prefer to stay compact.
+                # Coloring value differently from unit helps readability.
+                # The mark should be different enough to not be a problem.
+                lp_ram_color="${LP_COLOR_RAM}${LP_MARK_RAM}${lp_ram_human}${NO_COL}${LP_COLOR_RAM_UNITS}${lp_ram_human_units}${NO_COL}"
+            fi
+        else
+            lp_ram_color="${LP_COLOR_RAM}${LP_MARK_RAM}${NO_COL}"
+        fi
+    else
+        return $?
+    fi
 }
 
 ######################
@@ -2938,6 +4116,12 @@ __lp_temp_sysfs() {
     local -i temperature
 
     for temp_file in ${_LP_LINUX_TEMPERATURE_FILES[@]+"${_LP_LINUX_TEMPERATURE_FILES[@]}"}; do
+        for ignore_file in ${LP_TEMP_SYSFS_IGNORE_FILES[@]+"${LP_TEMP_SYSFS_IGNORE_FILES[@]}"}; do
+            # We want to glob match here.
+            # shellcheck disable=SC2053
+            [[ "$temp_file" == $ignore_file ]] && continue 2
+        done
+
         if [[ ! -r $temp_file ]]; then
             continue
         fi
@@ -3023,6 +4207,119 @@ _lp_temperature_color() {
     _lp_color_map "$lp_temperature" 120
     lp_temperature_color="${LP_MARK_TEMP}${ret}${lp_temperature}°${NO_COL}"
 }
+
+######################
+# Current Disk Usage #
+######################
+
+# Convert bytes in human-readable, binary-prefixed notation (using powers of 2).
+# Precision can be 0, 1 or 2 digits. If not given, precision is two digits.
+__lp_bytes_to_human() { # bytes, [precision] -> lp_bytes, lp_bytes_units
+    local i="$1" prec="${2:-2}" size remainder=""
+    # This has to be split on multiple lines for Zsh 5.0 (see wiki).
+    local -a units
+    # Not much point in going past PiB, as Bash and Zsh start failing int math.
+    units=("B" "KiB" "MiB" "GiB" "TiB" "PiB" "EiB" "YiB" "ZiB")
+
+    for ((size=0; i > 1024 && size < ${#units[@]}-1; size++)); do
+        remainder=$((i % 1024 * 100 / 1024))
+        i=$((i / 1024))
+    done
+
+    if [[ -n $remainder ]]; then
+        if ((remainder < 10)); then
+            remainder="0$remainder"
+        fi
+    else
+        # Bytes case.
+        remainder="00"
+    fi
+
+    # Precision formating.
+    remainder="${remainder:0:$prec}"
+    if [[ -n $remainder ]]; then
+        remainder=".$remainder"
+    fi
+
+    lp_bytes="$i$remainder"
+    lp_bytes_units="${units[$size+$_LP_FIRST_INDEX]}"
+}
+
+
+_lp_disk() {
+    ((LP_ENABLE_DISK)) || return 2
+
+    lp_disk=
+    lp_disk_human=
+    lp_disk_perc=
+
+    # df -P . prints only the current FS, in a portable format.
+    # -k to get values in kB (supposedly more portable).
+    # LANG is set to avoid locale mangling with the words number.
+    # Backslash avoids any alias of df.
+    local df="$(LANG=C \df -k -P . 2>/dev/null)"
+    # Example output:
+    # Filesystem     1024-blocks      Used Available Capacity Mounted on
+    # /dev/nvme0n1p2   479608528 425188220  30011332      94% /
+    # For pseudo filesystems (like procfs or sysfs) output can be:
+    # Filesystem     1024-blocks  Used Available Capacity Mounted on
+    # sysfs                    0     0         0        - /sys
+
+    # Placeholder, total and capacity.
+    local _ total capa
+    # Compute location of the targeted column on the safe line.
+    local short="${df#*1024-blocks}"
+    # Second line.
+    local second="${df#*$'\n'}"
+    # Consider only targeted columns.
+    # This may be extended to get other information if needed:
+    #             +- used        +- mount point (may have spaces)
+    #             |              |
+    #             v              v
+    read -r total _ lp_disk capa _ <<<"${second:${#df}-${#short}-11}"
+
+    # Skip small (under 1MiB) filesystems (probably pseudofs or something weird)
+    (( ${total:-0} < 1024 )) && return 1
+
+    # Without percent character.
+    lp_disk_perc=$(( 100 - ${capa:0:${#capa}-1} ))
+
+    [[ -z ${lp_disk} || -z ${lp_disk_perc} ]] && return 1
+
+    # Comparison in KiB.
+    # Ignore absolute threshold if whole FS is smaller than it; otherwise we would always show disk mark
+    if (( ( total >= LP_DISK_THRESHOLD && lp_disk <= LP_DISK_THRESHOLD ) || lp_disk_perc <= LP_DISK_THRESHOLD_PERC )); then
+        # df outputs in KiB, but it's more robust to implement lp_human in bytes,
+        # so we need to convert b in KiB here.
+        local lp_bytes lp_bytes_units
+        __lp_bytes_to_human $((lp_disk*1024)) "$LP_DISK_PRECISION"
+        lp_disk_human="${lp_bytes}"
+        lp_disk_human_units="${lp_bytes_units}"
+        return 0
+    else
+        return 1
+    fi
+}
+
+_lp_disk_color() {
+    if _lp_disk; then
+        if (( LP_ALWAYS_DISPLAY_VALUES )); then
+            if (( LP_DISPLAY_VALUES_AS_PERCENTS )); then
+                lp_disk_color="${LP_COLOR_DISK}${LP_MARK_DISK}${lp_disk_perc}${NO_COL}${LP_COLOR_DISK_UNITS}${_LP_PERCENT}${NO_COL}"
+            else
+                # Metric SI norms ask for a space, but we prefer to stay compact.
+                # Coloring value differently from unit helps readability.
+                # The mark should be different enough to not be a problem.
+                lp_disk_color="${LP_COLOR_DISK}${LP_MARK_DISK}${lp_disk_human}${NO_COL}${LP_COLOR_DISK_UNITS}${lp_disk_human_units}${NO_COL}"
+            fi
+        else
+            lp_disk_color="${LP_COLOR_DISK}${LP_MARK_DISK}${NO_COL}"
+        fi
+    else
+        return $?
+    fi
+}
+
 
 ##########
 # Title #
@@ -3181,18 +4478,60 @@ _lp_container() {
 }
 
 _lp_container_color() {
+    unset lp_container_color
     _lp_container || return "$?"
 
     lp_container_color="«${LP_COLOR_CONTAINER}${lp_container}${NO_COL}»"
 }
+
+
+_lp_dev_env_color() {
+    # add development environments
+    local -a dev_all
+    dev_all=(
+        "${lp_modules_color-}"
+        "${lp_software_collections_color-}"
+        "${lp_aws_profile_color-}"
+        "${lp_container_color-}"
+        "${lp_python_env_color-}"
+        "${lp_node_env_color-}"
+        "${lp_ruby_env_color-}"
+        "${lp_perl_env_color-}"
+        "${lp_terraform_env_color-}"
+        "${lp_kubernetes_context_color-}"
+        "${lp_cmake_color-}"
+        "${lp_os_color-}"
+    )
+    local -a dev_active
+    dev_active=()
+    for i in "${dev_all[@]}"; do
+        if [[ "$i" ]]; then
+            dev_active+=("$i")
+        fi
+    done
+    if [[ ${#dev_active[@]} -gt 0 ]] ; then
+        local lp_join
+        _lp_join "${LP_MARK_DEV_MID}" "${dev_active[@]}"
+        lp_dev_env_color="${LP_MARK_DEV_OPEN}${lp_join}${LP_MARK_DEV_CLOSE}"
+        return 0
+    else
+        unset lp_dev_env_color
+        return 1
+    fi
+}
+
 
 #################
 # Default theme #
 #################
 
 _lp_default_theme_activate() {
-    # Default value for LP_PERM when LP_ENABLE_PERM is 0
-    LP_PERM=${LP_MARK_PERM}   # without color
+    if ((LP_ENABLE_PATH)); then
+        # Default value for LP_PERM when LP_ENABLE_PERM is 0
+        LP_PERM=${LP_MARK_PERM}   # without color
+    else
+        LP_PERM=
+    fi
 
     _lp_user
     local -i user_type="$?"
@@ -3233,24 +4572,31 @@ _lp_default_theme_activate() {
 }
 
 _lp_default_theme_directory() {
-    # LP_PERM: shows a ":"
-    # - colored in green if user has write permission on the current dir
-    # - colored in red if not
-    # - can set another symbol with LP_MARK_PERM
-    if (( LP_ENABLE_PERM )); then
-        if [[ -w "${PWD}" ]]; then
-            LP_PERM="${LP_COLOR_WRITE}${LP_MARK_PERM}${NO_COL}"
-        else
-            LP_PERM="${LP_COLOR_NOWRITE}${LP_MARK_PERM}${NO_COL}"
+    if ((LP_ENABLE_PATH)); then
+        # LP_PERM: shows a ":"
+        # - colored in green if user has write permission on the current dir
+        # - colored in red if not
+        # - can set another symbol with LP_MARK_PERM
+        if (( LP_ENABLE_PERM )); then
+            if [[ -w "${PWD}" ]]; then
+                LP_PERM="${LP_COLOR_WRITE}${LP_MARK_PERM}${NO_COL}"
+            else
+                LP_PERM="${LP_COLOR_NOWRITE}${LP_MARK_PERM}${NO_COL}"
+            fi
         fi
+
+        local lp_path_format
+        _lp_path_format "$LP_COLOR_PATH" "$LP_COLOR_PATH_LAST_DIR" "$LP_COLOR_PATH_VCS_ROOT" "$LP_COLOR_PATH_SHORTENED" "/" "$LP_COLOR_PATH_SEPARATOR"
+
+        LP_PWD="${lp_path_format}${NO_COL}"
+    else
+        LP_PWD=
+        return 2
     fi
-
-    local lp_path_format
-    _lp_path_format "$LP_COLOR_PATH" "$LP_COLOR_PATH_LAST_DIR" "$LP_COLOR_PATH_VCS_ROOT" "$LP_COLOR_PATH_SHORTENED" "/" "$LP_COLOR_PATH_SEPARATOR"
-
-    LP_PWD="${lp_path_format}${NO_COL}"
 }
 
+# Do not complain about unused variables.
+# shellcheck disable=SC2034
 _lp_default_theme_prompt_data() {
     # left of main prompt: space at right
     if _lp_jobcount_color; then
@@ -3278,6 +4624,16 @@ _lp_default_theme_prompt_data() {
     else
         LP_WIFI=
     fi
+    if _lp_ram_color; then
+        LP_RAM="$lp_ram_color "
+    else
+        LP_RAM=
+    fi
+    if _lp_disk_color; then
+        LP_DISK="$lp_disk_color "
+    else
+        LP_DISK=
+    fi
 
     if _lp_time_color; then
         LP_TIME="$lp_time_color "
@@ -3304,11 +4660,20 @@ _lp_default_theme_prompt_data() {
         LP_PROXY=
     fi
 
+    if _lp_env_vars_color; then
+        LP_ENVVARS="$lp_env_vars_color"
+    else
+        LP_ENVVARS=
+    fi
+
     if _lp_shell_level_color; then
         LP_SHLVL="$lp_shell_level_color"
     else
         LP_SHLVL=
     fi
+
+    # All the following "dev-related" variables may be used alone by theme designers.
+    # If you need the whole section, you can also use LP_DEV_ENV defined below.
 
     if _lp_python_env_color; then
         LP_VENV=" $lp_python_env_color"
@@ -3327,6 +4692,13 @@ _lp_default_theme_prompt_data() {
     else
         LP_RUBY_VENV=
     fi
+
+    if _lp_perl_env_color; then
+        LP_PERL_VENV=" $lp_perl_env_color"
+    else
+        LP_PERL_VENV=
+    fi
+
 
     if _lp_kubernetes_context_color; then
         LP_KUBECONTEXT=" $lp_kubernetes_context_color"
@@ -3358,6 +4730,34 @@ _lp_default_theme_prompt_data() {
         LP_AWS_PROFILE=
     fi
 
+    if _lp_cmake_color; then
+        LP_CMAKE=" $lp_cmake_color"
+    else
+        LP_CMAKE=
+    fi
+
+    if _lp_os_color; then
+        LP_OPSYS=" $lp_os_color"
+    else
+        LP_OPSYS=
+    fi
+
+    if _lp_modules_color; then
+        LP_MODULES=" $lp_modules_color"
+    else
+        LP_MODULES=
+    fi
+
+    # End of the section for dev-related variables.
+
+    # Alternative to atomic variables above:
+    # a correctly separated string list with everything.
+    if _lp_dev_env_color ; then
+        LP_DEV_ENV=" $lp_dev_env_color"
+    else
+        LP_DEV_ENV=
+    fi
+
     if _lp_runtime_color; then
         LP_RUNTIME=" $lp_runtime_color"
     else
@@ -3368,6 +4768,12 @@ _lp_default_theme_prompt_data() {
         LP_ERR=" $lp_error_color"
     else
         LP_ERR=
+    fi
+
+    if _lp_error_meaning_color; then
+        LP_ERR_MEANING="$lp_error_meaning_color"
+    else
+        LP_ERR_MEANING=
     fi
 
     if _lp_find_vcs && _lp_vcs_details_color; then
@@ -3382,26 +4788,27 @@ _lp_default_theme_prompt_data() {
 
 _lp_default_theme_prompt_template() {
     if [[ -f "${LP_PS1_FILE-}" ]]; then
-        # shellcheck source=liquid.ps1
+        # shellcheck source=templates/minimal/minimal.ps1
         source "$LP_PS1_FILE"
     fi
 
     if [[ -z "${LP_PS1-}" ]]; then
-        # add title escape time, jobs, load and battery
-        PS1="${LP_PS1_PREFIX}${LP_TIME}${LP_BATT}${LP_LOAD}${LP_TEMP}${LP_WIFI}${LP_JOBS}"
-        # add user, host, permissions colon, working directory, and dirstack
-        PS1+="${LP_BRACKET_OPEN}${LP_USER}${LP_HOST}${LP_PERM}${LP_PWD}${LP_DIRSTACK}${LP_BRACKET_CLOSE}${LP_SHLVL}"
+        # Add title escape time, battery, load, temperature, RAM, disk, wifi, jobs.
+        PS1="${LP_PS1_PREFIX}${LP_TIME}${LP_BATT}${LP_LOAD}${LP_TEMP}${LP_RAM}${LP_DISK}${LP_WIFI}${LP_JOBS}"
 
-        # add development environments
-        PS1+="${LP_SCLS}${LP_AWS_PROFILE}${LP_CONTAINER}${LP_VENV}${LP_NODE_VENV}${LP_RUBY_VENV}${LP_TFSPACE}${LP_KUBECONTEXT}${LP_PROXY}"
+        # Add multiplexer brackets, user, host, permissions colon, working directory, dirstack, proxy, watched environment variables and nested shell level.
+        PS1+="${LP_BRACKET_OPEN}${LP_USER}${LP_HOST}${LP_PERM}${LP_PWD}${LP_DIRSTACK}${LP_BRACKET_CLOSE}${LP_PROXY}${LP_ENVVARS}${LP_SHLVL}"
+
+        # Add the list of development environments/config/etc.
+        PS1+="${LP_DEV_ENV}"
 
         # Add VCS infos
         # If root, the info has not been collected unless LP_ENABLE_VCS_ROOT
         # is set.
         PS1+="${LP_VCS}"
 
-        # add return code and prompt mark
-        PS1+="${LP_RUNTIME}${LP_ERR}${LP_MARK_PREFIX}${LP_COLOR_MARK}${LP_MARK}${LP_PS1_POSTFIX}"
+        # Add last runtime, return code & meaning, prompt mark and user-defined postfix.
+        PS1+="${LP_RUNTIME}${LP_ERR}${LP_ERR_MEANING}${LP_MARK_PREFIX}${LP_COLOR_MARK}${LP_MARK}${LP_PS1_POSTFIX}"
 
         # Get the core sections without prompt escapes and make them into a title.
         _lp_formatted_title "${LP_PS1_PREFIX}${LP_BRACKET_OPEN}${LP_USER}${LP_HOST}${LP_MARK_PERM}${lp_path-}${LP_BRACKET_CLOSE}${LP_MARK_PREFIX}${LP_MARK}${LP_PS1_POSTFIX}"
@@ -3424,6 +4831,11 @@ __lp_set_prompt() {
     # As this get the last returned code, it should be called first
     local -i lp_error="$?"
 
+    if (( LP_HIDE_EMPTY_ERROR )); then
+        (( ! ${_LP_REAL_COMMAND:-1} )) && lp_error=0
+        _LP_REAL_COMMAND=0
+    fi
+
     if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
         __lp_runtime_after
     fi
@@ -3435,6 +4847,10 @@ __lp_set_prompt() {
 
     if (( LP_ENABLE_RUNTIME_BELL && ${_LP_RUNTIME_SECONDS-0} >= LP_RUNTIME_BELL_THRESHOLD )); then
         printf '%s' "$_LP_TI_BELL"
+    fi
+
+    if [[ "$_LP_OLD_THEME" != "$LP_THEME" ]]; then
+        lp_theme "$LP_THEME" >/dev/null 2>&1
     fi
 
     # Localize cache data variables
@@ -3450,7 +4866,7 @@ __lp_set_prompt() {
         # Prefix with 'LP:' to prevent Zsh with AUTO_NAME_DIRS enabled using
         # this var as a name for the working directory, that will be used by
         # the '%' and related prompt sequences.
-        # See https://github.com/nojhan/liquidprompt/issues/124 for details.
+        # See https://github.com/liquidprompt/liquidprompt/issues/124 for details.
         LP_OLD_PWD="LP:$PWD"
     fi
 
@@ -3461,31 +4877,47 @@ __lp_set_prompt() {
     fi
 }
 
+__lp_preexec() {
+    if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+        __lp_runtime_before
+    fi
+    if (( LP_ENABLE_TITLE_COMMAND )); then
+        __lp_print_title_command
+    fi
+    if (( LP_HIDE_EMPTY_ERROR )); then
+        _LP_REAL_COMMAND=1
+    fi
+}
+
 __lp_before_command() {
     # For debugging
     #printf 'XXX %s\n' "$BASH_COMMAND"
 
-    # If this is the first time after the user submitted the command,
-    # execute the hooks.
-    if (( _LP_AT_PROMPT )); then
-        _LP_AT_PROMPT=0
-
-        if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
-            __lp_runtime_before
-        fi
-
-        if (( LP_ENABLE_TITLE_COMMAND )); then
-            __lp_print_title_command
-        fi
-    fi
-
-    # If this is when the prompt is being drawn, the command is done,
+    # If this is the last thing before prompt is being drawn, the command is done,
     # so mark the next trap. Note these two events could be at the same
     # time, so no elif is used.
-    if [[ "$BASH_COMMAND" == __lp_set_prompt ]]; then
-        _LP_AT_PROMPT=1
+    local first_command last_command
+    first_command=$PROMPT_COMMAND
+    if (( ${BASH_VERSINFO[0]:-0} > 5 || ( ${BASH_VERSINFO[0]:-0} == 5 && ${BASH_VERSINFO[1]:-0} >= 1 ) )); then
+        last_command=${PROMPT_COMMAND[-1]}
+    else
+        last_command=$PROMPT_COMMAND
     fi
 
+    if [[ "$last_command" == *"$BASH_COMMAND" ]]; then
+        _LP_AT_PROMPT=1
+        # Return early, because the PROMPT_COMMAND should never trigger preexec hooks.
+        return
+    fi
+
+    # If this is the first time after the user submitted the command,
+    # execute the hooks, unless the user submitted an empty command.
+    if (( _LP_AT_PROMPT )); then
+        _LP_AT_PROMPT=0
+        if [[ "$first_command" != "$BASH_COMMAND"* ]]; then
+            __lp_preexec
+        fi
+    fi
 }
 
 prompt_tag() {
@@ -3527,8 +4959,10 @@ prompt_on() {
 
             if (( ${BASH_VERSINFO[0]:-0} > 5 || ( ${BASH_VERSINFO[0]:-0} == 5 && ${BASH_VERSINFO[1]:-0} >= 1 ) )); then
                 # PROMPT_COMMAND is an array since bash 5.1
-                PROMPT_COMMAND+=( "$set_prompt_command" )
-
+                if ! ( __lp_array_contains __lp_set_prompt ${PROMPT_COMMAND[@]+"${PROMPT_COMMAND[@]}"} \
+                  || __lp_array_contains "time __lp_set_prompt" ${PROMPT_COMMAND[@]+"${PROMPT_COMMAND[@]}"} ); then
+                   PROMPT_COMMAND+=( "$set_prompt_command" )
+                fi
             else
                 if [[ -z ${LP_OLD_PROMPT_COMMAND+x} ]]; then
                     LP_OLD_PROMPT_COMMAND="${PROMPT_COMMAND-}"
@@ -3538,7 +4972,7 @@ prompt_on() {
                 PROMPT_COMMAND="$set_prompt_command"
             fi
 
-            if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL || LP_ENABLE_TITLE_COMMAND )); then
+            if (( ${_LP_ENABLE_PREEXEC-0} )); then
                 _LP_AT_PROMPT=0
                 _LP_RUNTIME_LAST_SECONDS=$SECONDS
                 # __lp_before_command gets called just before bash executes a command,
@@ -3565,17 +4999,11 @@ prompt_on() {
                     precmd_functions+=(__lp_set_prompt)
                 fi
             fi
-            if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+            if (( ${_LP_ENABLE_PREEXEC-0} )); then
                 _LP_RUNTIME_LAST_SECONDS=$SECONDS
                 # It's less bad to have this be duped than __lp_set_prompt, but let's be sure
-                if ! ( __lp_array_contains __lp_runtime_before ${preexec_functions[@]+"${preexec_functions[@]}"} ); then
-                    preexec_functions+=(__lp_runtime_before)
-                fi
-            fi
-            if (( LP_ENABLE_TITLE_COMMAND )); then
-                # It's less bad to have this be duped than __lp_set_prompt, but let's be sure
-                if ! ( __lp_array_contains __lp_print_title_command ${preexec_functions[@]+"${preexec_functions[@]}"} ); then
-                    preexec_functions+=(__lp_print_title_command)
+                if ! ( __lp_array_contains __lp_preexec ${preexec_functions[@]+"${preexec_functions[@]}"} ); then
+                    preexec_functions+=(__lp_preexec)
                 fi
             fi
         fi
@@ -3601,12 +5029,10 @@ prompt_on() {
 
         add-zsh-hook precmd __lp_set_prompt
 
-        if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+        if (( ${_LP_ENABLE_PREEXEC-0} )); then
             _LP_RUNTIME_LAST_SECONDS=$SECONDS
-            add-zsh-hook preexec __lp_runtime_before
-        fi
-        if (( LP_ENABLE_TITLE_COMMAND )); then
-            add-zsh-hook preexec __lp_print_title_command
+            declare -gi _LP_RUNTIME_SECONDS
+            add-zsh-hook preexec __lp_preexec
         fi
     fi
 }
@@ -3624,7 +5050,7 @@ __lp_disable_hooks() {
 
             for i in ${preexec_functions[@]+"${!preexec_functions[@]}"}; do
                 local value="${preexec_functions[i]}"
-                if [[ $value == "__lp_runtime_before" || $value == "__lp_print_title_command" ]]; then
+                if [[ $value == "__lp_preexec" ]]; then
                     unset 'preexec_functions[i]'
                 fi
             done
@@ -3642,21 +5068,21 @@ __lp_disable_hooks() {
                     # shellcheck disable=SC2178
                     PROMPT_COMMAND="${LP_OLD_PROMPT_COMMAND-}"
                     unset LP_OLD_PROMPT_COMMAND
+                else
+                    unset PROMPT_COMMAND
                 fi
             fi
 
             # Disable the DEBUG trap used by the RUNTIME or TITLE_COMMAND features
-            if (( ${LP_ENABLE_RUNTIME-0} || ${LP_ENABLE_RUNTIME_BELL-0} || ${LP_ENABLE_TITLE_COMMAND-0} )); then
+            # TODO: Fix this: Bash will unset the function's DEBUG trap, not the global one.
+            if (( ${_LP_ENABLE_PREEXEC-0} )); then
                 trap - DEBUG
             fi
         fi
     else # zsh
-        # Disable previous hooks as options that set them
-        # may have changed
         {
             add-zsh-hook -d precmd  __lp_set_prompt
-            add-zsh-hook -d preexec __lp_runtime_before
-            add-zsh-hook -d preexec __lp_print_title_command
+            add-zsh-hook -d preexec __lp_preexec
         } >/dev/null
     fi
 }
@@ -3687,6 +5113,8 @@ prompt_OFF() {
 lp_theme() {
     local theme="${1-}"
 
+    LP_THEME="${_LP_OLD_THEME-}"
+
     if [[ $theme == '--list' ]]; then
         local -a lp_theme_list
         __lp_theme_list
@@ -3694,18 +5122,33 @@ lp_theme() {
         return
     fi
 
-    local f_prompt="_lp_${theme}_theme_prompt" f_dir="_lp_${theme}_theme_directory" f_activate="_lp_${theme}_theme_activate"
+    local f_prompt="_lp_${theme}_theme_prompt"
+    local f_dir="_lp_${theme}_theme_directory"
+    local f_activate="_lp_${theme}_theme_activate"
+    local f_version="_lp_${theme}_theme_version_check"
 
     if [[ -z $theme ]]; then
         printf '%s\n%s\n' \
-            'Must pass in the name of a theme. If you meant the default Liquidprompt theme, try "default".' \
-            'Run "lp_theme --list" to see all loaded and available themes.' 2>&1
+            'Must pass in the name of a theme. If you meant the default Liquid Prompt theme, try "default".' \
+            'Run "lp_theme --list" to see all loaded and available themes.' >&2
         return 1
     fi
 
+    if __lp_is_function "$f_version"; then
+        local -a lp_version_check
+        "$f_version"
+        if ! _lp_version_greatereq ${lp_version_check[@]+"${lp_version_check[@]}"}; then
+            local lp_version
+            _lp_version_string ${lp_version_check[@]+"${lp_version_check[@]}"}
+            printf 'ERROR: Loading theme "%s" failed: theme requires version %s or greater of Liquid Prompt.\n' \
+                "$theme" "$lp_version" >&2
+            return 2
+        fi
+    fi
+
     if ! __lp_is_function "$f_prompt"; then
-        printf 'Loading theme "%s" failed: cannot find function "%s". Please source the theme file first.\n' \
-            "$theme" "$f_prompt" 2>&1
+        printf 'ERROR: Loading theme "%s" failed: cannot find function "%s". Please source the theme file first.\n' \
+            "$theme" "$f_prompt" >&2
         return 2
     fi
     if ! __lp_is_function "$f_dir"; then
@@ -3718,14 +5161,16 @@ lp_theme() {
     _LP_THEME_ACTIVATE_FUNCTION=$f_activate
     _LP_THEME_DIRECTORY_FUNCTION=$f_dir
     _LP_THEME_PROMPT_FUNCTION=$f_prompt
+    LP_THEME="$theme"
+    _LP_OLD_THEME="$theme"
 
     "$f_activate"
     prompt_on
 }
 
-# By default, sourcing liquidprompt will activate Liquid Prompt
+# By default, sourcing 'liquidprompt' will activate Liquid Prompt
 if [ "${1-}" != "--no-activate" ]; then
     lp_activate
 fi
 
-# vim: set et sts=4 sw=4 tw=120 ft=sh:
+# vim: ft=sh et sts=4 sw=4 tw=120
