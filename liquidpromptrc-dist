@@ -123,7 +123,7 @@ LP_ENABLE_FOSSIL=0
 LP_ENABLE_BZR=0
 
 # Show time of when the current prompt was displayed.
-LP_ENABLE_TIME=0
+LP_ENABLE_TIME=1
 
 # Show runtime of the previous command if over LP_RUNTIME_THRESHOLD
 # Recommended value is 0
@@ -200,6 +200,7 @@ LP_ENABLE_SSH_COLORS=1
 
 # Show the error code of the last command if it was not 0
 LP_ENABLE_ERROR=1
+LP_ENABLE_ERROR_MEANING=1
 
 # Specify an array of absolute paths in which all vcs will be disabled.
 # Ex: ("/root" "/home/me/large-remove-svn-repo")
