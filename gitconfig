@@ -29,8 +29,8 @@
     st = status
     ts = status
     br = branch
-    d = diff
-    ds = diff --staged
+    d = diff --relative
+    ds = diff --relative --staged
     ls = ls-files
     logg = log --graph --decorate --pretty=format:'%C(yellow)%h %C(bold green)(%cr)%Creset %s %C(bold blue)<%an>%C(red)%d' --abbrev-commit --all
 [core]
