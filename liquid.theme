@@ -110,7 +110,7 @@ LP_COLOR_DISCHARGING_ABOVE="$YELLOW"  # discharging but above threshold
 LP_COLOR_DISCHARGING_UNDER="$RED"     # discharging and under threshold
 
 # Time
-LP_COLOR_TIME="$BLUE"
+LP_COLOR_TIME="$PURPLE"
 
 # Brackets inside screen/tmux
 LP_COLOR_IN_MULTIPLEXER="$BOLD_BLUE"
