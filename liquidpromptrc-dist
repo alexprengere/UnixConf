@@ -98,6 +98,9 @@ LP_ENABLE_SUDO=1
 # Enable the directory stack support.
 LP_ENABLE_DIRSTACK=0
 
+# Detect if the connection has X11 support.
+LP_ENABLE_DISPLAY=1
+
 # Enable the VCS features with the root account.
 # Recommended value is 0
 LP_ENABLE_VCS_ROOT=0
@@ -122,8 +125,13 @@ LP_ENABLE_FOSSIL=0
 # Recommended value is 1
 LP_ENABLE_BZR=0
 
+# Display whether a *chroot* environment is active.
+# Recommended value is 1
+LP_ENABLE_CHROOT=1
+
 # Show time of when the current prompt was displayed.
 LP_ENABLE_TIME=1
+LP_TIME_FORMAT="%H:%M"
 
 # Show runtime of the previous command if over LP_RUNTIME_THRESHOLD
 # Recommended value is 0
@@ -161,10 +169,10 @@ LP_ENABLE_TERRAFORM=0
 
 # Display the enabled software collections, if any
 # Recommended value is 1
-LP_ENABLE_SCLS=0
+LP_ENABLE_SCLS=1
 
 # Show current Kubernetes kubectl context
-LP_ENABLE_KUBECONTEXT=0
+LP_ENABLE_KUBECONTEXT=1
 
 # Delimiter to shorten kubectl context by removing a suffix.
 # E.g. when your context names are dev-cluster and test-cluster, set to "-"
@@ -200,7 +208,7 @@ LP_ENABLE_SSH_COLORS=1
 
 # Show the error code of the last command if it was not 0
 LP_ENABLE_ERROR=1
-LP_ENABLE_ERROR_MEANING=1
+LP_ENABLE_ERROR_MEANING=0
 
 # Specify an array of absolute paths in which all vcs will be disabled.
 # Ex: ("/root" "/home/me/large-remove-svn-repo")
