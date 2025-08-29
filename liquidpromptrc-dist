@@ -98,6 +98,9 @@ LP_ENABLE_SUDO=1
 # Enable the directory stack support.
 LP_ENABLE_DIRSTACK=0
 
+# Enable the shell level (SHLVL) feature.
+LP_ENABLE_SHLVL=1
+
 # Detect if the connection has X11 support.
 LP_ENABLE_DISPLAY=1
 
