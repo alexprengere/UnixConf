@@ -64,7 +64,7 @@ LP_COLOR_PATH="$BOLD_WHITE"         # as normal user
 LP_COLOR_PATH_ROOT="$BOLD_WHITE"   # as root
 
 # Color of the proxy mark
-LP_COLOR_PROXY="$BOLD_BLUE"
+LP_COLOR_PROXY="$BOLD_RED"
 
 # Jobs count
 LP_COLOR_JOB_D="$YELLOW"        # Detached (aka screen sessions)
@@ -72,7 +72,7 @@ LP_COLOR_JOB_R="$BOLD_YELLOW"   # Running (xterm &)
 LP_COLOR_JOB_Z="$BOLD_YELLOW"   # Sleeping (Ctrl-Z)
 
 # Last error code
-LP_COLOR_ERR="$RED"
+LP_COLOR_ERR="$CYAN"
 
 # Prompt mark
 LP_COLOR_MARK="$BOLD_GRAY"     # as user
@@ -110,7 +110,7 @@ LP_COLOR_DISCHARGING_ABOVE="$YELLOW"  # discharging but above threshold
 LP_COLOR_DISCHARGING_UNDER="$RED"     # discharging and under threshold
 
 # Time
-LP_COLOR_TIME="$PURPLE"
+LP_COLOR_TIME="$BOLD_RED"
 
 # Brackets inside screen/tmux
 LP_COLOR_IN_MULTIPLEXER="$BOLD_BLUE"
