@@ -207,7 +207,7 @@ let g:ale_fixers = {'python': ['ruff_format']}
 
 "vim-airline options
 set laststatus=2
-let g:airline_theme='fairyfloss'
+let g:airline_theme='soda'
 
 let g:context_enabled = 1
 
