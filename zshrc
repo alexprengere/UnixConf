@@ -391,6 +391,9 @@ if [[ $(uname -r) =~ WSL && $(pwd) =~ /mnt/ ]]; then
     cd ~
 fi
 
+# Homebrew config
+export HOMEBREW_NO_ENV_HINTS=1
+
 # LiquidPrompt
 [[ $- = *i* ]] && source "$HOME/.liquidprompt"
 set -o promptsubst
