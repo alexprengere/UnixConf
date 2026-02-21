@@ -156,7 +156,7 @@ uv tool install pipenv
 uv tool install poetry
 uv tool install pre-commit
 uv tool install rich-cli
-uv tool install tox --with tox-uv
+uv tool install tox --with tox-uv -p python3.11
 uv tool install twine
 uv tool install virtualenv
 uv tool install glances
