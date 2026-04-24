@@ -65,7 +65,7 @@ set showfulltag                 "Get function usage help automatically
 set belloff=all
 
 " For WSL2
-set ttymouse=sgr
+"set ttymouse=sgr
 
 set ttyfast                     "Améliore le rendu
 set background=dark             "Couleurs claires pour fond de terminal foncé, change le theme
@@ -151,7 +151,6 @@ set spelllang=en,fr     "Dictionnaires par défaut
 set spellsuggest=7      "Nombre de propositions par défaut
 
 "Remappage des touches classiques -- help/recherche/orthographe/numeros/viewports
-set pastetoggle=<F2>
 nnoremap <F2> :set invpaste paste?<CR>
 nmap <F3> :set hlsearch!<cr> :set hlsearch?<cr>
 map  <F3> :set hlsearch!<cr> :set hlsearch?<cr>
