@@ -35,6 +35,7 @@ Plug 'chrisbra/csv.vim'
 Plug 'alexprengere/edifact.vim'
 Plug 'cespare/vim-toml'
 Plug 'lark-parser/vim-lark-syntax'
+Plug 'NoahTheDuke/vim-just'
 
 Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/plugged/YouCompleteMe/', 'do': './install.py' }
 
