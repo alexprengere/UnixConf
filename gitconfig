@@ -29,8 +29,8 @@
     st = status
     ts = status
     br = branch
-    d = diff --relative
-    ds = diff --relative --staged
+    d = diff
+    ds = diff --staged
     ls = ls-files
     logg = log --graph --decorate --pretty=format:'%C(yellow)%h %C(bold green)(%cr)%Creset %s %C(bold blue)<%an>%C(red)%d' --abbrev-commit --all
 [core]
@@ -41,7 +41,6 @@
     diffFilter = diff-so-fancy --patch
 [diff]
     compactionHeuristic = true
-    tool = vimdiff
 [diff "zip"]
     textconv = unzip -c -a
 [diff "word"]
