@@ -1,6 +1,6 @@
 [user]
     name = Alex
-    email = alexprengere@gmail.com
+    email = 2138730+alexprengere@users.noreply.github.com
     signingkey = ~/.ssh/id_rsa.pub
 [credential]
     helper = store
